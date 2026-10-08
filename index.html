@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0038a8">
+<title>NYR Ops Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a front-office depth board. Sticky cap strip on top, two magnet boards (Rangers, Wolf Pack), a decision rail on the right, cap outlook below. */
+:root{
+  --ice:#eef2f7; --board:#ffffff; --board-2:#f6f8fb; --ink:#0d1a2d; --ink-2:#44546c; --muted:#6d7b90; --line:#d6dee9; --line-2:#e6ebf2;
+  --blue:#0038a8; --blue-soft:#e3ebfb; --red:#c8102e; --red-soft:#fbe5e8;
+  --good:#18794e; --good-soft:#e2f4ea; --warn:#9a6200; --warn-soft:#fbf0d9; --bad:#c62828; --bad-soft:#fde6e6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#9aa6b8;
+  --chip:#ffffff; --chip-edge:#c9d3e1; --shadow:0 1px 0 rgba(13,26,45,.06),0 1px 3px rgba(13,26,45,.08);
+  --f-display:"Saira Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ice:#08111f; --board:#0f1b2e; --board-2:#13213a; --ink:#e7edf6; --ink-2:#a7b4c8; --muted:#7f8da3; --line:#233451; --line-2:#1a2a44;
+  --blue:#7aa2ff; --blue-soft:#17295a; --red:#ff6b7f; --red-soft:#3a1720;
+  --good:#4fc98a; --good-soft:#123326; --warn:#f0b54a; --warn-soft:#3a2c10; --bad:#ff7070; --bad-soft:#3d1818;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#56637a;
+  --chip:#162641; --chip-edge:#2b3f62; --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ice:#08111f; --board:#0f1b2e; --board-2:#13213a; --ink:#e7edf6; --ink-2:#a7b4c8; --muted:#7f8da3; --line:#233451; --line-2:#1a2a44;
+  --blue:#7aa2ff; --blue-soft:#17295a; --red:#ff6b7f; --red-soft:#3a1720;
+  --good:#4fc98a; --good-soft:#123326; --warn:#f0b54a; --warn-soft:#3a2c10; --bad:#ff7070; --bad-soft:#3d1818;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#56637a;
+  --chip:#162641; --chip-edge:#2b3f62; --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--ice);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.4}
+.wrap{max-width:1560px;margin:0 auto;padding-inline:20px;padding-block:14px 48px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:6px 12px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:30px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.brand h1 b{color:var(--red);font-weight:700}
+.stamp{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.stamp .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:5px;vertical-align:1px}
+.tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--board);border-radius:6px;padding:7px 12px;font-weight:600;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:var(--board)}
+.btn.danger{color:var(--bad)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* cap strip */
+.strip{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--board);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);
+  display:grid;grid-template-columns:minmax(260px,2.2fr) repeat(4,minmax(120px,1fr));gap:0}
+.metric{padding:10px 14px;border-left:1px solid var(--line-2);min-width:0}
+.metric:first-child{border-left:0}
+.metric .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.metric .val{font-family:var(--f-mono);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.metric .sub{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.delta{font-family:var(--f-mono);font-size:12px;font-weight:600;margin-left:6px}
+.delta.up{color:var(--good)} .delta.down{color:var(--bad)} .delta.flat{color:var(--muted)}
+.meter{position:relative;height:8px;border-radius:4px;background:var(--line-2);margin-block:6px 4px;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--blue);border-radius:4px}
+.meter i.over{background:var(--bad)}
+.meter .base{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink)}
+.state-ok{color:var(--good)} .state-warn{color:var(--warn)} .state-bad{color:var(--bad)}
+
+.pills{display:flex;flex-wrap:wrap;gap:6px;padding-block:10px 4px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid transparent}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.info{background:var(--blue-soft);color:var(--blue)}
+
+/* main grid */
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 360px;gap:14px;margin-top:12px;align-items:start}
+.main.closed{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.main.closed .rail{display:none}
+.rail-h{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 0;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+#b-moves .ct{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:9px;background:var(--line-2);font-family:var(--f-mono);font-size:11px}
+#b-moves[aria-pressed="true"]{border-color:var(--blue);color:var(--blue)}
+dialog.help{border:1px solid var(--line);border-radius:12px;background:var(--board);color:var(--ink);max-width:560px;width:calc(100% - 32px);padding:0;box-shadow:0 12px 40px rgba(13,26,45,.25)}
+dialog.help::backdrop{background:rgba(8,17,31,.45)}
+dialog.help .hd{padding:16px 20px 6px}
+dialog.help h2{font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+dialog.help ul{margin:6px 0 0;padding:0 20px 0 38px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+dialog.help li{margin-bottom:6px}
+dialog.help li b{color:var(--ink)}
+dialog.help .ft{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px 16px;border-top:1px solid var(--line-2);margin-top:10px}
+dialog.help .ft label{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2);cursor:pointer}
+.ticker{margin-top:12px;display:flex;align-items:stretch;background:var(--board);border:1px solid var(--line);border-radius:10px;overflow:hidden;min-height:40px}
+.ticker .lbl{flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--ink);color:var(--board);font-family:var(--f-display);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.ticker .tg{flex:none;display:flex;align-items:center;gap:4px;padding:0 8px;border-right:1px solid var(--line-2)}
+.ticker .tg button{all:unset;cursor:pointer;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.ticker .tg button[aria-pressed="true"]{background:var(--ink);color:var(--board);border-color:var(--ink)}
+.ticker .vp{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 24px),transparent 100%)}
+.ticker .track{display:flex;gap:28px;white-space:nowrap;padding-left:16px;animation:tick var(--dur,60s) linear infinite;will-change:transform}
+.ticker:hover .track,.ticker:focus-within .track{animation-play-state:paused}
+.ticker .it{display:inline-flex;align-items:center;gap:7px;font-size:13px}
+.ticker .it time{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.ticker .it .k{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:0 5px;border-radius:3px;line-height:16px;background:var(--blue-soft);color:var(--blue)}
+.ticker .it .k.inj{background:var(--bad-soft);color:var(--bad)}
+.ticker .it .k.wv{background:var(--warn-soft);color:var(--warn)}
+.ticker .it .tm{font-family:var(--f-display);font-weight:700;font-size:13px;color:var(--ink-2)}
+.ticker .it b{font-weight:600}
+.ticker .empty{font-size:13px;color:var(--muted);padding-left:16px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker .vp{overflow-x:auto;mask-image:none}.ticker .track{animation:none}}
+.panel{background:var(--board);border:1px solid var(--line);border-radius:10px;min-width:0}
+.panel-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:12px 14px 8px;border-bottom:1px solid var(--line-2)}
+.panel-h h2{font-size:21px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.panel-h .lvl{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.08em;padding:1px 7px;border-radius:4px;background:var(--blue-soft);color:var(--blue)}
+.panel-h .lvl.ahl{background:var(--red-soft);color:var(--red)}
+.panel-h .meta{margin-left:auto;font-size:12px;color:var(--ink-2)}
+.sec{padding:8px 12px 10px}
+.sec-t{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 2px 6px}
+.row{display:grid;grid-template-columns:52px repeat(3,minmax(0,1fr)) 62px;gap:6px;align-items:stretch;margin-bottom:6px}
+.row.pair{grid-template-columns:52px repeat(2,minmax(0,1fr)) 62px}
+.row .ulbl{font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--ink-2);text-transform:uppercase;align-self:center;line-height:1.1}
+.row .ucap{font-family:var(--f-mono);font-size:11px;color:var(--muted);align-self:center;text-align:right}
+.slot{position:relative;min-height:46px;border-radius:7px;border:1px dashed var(--line);background:var(--board-2);display:flex;min-width:0}
+.slot .chip{padding-right:20px}
+.slot .sl{position:absolute;top:4px;right:5px;z-index:1;font-size:9px;letter-spacing:.08em;color:var(--muted);font-weight:700;pointer-events:none}
+.slot.empty{align-items:center;justify-content:center;color:var(--bad);font-size:12px;font-weight:600;border-color:var(--bad)}
+.slot.drop,.zone.drop{outline:2px solid var(--blue);outline-offset:1px;background:var(--blue-soft)}
+.zone{display:flex;flex-wrap:wrap;gap:6px;min-height:46px;padding:4px;border-radius:7px;border:1px dashed var(--line-2)}
+.zone .chip{flex:1 1 150px;max-width:220px}
+.zone .none{font-size:12px;color:var(--muted);align-self:center;padding:0 6px}
+
+.chip{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;row-gap:1px;align-items:center;
+  background:var(--chip);border:1px solid var(--chip-edge);border-left:4px solid var(--blue);border-radius:7px;padding:5px 7px 5px 6px;box-shadow:var(--shadow)}
+.chip.ahl{border-left-color:var(--red)}
+.chip.g{border-left-style:double}
+.chip:hover{border-color:var(--blue)}
+.chip:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.chip.sel{background:var(--blue-soft);border-color:var(--blue)}
+.chip.moved{box-shadow:0 0 0 2px var(--warn)}
+.chip.new{box-shadow:0 0 0 2px var(--good)}
+.chip.hurt{opacity:.8}
+.chip .n{grid-row:1/3;font-family:var(--f-display);font-weight:700;font-size:20px;line-height:1;width:24px;text-align:center;color:var(--ink-2)}
+.chip .nm{font-family:var(--f-display);font-weight:700;font-size:14.5px;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.chip .ln2{display:flex;gap:5px;align-items:center;min-width:0;overflow:hidden;white-space:nowrap}
+.chip .cap{font-family:var(--f-mono);font-size:11px;color:var(--ink-2)}
+.tag{font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:0 4px;border-radius:3px;line-height:15px;background:var(--line-2);color:var(--ink-2)}
+.tag.we{background:var(--good-soft);color:var(--good)}
+.tag.nmc{background:var(--bad-soft);color:var(--bad)}
+.tag.ntc{background:var(--warn-soft);color:var(--warn)}
+.tag.ir{background:var(--bad);color:var(--board)}
+.tag.exp{background:var(--blue-soft);color:var(--blue)}
+
+/* rail */
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 96px);max-height:calc(100vh - 110px);overflow:auto}
+.rail .sec{border-bottom:1px solid var(--line-2)}
+.rail .sec:last-child{border-bottom:0}
+.hint{color:var(--ink-2);font-size:13px;margin:4px 0 8px}
+.pcard h3{font-size:24px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;line-height:1.05}
+.pcard .bio{color:var(--ink-2);font-size:12.5px;margin-top:2px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12.5px;margin-top:8px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;font-family:var(--f-mono);font-size:12px;text-align:right}
+.note{font-size:12px;color:var(--ink-2);background:var(--board-2);border-radius:6px;padding:6px 8px;margin-top:8px}
+table.mini{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+table.mini th{text-align:right;font-weight:600;color:var(--muted);font-size:11px;padding:2px 4px;border-bottom:1px solid var(--line-2)}
+table.mini td{text-align:right;padding:2px 4px;font-family:var(--f-mono);font-size:11.5px}
+table.mini th:first-child,table.mini td:first-child{text-align:left;font-family:var(--f-body)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.act{all:unset;box-sizing:border-box;cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:var(--board)}
+.act:hover{border-color:var(--blue);background:var(--blue-soft)}
+.act:focus-visible{outline:2px solid var(--blue)}
+.act b{display:block;font-size:13px}
+.act span{display:block;font-size:11px;color:var(--ink-2)}
+.act[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
+.form label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-top:8px}
+.form input,.form select,.form textarea{width:100%;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--board);color:var(--ink);margin-top:3px}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.form .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.form .chk{display:flex;gap:6px;align-items:center;font-weight:500}
+.form .chk input{width:auto;margin:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:3px}
+.seg button{all:unset;flex:1;text-align:center;padding:6px;cursor:pointer;font-size:12.5px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--board)}
+.lineitem{border:1px solid var(--line);border-radius:7px;padding:6px 8px;margin-top:6px;background:var(--board-2)}
+.lres{list-style:none;margin:4px 0 0;padding:0;border:1px solid var(--line);border-radius:7px;max-height:260px;overflow:auto;background:var(--board)}
+.lres li{border-bottom:1px solid var(--line-2)}
+.lres li:last-child{border-bottom:0}
+.lres button{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;width:100%;padding:6px 8px;cursor:pointer;font-size:13px}
+.lres button:hover,.lres button:focus-visible{background:var(--blue-soft)}
+.lres .m{grid-column:1/-1;color:var(--muted);font-size:11.5px}
+.lres .c{font-family:var(--f-mono);font-size:12px}
+.lgcard .meta2{color:var(--muted);font-size:12px;margin:2px 0 4px}
+.lgfilters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-left:auto}
+.lgfilters input,.lgfilters select{font:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--board);color:var(--ink)}
+.lgfilters input{min-width:180px}
+table.ct td .mini-btn{all:unset;cursor:pointer;font-size:12px;font-weight:600;color:var(--blue);padding:2px 6px;border-radius:5px;border:1px solid var(--line)}
+table.ct td .mini-btn:hover{border-color:var(--blue)}
+.changes{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink-2)}
+.lineitem .top2{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:600;font-size:13px}
+.x{all:unset;cursor:pointer;color:var(--muted);font-size:16px;line-height:1;padding:0 4px}
+.x:hover{color:var(--bad)}
+.impact{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.impact h4{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;background:var(--board-2);color:var(--ink-2)}
+.imp{display:grid;grid-template-columns:1fr auto auto;gap:2px 10px;padding:6px 9px;font-size:12.5px}
+.imp .v{font-family:var(--f-mono);font-size:12px;text-align:right}
+.flags{display:flex;flex-direction:column;gap:4px;padding:0 9px 8px}
+.flag{font-size:12px;padding:5px 8px;border-radius:6px;display:flex;gap:6px}
+.flag::before{font-weight:700}
+.flag.bad{background:var(--bad-soft);color:var(--bad)} .flag.bad::before{content:"✕"}
+.flag.warn{background:var(--warn-soft);color:var(--warn)} .flag.warn::before{content:"!"}
+.flag.ok{background:var(--good-soft);color:var(--good)} .flag.ok::before{content:"✓"}
+.flag.info{background:var(--blue-soft);color:var(--blue)} .flag.info::before{content:"i"}
+.formbtns{display:flex;gap:8px;margin-top:10px}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.log li{display:grid;grid-template-columns:22px 1fr auto;gap:6px;align-items:start;font-size:12.5px;padding:6px 6px;border-radius:6px;background:var(--board-2)}
+.log li.lineup{background:transparent;color:var(--ink-2)}
+.log li.skip{background:var(--bad-soft)}
+.log .k{font-family:var(--f-mono);font-size:11px;color:var(--muted);padding-top:1px}
+.log .t b{font-weight:600}
+.log .t small{display:block;color:var(--ink-2);font-family:var(--f-mono);font-size:11px}
+
+/* lower */
+.lower{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;margin-top:14px}
+.chartbox{position:relative;padding:8px 14px 14px}
+.chartbox svg{width:100%;height:auto;display:block;overflow:visible}
+.chartbox svg text{fill:var(--ink-2);font-family:var(--f-mono);font-size:11px}
+.chartbox svg .grid{stroke:var(--line-2);stroke-width:1}
+.chartbox svg .capline{stroke:var(--red);stroke-width:1.5;stroke-dasharray:5 4}
+.chartbox svg .bar{fill:var(--s1)}
+.chartbox svg .baseline{stroke:var(--ink);stroke-width:2}
+.chartbox svg .hit{fill:transparent;cursor:crosshair}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink-2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.legend i.tick{height:2px;width:14px;border-radius:0;background:var(--ink)}
+.legend i.dash{height:0;width:14px;border-top:2px dashed var(--red);border-radius:0}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--board);font-size:12px;padding:6px 9px;border-radius:6px;white-space:nowrap;z-index:5;line-height:1.45}
+.tip b{font-family:var(--f-mono);font-weight:600}
+.stack{display:flex;gap:2px;height:26px;border-radius:5px;overflow:hidden;background:var(--line-2);margin-top:10px}
+.stack div{height:100%;min-width:0}
+.stack div:first-child{border-radius:5px 0 0 5px}
+.brk{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 10px;font-size:12.5px;margin-top:12px;align-items:center}
+.brk i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.brk .v{font-family:var(--f-mono);font-size:12px;text-align:right}
+.tablewrap{overflow-x:auto;padding:0 6px 10px}
+table.ct{width:100%;border-collapse:collapse;font-size:12.5px;min-width:820px}
+table.ct th{position:sticky;top:0;background:var(--board);text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:7px 8px;border-bottom:1px solid var(--line);cursor:pointer;white-space:nowrap;user-select:none}
+table.ct th.r,table.ct td.r{text-align:right}
+table.ct td{padding:5px 8px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+table.ct td.mono{font-size:12px}
+table.ct tr:hover td{background:var(--board-2);cursor:pointer}
+table.ct tr.out td{color:var(--muted);text-decoration:line-through}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.filters button{all:unset;cursor:pointer;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--board);border-color:var(--ink)}
+.foot{font-size:12px;color:var(--muted);margin-top:16px;max-width:110ch}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--board);padding:8px 14px;border-radius:8px;font-size:13px;z-index:50}
+
+@media (max-width:1280px){.main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.rail{grid-column:1/-1;grid-row:1;position:static;max-height:none}}
+@media (max-width:640px){.ticker{flex-wrap:wrap}.ticker .lbl{padding:6px 12px}.ticker .vp{flex-basis:100%;min-height:36px}}
+@media (max-width:900px){.main,.lower{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:1fr 1fr;position:static}.metric:first-child{grid-column:1/-1}.metric:nth-child(2n){border-left:0}.metric{border-top:1px solid var(--line-2)}.metric:first-child{border-top:0}}
+@media (max-width:520px){.wrap{padding-inline:16px}.row{grid-template-columns:40px repeat(3,minmax(0,1fr))}.row.pair{grid-template-columns:40px repeat(2,minmax(0,1fr))}.row .ucap{display:none}.chip .n{display:none}.chip{grid-template-columns:1fr}.brand h1{font-size:24px}.acts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>NYR <b>Ops</b> Board</h1>
+      <span class="stamp" id="stamp"><span class="dot"></span>Loading data…</span>
+    </div>
+    <div class="tools">
+      <button class="btn" id="b-trade">Build a trade</button>
+      <button class="btn" id="b-sign">Sign or claim a player</button>
+      <button class="btn" id="b-moves" aria-pressed="false">Scenario moves<span class="ct" id="moves-ct">0</span></button>
+      <button class="btn" id="b-copy">Copy summary</button>
+      <button class="btn ghost" id="b-help" aria-label="How to use">How to use</button>
+      <button class="btn danger" id="b-reset">Reset scenario</button>
+    </div>
+  </header>
+
+  <section class="strip" id="strip" aria-label="Cap and roster summary"></section>
+  <div class="pills" id="pills" aria-label="Compliance"></div>
+
+  <div class="main closed" id="main">
+    <section class="panel" id="board-NYR" aria-label="Rangers board"></section>
+    <section class="panel" id="board-HFD" aria-label="Wolf Pack board"></section>
+    <aside class="panel rail" id="rail" aria-label="Decisions"></aside>
+  </div>
+
+  <section class="ticker" aria-label="Recent roster updates">
+    <div class="lbl">Roster updates</div>
+    <div class="tg" role="group" aria-label="Updates for"><button data-tk="NYR" aria-pressed="true">Rangers</button><button data-tk="ALL" aria-pressed="false">League</button></div>
+    <div class="vp" tabindex="0"><div class="track" id="ticker"></div></div>
+  </section>
+
+  <div class="lower">
+    <section class="panel">
+      <div class="panel-h"><h2>Cap outlook</h2><span class="meta">Committed cap by season against each season's upper limit</span></div>
+      <div class="chartbox" id="outlook"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-h"><h2>Where the cap goes</h2><span class="meta" id="brk-meta"></span></div>
+      <div class="chartbox" id="breakdown"></div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:14px">
+    <div class="panel-h"><h2>Contracts</h2>
+      <div class="filters" id="ct-filters">
+        <button data-f="all" aria-pressed="true">Organization</button>
+        <button data-f="NYR" aria-pressed="false">Rangers</button>
+        <button data-f="HFD" aria-pressed="false">Wolf Pack</button>
+        <button data-f="exp" aria-pressed="false">Expiring 2027</button>
+        <button data-f="chg" aria-pressed="false">Changed in scenario</button>
+      </div>
+    </div>
+    <div class="tablewrap"><table class="ct" id="ct"></table></div>
+  </section>
+
+  <section class="panel" style="margin-top:14px" id="league-panel">
+    <div class="panel-h"><h2>League contracts</h2>
+      <div class="lgfilters">
+        <input id="lg-q" type="search" placeholder="Search any NHL player" aria-label="Search league players">
+        <select id="lg-team" aria-label="Team"><option value="">All teams</option></select>
+        <select id="lg-pos" aria-label="Position"><option value="">All positions</option><option value="F">Forwards</option><option value="C">Centers</option><option value="W">Wingers</option><option value="D">Defense</option><option value="G">Goalies</option></select>
+        <select id="lg-where" aria-label="Level"><option value="roster">NHL roster</option><option value="">Roster and minors</option></select>
+        <select id="lg-exp" aria-label="Expiry"><option value="">Any expiry</option></select>
+      </div>
+    </div>
+    <p class="hint" id="lg-meta" style="padding:8px 14px 0">Loading league contracts…</p>
+    <div class="tablewrap"><table class="ct" id="lg"></table></div>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</div>
+<div class="toast" id="toast" hidden></div>
+<dialog class="help" id="help" aria-labelledby="help-t">
+  <div class="hd"><h2 id="help-t">How to use the Ops Board</h2></div>
+  <ul>
+    <li><b>Click any player</b> to open his contract, stats and the moves available to him. A side panel opens; close it with the × to give the rosters full width.</li>
+    <li><b>Drag players</b> between slots to change lines and pairs, or between the Rangers and Wolf Pack boards to start a recall or assignment.</li>
+    <li><b>Build a trade</b> to pick a partner team and search its roster. Contracts, clauses and stats fill in from the league database. The League contracts table at the bottom has a Trade for button on every player.</li>
+    <li><b>Every move shows its impact</b> on cap space, roster, contracts and future seasons, with 2025 CBA checks, before you add it to the scenario.</li>
+    <li><b>Scenario moves</b> in the toolbar lists what you've added; remove any move to undo it. Scenarios are saved in this browser only.</li>
+    <li><b>Roster updates</b> under the boards scroll the latest Rangers moves, or the whole league. Data refreshes every morning.</li>
+  </ul>
+  <div class="ft"><label><input type="checkbox" id="help-hide"> Don't show this again</label><button class="btn primary" id="help-ok">Got it</button></div>
+</dialog>
+
+<script id="seed" type="application/json">{"settings":{"season":"2026-27","seasonStartYear":2026,"capUpper":104000000,"capLower":76900000,"maxRoster":23,"maxContracts":50,"buriedRelief":1225000,"ageAsOf":"2026-10-08","updated":"2026-10-08","minSalary":850000,"source":"PuckPedia and NHL.com (live); lineups from NYR Org 9.29.xlsx","reference":{"totalCapCharge":103640952,"capSpace":359048,"spcUsed":47,"activeRoster":22,"source":"PuckPedia"},"sheetUpdated":"2026-09-29","deadCap":[{"label":"Adam Sykora Season Opening IR","amt":[110208,0,0,0,0]}],"changes":["Joe Veleno: Active to IR","Cole Beaudoin: recalled to the Rangers","Joonas Korpisalo: Active to IR","Dylan Garand: recalled to the Rangers","Adam Sykora: IR to Active","Matthew Robertson: assigned to Hartford","Vincent Iorio: assigned to Hartford","Vincent Iorio: IR to Active","Cole Beaudoin placed in Line 4 C (open slot)","Dylan Garand placed in Goalies G2 (open slot)","Bryce McConnell-Barker placed in Hartford Line 2 C (open slot)","Callum Tung placed in Hartford Goalies G1 (open slot)"],"updates":[{"date":"2026-10-06","kind":"Roster Move","pp":"cole-beaudoin","name":"Cole Beaudoin","text":"Beaudoin was summoned from AHL Hartford on Tuesday.","team":"NYR"},{"date":"2026-10-06","kind":"Injury","pp":"joseph-veleno","name":"Joseph Veleno","text":"Veleno (lower body) was placed on injured reserve Tuesday, Mollie Walker of the New York Post reports.","team":"NYR"},{"date":"2026-10-05","kind":"Waivers","pp":"matthew-robertson","name":"Matthew Robertson","text":"Cleared","team":"NYR"},{"date":"2026-10-05","kind":"Roster Move","pp":"matthew-robertson","name":"Matthew Robertson","text":"Robertson was designated for waivers by the New York Rangers on Monday, Elliotte Friedman of Sportsnet reports.","team":"NYR"},{"date":"2026-10-05","kind":"Waivers","pp":"matthew-robertson","name":"Matthew Robertson","text":"","team":"NYR"},{"date":"2026-10-01","kind":"Roster Move","pp":"dylan-garand","name":"Dylan Garand","text":"Garand was recalled from AHL Hartford on Thursday, Colin Stephenson of Newsday reports.","team":"NYR"}]},"players":[{"id":"DORO","first":"Pavel","last":"Dorofeyev","name":"Pavel Dorofeyev","posGroup":"F","pos":"LW","num":16,"ht":"6-1","htIn":73,"wt":194,"shoots":"L","birthplace":"Nizhny Tagil, RUS","country":"RUS","dob":"2000-10-26","lastTeam":"Golden Knights","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 1","slot":"RW","status":"Active","capHit":11000000,"aav":11000000,"retainedPct":0,"perfBonus":0,"expiry":2033,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-06-26","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"NMC Yrs 3-7 ... 15 team no trade list June 15, 2031 thru June 14, 2032; then 10 team no trade list from June 15, 2032 through term","capCharge":11000000,"stats2526":[{"Team":"Golden Knights","League":"NHL","GP":82,"G":37,"A":27,"PTS":64,"PIM":24}],"twoWay":false,"nhlId":8481604,"pp":"pavel-dorofeyev","liveStats":{"20262027":{"gp":5,"g":1,"a":1,"p":2,"pm":-1,"pim":0,"sog":15,"toi":16.3,"team":"NYR"},"20252026":{"gp":82,"g":37,"a":27,"p":64,"pm":-3,"pim":24,"sog":230,"toi":17.6,"team":"VGK"}}},{"id":"ZIBA","first":"Mika","last":"Zibanejad","name":"Mika Zibanejad","posGroup":"F","pos":"C","num":93,"ht":"6-2","htIn":74,"wt":208,"shoots":"R","birthplace":"Stockholm, SWE","country":"SWE","dob":"1993-04-18","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 2","slot":"C","status":"Active","capHit":8500000,"aav":8500000,"retainedPct":0,"perfBonus":0,"expiry":2030,"expiryStatus":"UFA","contractType":"SPC","signed":"2021-10-10","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"No Move clause until 7 days prior to Trade Deadline in Year 8, at that point it converts to 21 team No Trade List","capCharge":8500000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":81,"G":34,"A":44,"PTS":78,"PIM":14}],"twoWay":false,"nhlId":8476459,"pp":"mika-zibanejad","liveStats":{"20262027":{"gp":5,"g":1,"a":4,"p":5,"pm":4,"pim":0,"sog":9,"toi":20.7,"team":"NYR"},"20252026":{"gp":81,"g":34,"a":44,"p":78,"pm":-20,"pim":14,"sog":215,"toi":20.9,"team":"NYR"}}},{"id":"MILL","first":"J.T.","last":"Miller","name":"J.T. Miller","posGroup":"F","pos":"C","num":10,"ht":"6-0","htIn":72,"wt":211,"shoots":"L","birthplace":"East Palestine, OH","country":"USA","dob":"1993-03-14","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 1","slot":"C","status":"Active","capHit":8000000,"aav":8000000,"retainedPct":0,"perfBonus":0,"expiry":2030,"expiryStatus":"UFA","contractType":"SPC","signed":"2022-09-02","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"NMC; Years 5-7; 15 team No Trade List","capCharge":8000000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":68,"G":17,"A":36,"PTS":53,"PIM":33}],"twoWay":false,"nhlId":8476468,"pp":"jt-miller","liveStats":{"20262027":{"gp":5,"g":1,"a":1,"p":2,"pm":3,"pim":9,"sog":9,"toi":17.2,"team":"NYR"},"20252026":{"gp":68,"g":17,"a":36,"p":53,"pm":-30,"pim":33,"sog":144,"toi":20.1,"team":"NYR"}}},{"id":"LAFR","first":"Alexis","last":"Lafreniere","name":"Alexis Lafreniere","posGroup":"F","pos":"RW","num":13,"ht":"6-2","htIn":74,"wt":191,"shoots":"L","birthplace":"St-Eustache, QC","country":"CAN","dob":"2001-10-11","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 2","slot":"RW","status":"Active","capHit":7450000,"aav":7450000,"retainedPct":0,"perfBonus":0,"expiry":2032,"expiryStatus":"UFA","contractType":"SPC","signed":"2024-10-25","nmc":false,"ntc":"8 Team No Trade List","waiverExempt":false,"ltir":false,"notes":"8 Team No Trade List as of 2027-28","capCharge":7450000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":82,"G":24,"A":33,"PTS":57,"PIM":20}],"twoWay":false,"nhlId":8482109,"pp":"alexis-lafreniere","liveStats":{"20262027":{"gp":5,"g":3,"a":2,"p":5,"pm":5,"pim":2,"sog":11,"toi":19.1,"team":"NYR"},"20252026":{"gp":82,"g":24,"a":33,"p":57,"pm":-7,"pim":20,"sog":164,"toi":17.6,"team":"NYR"}}},{"id":"BJOR","first":"Oliver","last":"Bjorkstrand","name":"Oliver Bjorkstrand","posGroup":"F","pos":"RW","num":28,"ht":"6-0","htIn":72,"wt":175,"shoots":"R","birthplace":"Herning, DNK","country":"DNK","dob":"1995-04-10","lastTeam":"Lightning","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 1","slot":"LW","status":"Active","capHit":4500000,"aav":4500000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":"15 team no trade","waiverExempt":false,"ltir":false,"notes":"15 team no trade","capCharge":4500000,"stats2526":[{"Team":"Lightning","League":"NHL","GP":80,"G":12,"A":20,"PTS":32,"PIM":16}],"twoWay":false,"nhlId":8477416,"pp":"oliver-bjorkstrand","liveStats":{"20262027":{"gp":5,"g":2,"a":1,"p":3,"pm":2,"pim":5,"sog":8,"toi":11.4,"team":"NYR"},"20252026":{"gp":80,"g":12,"a":20,"p":32,"pm":-14,"pim":16,"sog":130,"toi":13.6,"team":"TBL"}}},{"id":"CUYL","first":"Will","last":"Cuylle","name":"Will Cuylle","posGroup":"F","pos":"LW","num":50,"ht":"6-3","htIn":75,"wt":212,"shoots":"L","birthplace":"Toronto, ON","country":"CAN","dob":"2002-02-05","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 3","slot":"LW","status":"Active","capHit":3900000,"aav":3900000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2025-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":3900000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":82,"G":20,"A":18,"PTS":38,"PIM":65}],"twoWay":false,"nhlId":8482157,"pp":"william-cuylle","liveStats":{"20262027":{"gp":5,"g":0,"a":3,"p":3,"pm":-1,"pim":13,"sog":14,"toi":15.2,"team":"NYR"},"20252026":{"gp":82,"g":20,"a":18,"p":38,"pm":-12,"pim":65,"sog":157,"toi":16.9,"team":"NYR"}}},{"id":"TOLV","first":"Eeli","last":"Tolvanen","name":"Eeli Tolvanen","posGroup":"F","pos":"RW","num":17,"ht":"5-10","htIn":70,"wt":182,"shoots":"L","birthplace":"Vihti, FIN","country":"FIN","dob":"1999-04-22","lastTeam":"Kraken","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 3","slot":"RW","status":"Active","capHit":1500000,"aav":1500000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":1500000,"stats2526":[{"Team":"Kraken","League":"NHL","GP":78,"G":12,"A":24,"PTS":36,"PIM":30}],"twoWay":false,"nhlId":8480009,"pp":"eeli-tolvanen","liveStats":{"20262027":{"gp":5,"g":3,"a":0,"p":3,"pm":3,"pim":2,"sog":6,"toi":13.6,"team":"NYR"},"20252026":{"gp":78,"g":12,"a":24,"p":36,"pm":-18,"pim":30,"sog":141,"toi":16.0,"team":"SEA"}}},{"id":"KART","first":"Tye","last":"Kartye","name":"Tye Kartye","posGroup":"F","pos":"LW","num":24,"ht":"5-11","htIn":71,"wt":202,"shoots":"L","birthplace":"Kingston, ON","country":"CAN","dob":"2001-04-30","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 4","slot":"LW","status":"Active","capHit":1250000,"aav":1250000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2025-07-05","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":1250000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":24,"G":5,"A":9,"PTS":14,"PIM":17},{"Team":"Kraken","League":"AHL","GP":40,"G":3,"A":5,"PTS":8,"PIM":21}],"twoWay":false,"nhlId":8481789,"pp":"tye-kartye","liveStats":{"20262027":{"gp":5,"g":0,"a":2,"p":2,"pm":1,"pim":2,"sog":4,"toi":14.8,"team":"NYR"},"20252026":{"gp":64,"g":8,"a":14,"p":22,"pm":-6,"pim":38,"sog":56,"toi":12.0,"team":"NYR/SEA"}}},{"id":"VELE","first":"Joe","last":"Veleno","name":"Joe Veleno","posGroup":"F","pos":"C","num":90,"ht":"6-1","htIn":73,"wt":201,"shoots":"L","birthplace":"Montreal, QC","country":"CAN","dob":"2000-01-13","lastTeam":"Canadiens","lastLeague":"NHL","level":"NHL","team":"NYR","unit":null,"slot":null,"status":"IR","capHit":1200000,"aav":1200000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":1200000,"stats2526":[{"Team":"Canadiens","League":"NHL","GP":61,"G":2,"A":3,"PTS":5,"PIM":19}],"twoWay":false,"nhlId":8480813,"pp":"joseph-veleno","liveStats":{"20262027":{"gp":4,"g":0,"a":0,"p":0,"pm":0,"pim":2,"sog":2,"toi":11.6,"team":"NYR"},"20252026":{"gp":61,"g":2,"a":3,"p":5,"pm":-12,"pim":19,"sog":52,"toi":12.1,"team":"MTL"}}},{"id":"REMP","first":"Matt","last":"Rempe","name":"Matt Rempe","posGroup":"F","pos":"RW","num":73,"ht":"6-9","htIn":81,"wt":261,"shoots":"R","birthplace":"Calgary, AB","country":"CAN","dob":"2002-06-29","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 4","slot":"RW","status":"Active","capHit":975000,"aav":975000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2025-06-18","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":975000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":26,"G":1,"A":0,"PTS":1,"PIM":11}],"twoWay":false,"nhlId":8482460,"pp":"matt-rempe","liveStats":{"20262027":{"gp":1,"g":0,"a":0,"p":0,"pm":0,"pim":0,"sog":1,"toi":9.8,"team":"NYR"},"20252026":{"gp":26,"g":1,"a":0,"p":1,"pm":-4,"pim":11,"sog":15,"toi":8.6,"team":"NYR"}}},{"id":"LABA","first":"Noah","last":"Laba","name":"Noah Laba","posGroup":"F","pos":"C","num":42,"ht":"6-3","htIn":75,"wt":214,"shoots":"R","birthplace":"Northville, MI","country":"USA","dob":"2003-08-04","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 3","slot":"C","status":"Active","capHit":945000,"aav":1025000,"retainedPct":0,"perfBonus":80000,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-03-18","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":945000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":74,"G":9,"A":15,"PTS":24,"PIM":31}],"twoWay":true,"nhlId":8483690,"pp":"noah-laba","liveStats":{"20262027":{"gp":5,"g":0,"a":1,"p":1,"pm":0,"pim":4,"sog":3,"toi":14.7,"team":"NYR"},"20252026":{"gp":74,"g":9,"a":15,"p":24,"pm":2,"pim":31,"sog":73,"toi":13.5,"team":"NYR"}}},{"id":"CHME","first":"Jaroslav","last":"Chmelar","name":"Jaroslav Chmelar","posGroup":"F","pos":"RW","num":49,"ht":"6-4","htIn":76,"wt":226,"shoots":"R","birthplace":"Nove Mesto nad Metuji, CZE","country":"CZE","dob":"2003-07-20","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":null,"slot":null,"status":"Active","capHit":942500,"aav":1000000,"retainedPct":0,"perfBonus":57500,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2024-03-20","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":942500,"stats2526":[{"Team":"Rangers","League":"NHL","GP":28,"G":4,"A":2,"PTS":6,"PIM":11},{"Team":"Hartford","League":"AHL","GP":46,"G":8,"A":17,"PTS":25,"PIM":42}],"twoWay":true,"nhlId":8482877,"pp":"jaroslav-chmelar","liveStats":{"20262027":{"gp":4,"g":0,"a":0,"p":0,"pm":0,"pim":0,"sog":2,"toi":7.5,"team":"NYR"},"20252026":{"gp":28,"g":4,"a":2,"p":6,"pm":-2,"pim":11,"sog":23,"toi":9.2,"team":"NYR"}}},{"id":"PERR","first":"Gabe","last":"Perreault","name":"Gabe Perreault","posGroup":"F","pos":"LW","num":94,"ht":"5-11","htIn":71,"wt":180,"shoots":"L","birthplace":"Sherbrooke, QC","country":"CAN","dob":"2005-05-07","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Line 2","slot":"LW","status":"Active","capHit":941667,"aav":1233333,"retainedPct":0,"perfBonus":500000,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-03-31","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":"Offer sheet ineligible (10.2c)","capCharge":941667,"stats2526":[{"Team":"Rangers","League":"NHL","GP":49,"G":12,"A":25,"PTS":37,"PIM":10},{"Team":"Hartford","League":"AHL","GP":20,"G":10,"A":7,"PTS":17,"PIM":14}],"twoWay":true,"nhlId":8484210,"pp":"gabe-perreault","liveStats":{"20262027":{"gp":5,"g":2,"a":2,"p":4,"pm":2,"pim":0,"sog":5,"toi":14.9,"team":"NYR"},"20252026":{"gp":49,"g":12,"a":15,"p":27,"pm":0,"pim":10,"sog":73,"toi":16.0,"team":"NYR"}}},{"id":"BEAU","first":"Cole","last":"Beaudoin","name":"Cole Beaudoin","posGroup":"F","pos":"C","num":53,"ht":"6-2","htIn":74,"wt":209,"shoots":"L","birthplace":"Ottawa, ON","country":"CAN","dob":"2006-04-24","lastTeam":"Barrie","lastLeague":"OHL","level":"NHL","team":"NYR","unit":"Line 4","slot":"C","status":"Active","capHit":941667,"aav":941667,"retainedPct":0,"perfBonus":0,"expiry":2029,"expiryStatus":"RFA","contractType":"ELC","signed":"2024-06-21","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":941667,"stats2526":[{"Team":"Barrie","League":"OHL","GP":54,"G":33,"A":55,"PTS":88,"PIM":29}],"twoWay":true,"nhlId":8484786,"pp":"cole-beaudoin","liveStats":{"20262027":{"gp":1,"g":0,"a":0,"p":0,"pm":1,"pim":2,"sog":0,"toi":9.9,"team":"NYR"}}},{"id":"FOX","first":"Adam","last":"Fox","name":"Adam Fox","posGroup":"D","pos":"D","num":23,"ht":"5-11","htIn":71,"wt":185,"shoots":"R","birthplace":"Jericho, NY","country":"USA","dob":"1998-02-17","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Pair 1","slot":"RD","status":"Active","capHit":9500000,"aav":9500000,"retainedPct":0,"perfBonus":0,"expiry":2029,"expiryStatus":"UFA","contractType":"SPC","signed":"2021-11-01","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"NMC Year 4 to May 31 of Year 5, then 16 team no trade list","capCharge":9500000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":55,"G":9,"A":44,"PTS":53,"PIM":20}],"twoWay":false,"nhlId":8479323,"pp":"adam-fox","liveStats":{"20262027":{"gp":5,"g":0,"a":5,"p":5,"pm":5,"pim":2,"sog":3,"toi":21.1,"team":"NYR"},"20252026":{"gp":55,"g":9,"a":44,"p":53,"pm":5,"pim":20,"sog":91,"toi":23.6,"team":"NYR"}}},{"id":"GAVR","first":"Vladislav","last":"Gavrikov","name":"Vladislav Gavrikov","posGroup":"D","pos":"D","num":44,"ht":"6-3","htIn":75,"wt":210,"shoots":"L","birthplace":"Yaroslavl, RUS","country":"RUS","dob":"1995-11-21","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Pair 1","slot":"LD","status":"Active","capHit":7000000,"aav":7000000,"retainedPct":0,"perfBonus":0,"expiry":2032,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-07-01","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"Year 1-5: NMC, Year 6: 20 team NTC, Year 7: 15 team NTC","capCharge":7000000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":82,"G":14,"A":21,"PTS":35,"PIM":50}],"twoWay":false,"nhlId":8478882,"pp":"vladislav-gavrikov","liveStats":{"20262027":{"gp":5,"g":1,"a":3,"p":4,"pm":4,"pim":0,"sog":7,"toi":21.5,"team":"NYR"},"20252026":{"gp":82,"g":14,"a":21,"p":35,"pm":-8,"pim":50,"sog":119,"toi":23.7,"team":"NYR"}}},{"id":"DURZ","first":"Sean","last":"Durzi","name":"Sean Durzi","posGroup":"D","pos":"D","num":5,"ht":"6-1","htIn":73,"wt":196,"shoots":"R","birthplace":"Mississauga, ON","country":"CAN","dob":"1998-10-21","lastTeam":"Mammoth","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Pair 2","slot":"RD","status":"Active","capHit":6000000,"aav":6000000,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"UFA","contractType":"SPC","signed":"2024-06-30","nmc":false,"ntc":"10 Team No Trade List","waiverExempt":false,"ltir":false,"notes":"10 Team no trade list in years 3 and 4","capCharge":6000000,"stats2526":[{"Team":"Mammoth","League":"NHL","GP":60,"G":5,"A":22,"PTS":27,"PIM":50}],"twoWay":false,"nhlId":8480434,"pp":"sean-durzi","liveStats":{"20262027":{"gp":5,"g":1,"a":1,"p":2,"pm":0,"pim":9,"sog":3,"toi":20.8,"team":"NYR"},"20252026":{"gp":60,"g":5,"a":22,"p":27,"pm":-12,"pim":50,"sog":84,"toi":19.3,"team":"UTA"}}},{"id":"PETT","first":"Marcus","last":"Pettersson","name":"Marcus Pettersson","posGroup":"D","pos":"D","num":26,"ht":"6-5","htIn":77,"wt":174,"shoots":"L","birthplace":"Skelleftea, SWE","country":"SWE","dob":"1996-05-08","lastTeam":"Canucks","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Pair 2","slot":"LD","status":"Active","capHit":5500000,"aav":5500000,"retainedPct":0,"perfBonus":0,"expiry":2031,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-02-05","nmc":true,"ntc":"Modified","waiverExempt":false,"ltir":false,"notes":"Years 1-3, NMC, Years 4-6, 15 team no trade list","capCharge":5500000,"stats2526":[{"Team":"Canucks","League":"NHL","GP":82,"G":3,"A":15,"PTS":18,"PIM":60}],"twoWay":false,"nhlId":8477969,"pp":"marcus-pettersson","liveStats":{"20262027":{"gp":5,"g":0,"a":0,"p":0,"pm":2,"pim":2,"sog":4,"toi":20.4,"team":"NYR"},"20252026":{"gp":82,"g":3,"a":15,"p":18,"pm":-19,"pim":60,"sog":66,"toi":21.5,"team":"VAN"}}},{"id":"SCHN","first":"Braden","last":"Schneider","name":"Braden Schneider","posGroup":"D","pos":"D","num":4,"ht":"6-3","htIn":75,"wt":206,"shoots":"R","birthplace":"Prince Albert, SK","country":"CAN","dob":"2001-09-20","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Pair 3","slot":"RD","status":"Active","capHit":5500000,"aav":5500000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2026-07-13","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":5500000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":82,"G":2,"A":16,"PTS":18,"PIM":26}],"twoWay":false,"nhlId":8482073,"pp":"braden-schneider","liveStats":{"20262027":{"gp":5,"g":0,"a":0,"p":0,"pm":2,"pim":4,"sog":8,"toi":17.4,"team":"NYR"},"20252026":{"gp":82,"g":2,"a":16,"p":18,"pm":-5,"pim":26,"sog":102,"toi":20.4,"team":"NYR"}}},{"id":"SMIT","first":"Alberts","last":"Smits","name":"Alberts Smits","posGroup":"D","pos":"D","num":63,"ht":"6-3","htIn":75,"wt":205,"shoots":"L","birthplace":"Valmiera, LVA","country":"LVA","dob":"2007-12-02","lastTeam":"Jukurit","lastLeague":"Liiga","level":"NHL","team":"NYR","unit":"Pair 3","slot":"LD","status":"Active","capHit":1075000,"aav":4225000,"retainedPct":0,"perfBonus":3150000,"expiry":2029,"expiryStatus":"RFA","contractType":"ELC","signed":"2026-06-15","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":"Slide eligible","capCharge":1075000,"stats2526":[{"Team":"Jukurit","League":"Liiga","GP":38,"G":6,"A":7,"PTS":13,"PIM":20},{"Team":"EHC Munchen","League":"DEL","GP":5,"G":0,"A":1,"PTS":1,"PIM":2}],"twoWay":true,"nhlId":8485957,"pp":"alberts-smits","liveStats":{"20262027":{"gp":5,"g":0,"a":0,"p":0,"pm":2,"pim":4,"sog":1,"toi":14.8,"team":"NYR"}}},{"id":"MORR","first":"Scott","last":"Morrow","name":"Scott Morrow","posGroup":"D","pos":"D","num":60,"ht":"6-2","htIn":74,"wt":210,"shoots":"R","birthplace":"Darien, CT","country":"USA","dob":"2002-11-01","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":null,"slot":null,"status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2026-08-19","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":"$175k guaranteed ","capCharge":850000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":29,"G":0,"A":6,"PTS":6,"PIM":4},{"Team":"Hartford","League":"AHL","GP":34,"G":5,"A":14,"PTS":19,"PIM":69}],"twoWay":true,"nhlId":8482666,"pp":"scott-morrow","liveStats":{"20252026":{"gp":29,"g":0,"a":6,"p":6,"pm":-5,"pim":4,"sog":24,"toi":15.7,"team":"NYR"}}},{"id":"SHES","first":"Igor","last":"Shesterkin","name":"Igor Shesterkin","posGroup":"G","pos":"G","num":31,"ht":"6-1","htIn":73,"wt":199,"shoots":"L","birthplace":"Moscow, RUS","country":"RUS","dob":"1995-12-30","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Goalies","slot":"G1","status":"Active","capHit":11567857,"aav":11567857,"retainedPct":0,"perfBonus":0,"expiry":2033,"expiryStatus":"UFA","contractType":"SPC","signed":"2024-12-06","nmc":true,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":11567857,"stats2526":[{"Team":"Rangers","League":"NHL","GP":51,"W":25,"L":19,"OT":6,"GAA":2.5}],"twoWay":false,"nhlId":8478048,"pp":"igor-shesterkin","liveStats":{"20262027":{"gp":4,"w":3,"l":1,"otl":0,"sa":95,"sv":88,"ga":7,"so":0,"team":"NYR","svPct":0.926,"gaa":1.75},"20252026":{"gp":51,"w":25,"l":19,"otl":6,"sa":1425,"sv":1299,"ga":126,"so":1,"team":"NYR","svPct":0.912,"gaa":2.5}}},{"id":"KORP","first":"Joonas","last":"Korpisalo","name":"Joonas Korpisalo","posGroup":"G","pos":"G","num":70,"ht":"6-4","htIn":76,"wt":200,"shoots":"L","birthplace":"Pori, FIN","country":"FIN","dob":"1994-04-28","lastTeam":"Bruins","lastLeague":"NHL","level":"NHL","team":"NYR","unit":null,"slot":null,"status":"IR","capHit":4000000,"aav":4000000,"retainedPct":0.25,"perfBonus":0,"expiry":2028,"expiryStatus":"UFA","contractType":"SPC","signed":"2023-07-01","nmc":false,"ntc":"10 Team No Trade List","waiverExempt":false,"ltir":false,"notes":"10 Team no trade list","capCharge":3000000,"stats2526":[{"Team":"Bruins","League":"NHL","GP":31,"W":14,"L":9,"OT":6,"GAA":3.15}],"twoWay":false,"nhlId":8476914,"pp":"joonas-korpisalo","liveStats":{"20252026":{"gp":31,"w":14,"l":9,"otl":6,"sa":851,"sv":761,"ga":90,"so":1,"team":"BOS","svPct":0.894,"gaa":3.15}}},{"id":"GARA","first":"Dylan","last":"Garand","name":"Dylan Garand","posGroup":"G","pos":"G","num":33,"ht":"6-1","htIn":73,"wt":185,"shoots":"L","birthplace":"Victoria, BC","country":"CAN","dob":"2002-06-07","lastTeam":"Rangers","lastLeague":"NHL","level":"NHL","team":"NYR","unit":"Goalies","slot":"G2","status":"Active","capHit":875000,"aav":875000,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"RFA","contractType":"SPC","signed":"2026-06-21","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":875000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":3,"W":2,"L":0,"OT":1,"GAA":1.62},{"Team":"Hartford","League":"AHL","GP":36,"W":16,"L":15,"OT":2,"GAA":2.83}],"twoWay":true,"nhlId":8482193,"pp":"dylan-garand","liveStats":{"20262027":{"gp":1,"w":1,"l":0,"otl":0,"sa":22,"sv":22,"ga":0,"so":1,"team":"NYR","svPct":1.0,"gaa":0.0},"20252026":{"gp":3,"w":2,"l":0,"otl":1,"sa":96,"sv":91,"ga":5,"so":0,"team":"NYR","svPct":0.948,"gaa":1.62}}},{"id":"RADD","first":"Taylor","last":"Raddysh","name":"Taylor Raddysh","posGroup":"F","pos":"RW","num":14,"ht":"6-2","htIn":74,"wt":201,"shoots":"R","birthplace":"Caledon, ON","country":"CAN","dob":"1998-02-18","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Line 1","slot":"RW","status":"Active","capHit":1500000,"aav":1500000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":275000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":68,"G":9,"A":10,"PTS":19,"PIM":12}],"twoWay":false,"nhlId":8479390,"pp":"taylor-raddysh","liveStats":{"20252026":{"gp":68,"g":9,"a":10,"p":19,"pm":5,"pim":12,"sog":53,"toi":11.8,"team":"NYR"}}},{"id":"PARS","first":"Juuso","last":"Parssinen","name":"Juuso Parssinen","posGroup":"F","pos":"C","num":71,"ht":"6-3","htIn":75,"wt":207,"shoots":"L","birthplace":"Hameenlinna, FIN","country":"FIN","dob":"2001-02-01","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Line 1","slot":"C","status":"Active","capHit":1250000,"aav":1250000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2025-05-02","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":25000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":20,"G":2,"A":1,"PTS":3,"PIM":10},{"Team":"Hartford","League":"AHL","GP":15,"G":5,"A":2,"PTS":7,"PIM":4}],"twoWay":false,"nhlId":8481704,"pp":"juuso-parssinen","liveStats":{"20252026":{"gp":20,"g":2,"a":1,"p":3,"pm":4,"pim":10,"sog":16,"toi":8.8,"team":"NYR"}}},{"id":"LAMB","first":"Brody","last":"Lamb","name":"Brody Lamb","posGroup":"F","pos":"RW","num":46,"ht":"6-1","htIn":73,"wt":179,"shoots":"R","birthplace":"Rochester, MN","country":"USA","dob":"2003-08-30","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Line 3","slot":"RW","status":"Active","capHit":980000,"aav":1050000,"retainedPct":0,"perfBonus":72500,"expiry":2028,"expiryStatus":"RFA","contractType":"ELC","signed":"2026-03-13","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":15,"G":4,"A":5,"PTS":9,"PIM":2},{"Team":"Univ. of Minnesota","League":"NCAA","GP":35,"G":14,"A":16,"PTS":30,"PIM":12}],"twoWay":true,"nhlId":null,"pp":"brody-lamb","liveStats":null},{"id":"BATT","first":"Jacob","last":"Battaglia","name":"Jacob Battaglia","posGroup":"F","pos":"RW","num":57,"ht":"6-1","htIn":73,"wt":196,"shoots":"L","birthplace":"Mississauga, ON","country":"CAN","dob":"2006-03-17","lastTeam":"Flint","lastLeague":"OHL","level":"AHL","team":"HFD","unit":"Line 2","slot":"LW","status":"Active","capHit":965000,"aav":1008333,"retainedPct":0,"perfBonus":77500,"expiry":2029,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-03-29","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Flint","League":"OHL","GP":28,"G":12,"A":9,"PTS":21,"PIM":22},{"Team":"Kingston","League":"OHL","GP":36,"G":14,"A":13,"PTS":27,"PIM":39}],"twoWay":true,"nhlId":null,"pp":"jacob-battaglia","liveStats":null},{"id":"TERR","first":"Carey","last":"Terrance","name":"Carey Terrance","posGroup":"F","pos":"C","num":62,"ht":"6-0","htIn":72,"wt":203,"shoots":"L","birthplace":"Akwesasne, NY","country":"USA","dob":"2005-05-10","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Line 3","slot":"C","status":"Active","capHit":961667,"aav":1025000,"retainedPct":0,"perfBonus":80000,"expiry":2028,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-04-09","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":68,"G":8,"A":9,"PTS":17,"PIM":44}],"twoWay":true,"nhlId":null,"pp":"carey-terrance","liveStats":null},{"id":"ASPI","first":"Nathan","last":"Aspinall","name":"Nathan Aspinall","posGroup":"F","pos":"LW","num":95,"ht":"6-6","htIn":78,"wt":198,"shoots":"L","birthplace":"Markham, ON","country":"CAN","dob":"2006-03-30","lastTeam":"Flint","lastLeague":"OHL","level":"AHL","team":"HFD","unit":"Line 1","slot":"LW","status":"Active","capHit":955555,"aav":955555,"retainedPct":0,"perfBonus":0,"expiry":2029,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-10-25","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Flint","League":"OHL","GP":65,"G":33,"A":61,"PTS":94,"PIM":42}],"twoWay":true,"nhlId":null,"pp":"nathan-aspinall","liveStats":null},{"id":"GREE","first":"Liam","last":"Greentree","name":"Liam Greentree","posGroup":"F","pos":"RW","num":85,"ht":"6-2","htIn":74,"wt":207,"shoots":"L","birthplace":"Oshawa, ON","country":"CAN","dob":"2006-01-01","lastTeam":"Windsor","lastLeague":"OHL","level":"AHL","team":"HFD","unit":"Line 2","slot":"RW","status":"Active","capHit":941667,"aav":941667,"retainedPct":0,"perfBonus":0,"expiry":2029,"expiryStatus":"RFA","contractType":"ELC","signed":"2024-06-19","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Windsor","League":"OHL","GP":52,"G":38,"A":36,"PTS":74,"PIM":63}],"twoWay":true,"nhlId":null,"pp":"liam-greentree","liveStats":null},{"id":"ROOB","first":"Dylan","last":"Roobroeck","name":"Dylan Roobroeck","posGroup":"F","pos":"C","num":54,"ht":"6-7","htIn":79,"wt":222,"shoots":"L","birthplace":"London, ON","country":"CAN","dob":"2004-07-27","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Line 4","slot":"C","status":"Active","capHit":925000,"aav":925000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2024-05-20","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":72,"G":11,"A":15,"PTS":26,"PIM":90}],"twoWay":true,"nhlId":null,"pp":"dylan-roobroeck","liveStats":null},{"id":"THOM","first":"Aidan","last":"Thompson","name":"Aidan Thompson","posGroup":"F","pos":"LW","num":75,"ht":"5-11","htIn":71,"wt":180,"shoots":"L","birthplace":"Fort Collins, CO","country":"USA","dob":"2002-02-18","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":920000,"aav":975000,"retainedPct":0,"perfBonus":30000,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-04-12","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":18,"G":2,"A":5,"PTS":7,"PIM":10},{"Team":"Rockford","League":"AHL","GP":40,"G":6,"A":9,"PTS":15,"PIM":12}],"twoWay":true,"nhlId":null,"pp":"aidan-thompson","liveStats":null},{"id":"MCCO","first":"Bryce","last":"McConnell-Barker","name":"Bryce McConnell-Barker","posGroup":"F","pos":"C","num":47,"ht":"6-1","htIn":73,"wt":191,"shoots":"L","birthplace":"London, ON","country":"CAN","dob":"2004-06-04","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Line 2","slot":"C","status":"Active","capHit":913333,"aav":993333,"retainedPct":0,"perfBonus":80000,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2023-03-23","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":69,"G":14,"A":11,"PTS":25,"PIM":22}],"twoWay":true,"nhlId":null,"pp":"bryce-mcconnell-barker","liveStats":null},{"id":"SYKO","first":"Adam","last":"Sykora","name":"Adam Sykora","posGroup":"F","pos":"LW","num":38,"ht":"5-11","htIn":71,"wt":193,"shoots":"L","birthplace":"Piestany, SVK","country":"SVK","dob":"2004-09-07","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":881666,"aav":961666,"retainedPct":0,"perfBonus":80000,"expiry":2027,"expiryStatus":"RFA","contractType":"ELC","signed":"2022-07-16","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":11,"G":3,"A":1,"PTS":4,"PIM":5},{"Team":"Hartford","League":"AHL","GP":62,"G":12,"A":17,"PTS":29,"PIM":28}],"twoWay":true,"nhlId":8483669,"pp":"adam-sykora","liveStats":{"20252026":{"gp":11,"g":3,"a":1,"p":4,"pm":0,"pim":5,"sog":15,"toi":11.2,"team":"NYR"}}},{"id":"GAWD","first":"Glenn","last":"Gawdin","name":"Glenn Gawdin","posGroup":"F","pos":"RW","num":15,"ht":"6-1","htIn":73,"wt":195,"shoots":"R","birthplace":"Richmond, BC","country":"CAN","dob":"1997-03-25","lastTeam":"Ontario","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Line 4","slot":"RW","status":"Active","capHit":875000,"aav":875000,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Ontario","League":"AHL","GP":71,"G":16,"A":35,"PTS":51,"PIM":73}],"twoWay":true,"nhlId":null,"pp":"glenn-gawdin","liveStats":null},{"id":"DOWL","first":"Justin","last":"Dowling","name":"Justin Dowling","posGroup":"F","pos":"C","num":37,"ht":"5-11","htIn":71,"wt":178,"shoots":"L","birthplace":"Calgary, AB","country":"CAN","dob":"1990-10-01","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Line 4","slot":"LW","status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":2,"G":0,"A":0,"PTS":0,"PIM":0},{"Team":"Hartford","League":"AHL","GP":46,"G":9,"A":20,"PTS":29,"PIM":4}],"twoWay":true,"nhlId":8475413,"pp":"justin-dowling","liveStats":{"20252026":{"gp":2,"g":0,"a":0,"p":0,"pm":-1,"pim":0,"sog":1,"toi":7.2,"team":"NYR"}}},{"id":"BLID","first":"Anton","last":"Blidh","name":"Anton Blidh","posGroup":"F","pos":"LW","num":25,"ht":"6-1","htIn":73,"wt":191,"shoots":"L","birthplace":"Molnlycke, SWE","country":"SWE","dob":"1995-03-14","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Line 3","slot":"LW","status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-04-08","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":4,"G":0,"A":1,"PTS":1,"PIM":0},{"Team":"Hartford","League":"AHL","GP":64,"G":8,"A":8,"PTS":16,"PIM":56}],"twoWay":true,"nhlId":8477320,"pp":"anton-blidh","liveStats":{"20252026":{"gp":4,"g":0,"a":1,"p":1,"pm":1,"pim":0,"sog":4,"toi":7.7,"team":"NYR"}}},{"id":"VAAK","first":"Urho","last":"Vaakanainen","name":"Urho Vaakanainen","posGroup":"D","pos":"D","num":18,"ht":"6-2","htIn":74,"wt":202,"shoots":"L","birthplace":"Joensuu, FIN","country":"FIN","dob":"1999-01-01","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Pair 1","slot":"RD","status":"Active","capHit":1550000,"aav":1550000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-03-07","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":325000,"stats2526":[{"Team":"Rangers","League":"NHL","GP":34,"G":0,"A":6,"PTS":6,"PIM":14}],"twoWay":false,"nhlId":8480001,"pp":"urho-vaakanainen","liveStats":{"20252026":{"gp":34,"g":0,"a":6,"p":6,"pm":0,"pim":14,"sog":23,"toi":13.9,"team":"NYR"}}},{"id":"DORR","first":"Jackson","last":"Dorrington","name":"Jackson Dorrington","posGroup":"D","pos":"D","num":83,"ht":"6-3","htIn":75,"wt":216,"shoots":"L","birthplace":"North Reading, MA","country":"USA","dob":"2004-04-13","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Pair 1","slot":"LD","status":"Active","capHit":951667,"aav":951667,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-03-23","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":70,"G":2,"A":9,"PTS":11,"PIM":69}],"twoWay":true,"nhlId":null,"pp":"jackson-dorrington","liveStats":null},{"id":"FORT","first":"Drew","last":"Fortescue","name":"Drew Fortescue","posGroup":"D","pos":"D","num":45,"ht":"6-2","htIn":74,"wt":195,"shoots":"L","birthplace":"Pearl River, NY","country":"USA","dob":"2005-04-28","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Pair 2","slot":"LD","status":"Active","capHit":945833,"aav":972500,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"RFA","contractType":"ELC","signed":"2026-03-21","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":"RFA 10.2c in 2028 - Offer sheet ineligible ","capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":9,"G":0,"A":2,"PTS":2,"PIM":4},{"Team":"Boston College","League":"NCAA","GP":36,"G":4,"A":10,"PTS":14,"PIM":47}],"twoWay":true,"nhlId":8484169,"pp":"drew-fortescue","liveStats":{"20252026":{"gp":9,"g":0,"a":2,"p":2,"pm":4,"pim":4,"sog":3,"toi":14.8,"team":"NYR"}}},{"id":"CHOL","first":"Dennis","last":"Cholowski","name":"Dennis Cholowski","posGroup":"D","pos":"D","num":21,"ht":"6-2","htIn":74,"wt":210,"shoots":"L","birthplace":"Langley, BC","country":"CAN","dob":"1998-02-15","lastTeam":"Devils","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Pair 3","slot":"LD","status":"Active","capHit":875000,"aav":875000,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-02","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Devils","League":"NHL","GP":17,"G":0,"A":2,"PTS":2,"PIM":2},{"Team":"Utica","League":"AHL","GP":13,"G":0,"A":5,"PTS":5,"PIM":6}],"twoWay":true,"nhlId":8479395,"pp":"dennis-cholowski","liveStats":{"20252026":{"gp":17,"g":0,"a":2,"p":2,"pm":-6,"pim":2,"sog":12,"toi":14.7,"team":"NJD"}}},{"id":"DELG","first":"Marc","last":"Del Gaizo","name":"Marc Del Gaizo","posGroup":"D","pos":"D","num":27,"ht":"5-11","htIn":71,"wt":188,"shoots":"L","birthplace":"Basking Ridge, NJ","country":"USA","dob":"1999-10-11","lastTeam":"Laval","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Pair 2","slot":"RD","status":"Active","capHit":875000,"aav":875000,"retainedPct":0,"perfBonus":0,"expiry":2028,"expiryStatus":"UFA","contractType":"SPC","signed":"2026-07-01","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Laval","League":"AHL","GP":63,"G":9,"A":18,"PTS":27,"PIM":38}],"twoWay":true,"nhlId":null,"pp":"marc-del-gaizo","liveStats":null},{"id":"ROBE","first":"Matthew","last":"Robertson","name":"Matthew Robertson","posGroup":"D","pos":"D","num":29,"ht":"6-4","htIn":76,"wt":210,"shoots":"L","birthplace":"Edmonton, AB","country":"CAN","dob":"2001-03-09","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA-G","contractType":"SPC","signed":"2025-06-20","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":"G6 UFA","capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":72,"G":6,"A":12,"PTS":18,"PIM":38}],"twoWay":false,"nhlId":8481525,"pp":"matthew-robertson","liveStats":{"20252026":{"gp":72,"g":6,"a":12,"p":18,"pm":-1,"pim":38,"sog":79,"toi":17.4,"team":"NYR"}}},{"id":"IORI","first":"Vincent","last":"Iorio","name":"Vincent Iorio","posGroup":"D","pos":"D","num":6,"ht":"6-4","htIn":76,"wt":220,"shoots":"R","birthplace":"Coquitlam, BC","country":"CAN","dob":"2002-11-14","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"RFA","contractType":"SPC","signed":"2026-08-21","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":"$175k guaranteed","capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":6,"G":0,"A":0,"PTS":0,"PIM":0},{"Team":"Sharks","League":"NHL","GP":21,"G":0,"A":3,"PTS":3,"PIM":12},{"Team":"San Jose","League":"AHL","GP":6,"G":0,"A":7,"PTS":7,"PIM":4}],"twoWay":true,"nhlId":8482861,"pp":"vincent-iorio","liveStats":{"20252026":{"gp":27,"g":0,"a":3,"p":3,"pm":-4,"pim":12,"sog":15,"toi":15.7,"team":"NYR/SJS"}}},{"id":"TUNG","first":"Callum","last":"Tung","name":"Callum Tung","posGroup":"G","pos":"G","num":98,"ht":"6-3","htIn":75,"wt":209,"shoots":"L","birthplace":"Port Moody, BC","country":"CAN","dob":"2003-11-23","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Goalies","slot":"G1","status":"Active","capHit":972500,"aav":1075000,"retainedPct":0,"perfBonus":102500,"expiry":2028,"expiryStatus":"RFA","contractType":"ELC","signed":"2025-04-01","nmc":false,"ntc":null,"waiverExempt":true,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":16,"W":7,"L":8,"OT":1,"GAA":3.94},{"Team":"Bloomington","League":"ECHL","GP":19,"W":8,"L":9,"OT":2,"GAA":3.1}],"twoWay":true,"nhlId":null,"pp":"callum-tung","liveStats":null},{"id":"MART","first":"Spencer","last":"Martin","name":"Spencer Martin","posGroup":"G","pos":"G","num":41,"ht":"6-3","htIn":75,"wt":191,"shoots":"L","birthplace":"Oakville, ON","country":"CAN","dob":"1995-06-08","lastTeam":"Rangers","lastLeague":"NHL","level":"AHL","team":"HFD","unit":"Goalies","slot":"G2","status":"Active","capHit":850000,"aav":850000,"retainedPct":0,"perfBonus":0,"expiry":2027,"expiryStatus":"UFA","contractType":"SPC","signed":"2025-11-12","nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Rangers","League":"NHL","GP":6,"W":1,"L":3,"OT":0,"GAA":4.13},{"Team":"Hartford","League":"AHL","GP":22,"W":3,"L":13,"OT":3,"GAA":3.51},{"Team":"CSKA Moskva","League":"KHL","GP":14,"W":5,"L":6,"OT":2,"GAA":2.69}],"twoWay":false,"nhlId":8477484,"pp":"spencer-martin","liveStats":{"20252026":{"gp":6,"w":1,"l":3,"otl":0,"sa":147,"sv":127,"ga":20,"so":0,"team":"NYR","svPct":0.864,"gaa":4.13}}},{"id":"KARP","first":"Zakary","last":"Karpa","name":"Zakary Karpa","posGroup":"F","pos":"C","num":null,"ht":"6-2","htIn":74,"wt":197,"shoots":"L","birthplace":"Greenwich, CT","country":"USA","dob":"2002-03-25","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":24,"G":1,"A":3,"PTS":4,"PIM":9},{"Team":"Bloomington","League":"ECHL","GP":34,"G":7,"A":10,"PTS":17,"PIM":17}]},{"id":"NACH","first":"Justin","last":"Nachbaur","name":"Justin Nachbaur","posGroup":"F","pos":"LW","num":null,"ht":"6-3","htIn":75,"wt":205,"shoots":"L","birthplace":"Cross Lake, MB","country":"CAN","dob":"2000-03-04","lastTeam":"Hershey","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hershey","League":"AHL","GP":31,"G":2,"A":1,"PTS":3,"PIM":114},{"Team":"South Carolina","League":"ECHL","GP":16,"G":2,"A":0,"PTS":2,"PIM":60}]},{"id":"STER","first":"Caige","last":"Sterzer","name":"Caige Sterzer","posGroup":"F","pos":"RW","num":null,"ht":"6-5","htIn":77,"wt":227,"shoots":"L","birthplace":"Kimberley, BC","country":"CAN","dob":"2000-08-08","lastTeam":"Hartford","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Hartford","League":"AHL","GP":5,"G":0,"A":0,"PTS":0,"PIM":4},{"Team":"Univ. of St. Thomas","League":"NCAA","GP":34,"G":4,"A":11,"PTS":15,"PIM":20}]},{"id":"VANR","first":"Lucas","last":"Vanroboys","name":"Lucas Vanroboys","posGroup":"F","pos":"C","num":null,"ht":"6-2","htIn":74,"wt":175,"shoots":"R","birthplace":"Thamesville, ON","country":"CAN","dob":"1999-07-24","lastTeam":"San Jose","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"San Jose","League":"AHL","GP":33,"G":4,"A":3,"PTS":7,"PIM":66},{"Team":"Wichita","League":"ECHL","GP":20,"G":5,"A":7,"PTS":12,"PIM":46}]},{"id":"FRIS","first":"Ethan","last":"Frisch","name":"Ethan Frisch","posGroup":"D","pos":"D","num":null,"ht":"5-11","htIn":71,"wt":192,"shoots":"R","birthplace":"Moorhead, MN","country":"USA","dob":"2000-10-29","lastTeam":"Manitoba","lastLeague":"AHL","level":"AHL","team":"HFD","unit":"Pair 3","slot":"RD","status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Manitoba","League":"AHL","GP":10,"G":0,"A":2,"PTS":2,"PIM":0}]},{"id":"KEHR","first":"Anthony","last":"Kehrer","name":"Anthony Kehrer","posGroup":"D","pos":"D","num":null,"ht":"5-11","htIn":71,"wt":205,"shoots":"R","birthplace":"Winnipeg, MB","country":"CAN","dob":"2002-03-04","lastTeam":"Springfield","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"Springfield","League":"AHL","GP":7,"G":0,"A":0,"PTS":0,"PIM":0}]},{"id":"CARR","first":"Gabriel","last":"Carriere","name":"Gabriel Carriere","posGroup":"G","pos":"G","num":null,"ht":"6-2","htIn":74,"wt":185,"shoots":"L","birthplace":"Ottawa, ON","country":"CAN","dob":"2000-11-05","lastTeam":"San Jose","lastLeague":"AHL","level":"AHL","team":"HFD","unit":null,"slot":null,"status":"Active","capHit":0,"aav":0,"retainedPct":0,"perfBonus":0,"expiry":null,"expiryStatus":null,"contractType":"AHL","signed":null,"nmc":false,"ntc":null,"waiverExempt":false,"ltir":false,"notes":null,"capCharge":0,"stats2526":[{"Team":"San Jose","League":"AHL","GP":31,"W":15,"L":12,"OT":3,"GAA":2.76},{"Team":"Wichita","League":"ECHL","GP":4,"W":1,"L":3,"OT":0,"GAA":3.02}]}]}</script>
+<script>
+"use strict";
+let DATA=JSON.parse(document.getElementById('seed').textContent);
+let S=DATA.settings;
+const YEARS=5;
+// 2025 CBA (MOU of June 27, 2025, effective 2026-27). Minimum salary by season (item 26); buried relief = minimum + $375,000 (CBA 50.5(d)(i)(B)(6)).
+const MINSAL=[850000,900000,950000,1000000,1000000];
+// Upper limit: $104.0M in 2026-27 and $113.5M in 2027-28 (league's announced figures); later seasons are set each March by formula and never below $104M, assumed flat here.
+const CAPS=[104000000,113500000,113500000,113500000,113500000];
+const capAt=y=>y===0?S.capUpper:(S.capByYear?.[y]??CAPS[y]??CAPS.at(-1));
+const reliefAt=y=>(MINSAL[y]??MINSAL.at(-1))+375000;
+const MAX_TERM_OWN=7, MAX_TERM_FA=6, RET_MAX_SHARE=.15;
+const STORE='nyr-ops-scenario-v1';
+const UNITS=[
+  {u:'Line 1',slots:['LW','C','RW'],g:'F'},{u:'Line 2',slots:['LW','C','RW'],g:'F'},{u:'Line 3',slots:['LW','C','RW'],g:'F'},{u:'Line 4',slots:['LW','C','RW'],g:'F'},
+  {u:'Pair 1',slots:['LD','RD'],g:'D'},{u:'Pair 2',slots:['LD','RD'],g:'D'},{u:'Pair 3',slots:['LD','RD'],g:'D'},
+  {u:'Goalies',slots:['G1','G2'],g:'G'}];
+const TEAMS={NYR:'Rangers',HFD:'Wolf Pack'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const seasonLbl=y=>`${S.seasonStartYear+y}-${String((S.seasonStartYear+y+1)%100).padStart(2,'0')}`;
+
+function money(n,{sign=false,full=false}={}){
+  n=Math.round(n||0); const neg=n<0, a=Math.abs(n); let s;
+  if(full) s='$'+a.toLocaleString('en-US');
+  else if(a>=1e6) s='$'+(a/1e6).toFixed(a%1e4===0?2:3).replace(/(\.\d\d)0$/,'$1')+'M';
+  else if(a>=1e3) s='$'+Math.round(a/1e3)+'k';
+  else s='$'+a;
+  return (neg?'−':(sign&&n>0?'+':''))+s;
+}
+function ageOf(dob){ if(!dob) return null; const a=new Date(S.ageAsOf), b=new Date(dob); let y=a.getFullYear()-b.getFullYear(); if(a.getMonth()<b.getMonth()||(a.getMonth()===b.getMonth()&&a.getDate()<b.getDate())) y--; return y; }
+// Wolf Pack "unit" names on the sheet use Starter/Backup for goalies; normalize to Goalies
+function normUnit(u){ return (u==='Starter'||u==='Backup')?'Goalies':u; }
+
+/* ---------- state ---------- */
+function initState(){
+  const players=new Map();
+  for(const p of DATA.players){ players.set(p.id,{...p,unit:normUnit(p.unit),age:ageOf(p.dob),charge0:p.capCharge,origTeam:p.team}); }
+  const dead=(S.deadCap||[]).map(d=>({label:d.label,amt:[...Array(YEARS)].map((_,y)=>d.amt[y]||0),base:true}));
+  return {players,dead,ltir:{},retained:[],seq:0};
+}
+function clone(st){ const players=new Map(); for(const [k,p] of st.players) players.set(k,{...p}); return {players,dead:st.dead.map(d=>({...d,amt:[...d.amt]})),ltir:{...st.ltir},retained:[...st.retained],seq:st.seq}; }
+function baseAmt(p){ return Math.round((p.capHit||0)*(1-(p.retainedPct||0))); }
+function charge(p,y=0){
+  if(p.team==='OUT') return 0;
+  if(!p.expiry || p.expiry<=S.seasonStartYear+y) return 0;
+  let b=baseAmt(p);
+  if(p.team==='HFD'){
+    if(p.contractType==='35+') b=Math.max(0,b-100000);       // 35+ deals: only $100k relief when playing in the minors
+    else if(p.twoWay) b=0;                                     // two-way: only minor-league pay above the threshold counts (approximated as zero)
+    else b=Math.max(0,b-reliefAt(y));
+  }
+  return b;
+}
+const isActive=p=>p.status==='Active';
+const nhlContract=p=>p.contractType && p.contractType!=='AHL';
+function totals(st){
+  const ps=[...st.players.values()];
+  const yr=[...Array(YEARS)].map((_,y)=>ps.reduce((s,p)=>s+charge(p,y),0)+st.dead.reduce((s,d)=>s+(d.amt[y]||0),0));
+  const signed=[...Array(YEARS)].map((_,y)=>ps.filter(p=>p.team!=='OUT'&&nhlContract(p)&&p.expiry>S.seasonStartYear+y).length);
+  const nyr=ps.filter(p=>p.team==='NYR');
+  const active=nyr.filter(isActive);
+  const ltirPool=Object.values(st.ltir).reduce((a,b)=>a+b,0);
+  const contracts=ps.filter(p=>p.team!=='OUT'&&nhlContract(p)).length;
+  const grp={F:0,D:0,G:0};
+  nyr.forEach(p=>grp[p.posGroup]+=charge(p,0));
+  const buried=ps.filter(p=>p.team==='HFD').reduce((s,p)=>s+charge(p,0),0);
+  const dead=st.dead.reduce((s,d)=>s+(d.amt[0]||0),0);
+  const open=[];
+  for(const U of UNITS) for(const sl of U.slots){ const q=nyr.find(p=>p.unit===U.u&&p.slot===sl&&isActive(p)); if(!q) open.push(`${U.u} ${sl}`); }
+  const cnt=g=>active.filter(p=>p.posGroup===g).length;
+  return {yr,signed,cap:yr[0],space:S.capUpper+ltirPool-yr[0],ltirPool,active:active.length,nyr:nyr.length,contracts,grp,buried,dead,open,F:cnt('F'),D:cnt('D'),G:cnt('G'),retained:st.retained.length,
+    injured:nyr.filter(p=>p.status==='IR'||p.status==='LTIR').length};
+}
+function compliance(t){
+  const c=[];
+  const lim=S.capUpper+t.ltirPool;
+  c.push(t.cap<=lim?{k:'cap',l:'ok',t:`Cap compliant (${money(lim-t.cap)} space)`}:{k:'cap',l:'bad',t:`Over the cap by ${money(t.cap-lim)}`});
+  if(t.cap<S.capLower) c.push({k:'floor',l:'bad',t:`Below the cap floor by ${money(S.capLower-t.cap)}`});
+  c.push(t.active>S.maxRoster?{k:'roster',l:'bad',t:`Active roster ${t.active}, max ${S.maxRoster}`}:t.active<20?{k:'roster',l:'warn',t:`Active roster ${t.active}, need 20 to dress a lineup`}:{k:'roster',l:'ok',t:`Active roster ${t.active}/${S.maxRoster}`});
+  c.push(t.contracts>S.maxContracts?{k:'spc',l:'bad',t:`${t.contracts} contracts, max ${S.maxContracts}`}:{k:'spc',l:t.contracts>=S.maxContracts-1?'warn':'ok',t:`${t.contracts}/${S.maxContracts} contracts`});
+  if(t.G<2) c.push({k:'g',l:'bad',t:`Only ${t.G} active goalie${t.G===1?'':'s'} on the Rangers`});
+  if(t.F<12) c.push({k:'f',l:'bad',t:`Only ${t.F} active forwards (need 12)`});
+  if(t.D<6) c.push({k:'d',l:'bad',t:`Only ${t.D} active defensemen (need 6)`});
+  if(t.open.length) c.push({k:'lineup',l:'warn',t:`Open lineup slot${t.open.length>1?'s':''}: ${t.open.join(', ')}`});
+  else c.push({k:'lineup',l:'ok',t:'Full lineup set'});
+  if(t.retained>3) c.push({k:'ret',l:'bad',t:`${t.retained} retained contracts, max 3`});
+  else if(t.retained) c.push({k:'ret',l:'info',t:`${t.retained}/3 retention slots used`});
+  if(t.ltirPool) c.push({k:'ltir',l:'info',t:`LTIR relief ${money(t.ltirPool)}`});
+  return c;
+}
+
+/* ---------- transactions ---------- */
+function slotOccupant(st,team,unit,slot,except){ for(const p of st.players.values()) if(p!==except&&p.team===team&&p.unit===unit&&p.slot===slot&&unit) return p; return null; }
+function place(st,p,team,unit,slot){
+  const fromTeam=p.team, fu=p.unit, fs=p.slot;
+  if(unit){ const q=slotOccupant(st,team,unit,slot,p); if(q){ if(fromTeam===team){q.unit=fu;q.slot=fs;} else {q.unit=null;q.slot=null;} } }
+  p.team=team; p.unit=unit||null; p.slot=slot||null;
+}
+function newPlayer(st,f){
+  st.seq++;
+  const pos=f.pos||'C', g=pos==='D'?'D':pos==='G'?'G':'F';
+  const parts=String(f.name||'New Player').trim().split(/\s+/);
+  const yrs=Math.max(1,Math.min(8,+f.years||1));
+  return {id:'NEW'+st.seq,first:parts.slice(0,-1).join(' '),last:parts.slice(-1)[0],name:f.name||'New Player',posGroup:g,pos,num:null,age:+f.age||null,
+    level:f.team==='NYR'?'NHL':'AHL',team:f.team||'NYR',unit:null,slot:null,status:'Active',capHit:Math.round((+f.capM||0)*1e6),aav:Math.round((+f.capM||0)*1e6),retainedPct:(+f.retainedIn||0)/100,
+    expiry:S.seasonStartYear+yrs,expiryStatus:f.expiryStatus||((+f.age||27)>=27?'UFA':'RFA'),contractType:f.type||'SPC',waiverExempt:!!f.we,nmc:!!f.nmc,ntc:f.ntc||null,notes:f.note||null,stats2526:[],added:true,source:f.source,
+    fromTeam:f.fromTeam||null,twoWay:!!f.twoWay,liveStats:f.stats||null,shoots:f.shoots||null,dob:f.dob||null,nhlId:f.nhlId||null,pp:f.pp||null};
+}
+// Each apply returns {ok, notes:[{l,t}]} and mutates st
+function apply(st,tx){
+  const N=[], P=tx.pid?st.players.get(tx.pid):null;
+  const fail=t=>({ok:false,notes:[{l:'bad',t}]});
+  if(tx.pid && (!P||P.team==='OUT')) return fail('Player is no longer in the organization in this scenario');
+  const before=tx.type==='ltir'?totals(st):null;
+  switch(tx.type){
+    case 'assign':{
+      if(P.team!=='NYR') return fail(`${P.name} is not on the Rangers`);
+      if(P.waiverExempt){ N.push({l:'ok',t:'Waiver exempt, can be assigned without waivers'}); }
+      else { N.push({l:'warn',t:`Requires waivers. Any team can claim him at ${money(baseAmt(P))} through ${P.expiry}.`}); if(P.nmc) N.push({l:'bad',t:'Has a no-move clause: he must consent to waivers and assignment'}); }
+      if(!P.waiverExempt && tx.outcome==='claimed'){ P.team='OUT'; P.unit=P.slot=null; P.outReason='Claimed on waivers'; N.push({l:'info',t:'Claimed: full cap hit and contract leave the organization'}); }
+      else { P.status='Active'; place(st,P,'HFD',tx.unit,tx.slot); const r=Math.min(baseAmt(P),reliefAt(0)); if(P.contractType==='35+') N.push({l:'warn',t:'35+ contract: only $100k comes off the cap while he plays in the minors'}); else N.push({l:'info',t:`Buried relief ${money(r)}; ${money(charge(P,0))} stays on the Rangers cap`}); }
+      break;}
+    case 'recall':{
+      if(P.team!=='HFD') return fail(`${P.name} is not with the Wolf Pack`);
+      if(P.contractType==='AHL'){ const cap=Math.round((+tx.capM||0)*1e6); if(cap<S.minSalary) return fail(`AHL contract: sign him to an NHL deal of at least ${money(S.minSalary)} first`); if((+tx.years||1)>MAX_TERM_OWN) return fail(`Contracts are limited to ${MAX_TERM_OWN} years for a club's own player (2025 CBA)`);
+        P.capHit=cap;P.aav=cap;P.contractType='SPC';P.expiry=S.seasonStartYear+(+tx.years||1);P.expiryStatus=P.age>=27?'UFA':'RFA';N.push({l:'info',t:`Converted to an NHL contract at ${money(cap)}; uses a contract slot`}); }
+      P.status='Active'; place(st,P,'NYR',tx.unit,tx.slot);
+      break;}
+    case 'ir':{ if(P.team!=='NYR') return fail('IR applies to Rangers roster players'); P.status='IR'; P.unit=P.slot=null; N.push({l:'info',t:'Opens an active roster spot. Cap hit still counts in full.'}); break;}
+    case 'ltir':{ if(P.team!=='NYR') return fail('LTIR applies to Rangers roster players');
+      const space=Math.max(0,S.capUpper+before.ltirPool-before.cap); const pool=Math.max(0,charge(P,0)-space);
+      P.status='LTIR'; P.unit=P.slot=null; st.ltir[P.id]=pool;
+      N.push({l:'info',t:`LTIR relief pool ${money(pool)} (his ${money(charge(P,0))} hit minus ${money(space)} space at placement). Must miss 10 games and 24 days.`});
+      if(!pool) N.push({l:'warn',t:'No relief gained: the team had enough space to absorb his hit'});
+      else N.push({l:'info',t:'2025 CBA: each replacement signed with LTIR room must have a cap hit at or below last season\'s average league salary, unless the league and NHLPA approve, in which case he cannot return this season or in the playoffs'});
+      break;}
+    case 'activate':{ if(P.status!=='IR'&&P.status!=='LTIR') return fail('Player is not on injured reserve'); if(P.status==='LTIR') N.push({l:'warn',t:'Coming off LTIR removes the relief pool; the team must be cap compliant'}); delete st.ltir[P.id]; P.status='Active'; P.unit=P.slot=null; break;}
+    case 'release':{ if(nhlContract(P)) return fail('Only AHL contracts can be released here; use buyout or waivers'); P.team='OUT'; P.unit=P.slot=null; P.outReason='Released'; break;}
+    case 'buyout':{
+      if(!nhlContract(P)) return fail('No NHL contract to buy out');
+      const N0=P.expiry-S.seasonStartYear, frac=(P.age??30)<26?1/3:2/3, per=Math.round(frac*baseAmt(P)/2);
+      st.dead.push({label:`${P.name} buyout`,amt:[...Array(YEARS)].map((_,y)=>y<2*N0?per:0)});
+      N.push({l:'warn',t:`Buyout at ${frac<.5?'1/3':'2/3'} (age ${P.age}): about ${money(per)} dead cap per season for ${2*N0} seasons`});
+      N.push({l:'info',t:'Approximation: flat salary, no signing bonuses. Buyout windows open after the Cup Final and on arbitration dates.'});
+      if(P.nmc) N.push({l:'info',t:'NMC does not block a buyout'});
+      P.team='OUT'; P.unit=P.slot=null; P.status='Active'; delete st.ltir[P.id]; P.outReason='Bought out';
+      break;}
+    case 'lineup':{ if(P.team!==tx.team) return fail('Player moved teams earlier in the scenario'); if(!isActive(P)) return fail('Injured players cannot dress'); place(st,P,tx.team,tx.unit,tx.slot); break;}
+    case 'trade':
+    case 'sign':{
+      const outs=tx.out||[];
+      for(const o of outs){
+        const q=st.players.get(o.pid); if(!q||q.team==='OUT') return fail('A player in this trade has already left the organization');
+        if(q.nmc) N.push({l:'warn',t:`${q.name} has a no-move clause: he must approve the trade`});
+        else if(q.ntc) N.push({l:'warn',t:/trade/i.test(q.ntc)?`${q.name} has a no-trade clause (${q.ntc}): check his list`:`${q.name} has a ${q.ntc.toLowerCase()} no-trade clause: check his list`});
+        const r=Math.min(50,Math.max(0,+o.retain||0));
+        if(r>0){ if(q.retainedPct>0) N.push({l:'warn',t:`${q.name}'s contract already carries retained salary. A contract can go through at most two retained-salary trades, and the second cannot come within 75 regular-season days of the first (2025 CBA).`});
+          if(st.retained.length>=3) return fail('The Rangers already retain salary on three contracts, the maximum');
+          const already=st.dead.filter(d=>d.retained).reduce((a,d)=>a+(d.amt[0]||0),0), add=Math.round(baseAmt(q)*r/100);
+          if(already+add>RET_MAX_SHARE*S.capUpper) return fail(`Retained salary would total ${money(already+add)}, over the 15% limit of ${money(RET_MAX_SHARE*S.capUpper)}`);
+          const amt=[...Array(YEARS)].map((_,y)=>q.expiry>S.seasonStartYear+y?Math.round(baseAmt(q)*r/100):0);
+          st.dead.push({label:`${q.name} retained ${r}%`,amt,retained:true}); st.retained.push(q.id); N.push({l:'info',t:`Retaining ${r}% of ${q.name}: ${money(amt[0])} stays on the cap through ${q.expiry}`}); }
+        delete st.ltir[q.id];
+        q.team='OUT'; q.unit=q.slot=null; q.status='Active'; q.outReason=`Traded${tx.partner?` to ${tx.partner}`:''}`;
+      }
+      for(const f of (tx.inc||[])){
+        if(tx.type==='sign'&&f.source!=='Waiver claim'&&(+f.years||1)>MAX_TERM_FA) return fail(`Free agents can sign for at most ${MAX_TERM_FA} years (7 only when re-signing a club's own player)`);
+        const np=newPlayer(st,f); if(!np.capHit&&np.contractType!=='AHL') return fail(`Enter a cap hit for ${np.name}`);
+        if(np.contractType==='ELC'&&!f.lg&&np.capHit>1000000) N.push({l:'warn',t:'Entry-level deals top out at $1.0M a season for 2026 draftees (less for earlier draft years)'});
+        if(np.contractType!=='AHL'&&np.capHit<S.minSalary) N.push({l:'warn',t:`${np.name}'s cap hit is below the ${money(S.minSalary)} league minimum`});
+        st.players.set(np.id,np); f._id=np.id;
+        if(np.team==='HFD' && !np.waiverExempt && tx.type==='trade') N.push({l:'warn',t:`${np.name} is not waiver exempt: assigning him to Hartford needs waivers`});
+        if(tx.type==='sign'&&f.source==='Waiver claim'){ N.push({l:'info',t:`Waiver claim: ${np.name} must stay on the NHL roster or go back through waivers`}); }
+      }
+      break;}
+  }
+  return {ok:true,notes:N};
+}
+function compute(txs){ const st=initState(); for(const tx of txs){ const snap=clone(st); const r=apply(st,tx); tx._r=r; if(!r.ok){ Object.assign(st,snap); } } return st; }
+function txLabel(tx,st){
+  const nm=id=>{ const p=(st||BASE).players.get(id)||BASE.players.get(id); return p?p.name:id; };
+  switch(tx.type){
+    case 'assign': return tx.outcome==='claimed'?`Waive ${nm(tx.pid)}: claimed`:`Assign ${nm(tx.pid)} to Hartford`;
+    case 'recall': return `Recall ${nm(tx.pid)} from Hartford`;
+    case 'ir': return `${nm(tx.pid)} to IR`;
+    case 'ltir': return `${nm(tx.pid)} to LTIR`;
+    case 'activate': return `Activate ${nm(tx.pid)} from injured reserve`;
+    case 'release': return `Release ${nm(tx.pid)}`;
+    case 'buyout': return `Buy out ${nm(tx.pid)}`;
+    case 'lineup': return `${nm(tx.pid)} to ${tx.unit?`${tx.unit} ${tx.slot}`:'extras'}`;
+    case 'trade': { const o=(tx.out||[]).map(x=>nm(x.pid)+(+x.retain?` (${x.retain}% ret.)`:'')).join(', ')||'nothing'; const i=(tx.inc||[]).map(f=>f.name||'player').join(', ')||'futures'; return `Trade with ${tx.partner||'partner'}: send ${o}; get ${i}`; }
+    case 'sign': return `${tx.inc?.[0]?.source==='Waiver claim'?'Claim':'Sign'} ${tx.inc?.[0]?.name||'player'} (${money((+tx.inc?.[0]?.capM||0)*1e6)} × ${tx.inc?.[0]?.years||1})`;
+  }
+  return tx.type;
+}
+
+/* ---------- app state ---------- */
+let TX=[], BASE=initState(), BT=totals(BASE), CUR=BASE, CT=BT;
+const UI={rail:false,tk:'NYR',sel:null,form:null,ctf:'all',sort:{k:'cap',d:-1},lq:'',lsort:{k:'capHit',d:-1}};
+function save(){ try{ localStorage.setItem(STORE,JSON.stringify(TX.map(({_r,...t})=>t))); }catch(e){} }
+function load(){ try{ const v=JSON.parse(localStorage.getItem(STORE)||'[]'); if(Array.isArray(v)) TX=v; }catch(e){ TX=[]; } }
+function recompute(){ CUR=compute(TX); CT=totals(CUR); }
+function commit(tx){ TX.push(tx); save(); recompute(); UI.form=null; UI.rail=true; renderAll(); toast(`Added: ${txLabel(tx,CUR)}`); }
+function toast(t){ const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>el.hidden=true,2200); }
+
+/* ---------- render: strip ---------- */
+function delta(a,b,{money:m=true,goodUp=true}={}){ const d=a-b; if(!d) return `<span class="delta flat">±0</span>`; const good=goodUp?d>0:d<0; return `<span class="delta ${good?'up':'down'}">${m?money(d,{sign:true}):(d>0?'+':'−')+Math.abs(d)}</span>`; }
+function renderStrip(){
+  const t=CT,b=BT,lim=S.capUpper+t.ltirPool, pct=Math.min(100,t.cap/lim*100), bp=Math.min(100,b.cap/S.capUpper*100);
+  $('#strip').innerHTML=`
+  <div class="metric"><div class="lbl">Cap space ${seasonLbl(0)}</div>
+    <div class="val ${t.space<0?'state-bad':''}">${money(t.space,{full:true})}${delta(t.space,b.space)}</div>
+    <div class="meter" title="Cap charge vs limit"><i class="${t.space<0?'over':''}" style="width:${pct}%"></i><span class="base" style="left:calc(${bp}% - 1px)" title="Baseline"></span></div>
+    <div class="sub">${money(t.cap)} charged of ${money(lim)} limit${t.ltirPool?' (incl. LTIR)':''}</div></div>
+  <div class="metric"><div class="lbl">Active roster</div><div class="val ${t.active>S.maxRoster?'state-bad':''}">${t.active}<span style="color:var(--muted)">/${S.maxRoster}</span>${delta(t.active,b.active,{money:false,goodUp:false})}</div><div class="sub">${t.F} F · ${t.D} D · ${t.G} G${t.injured?` · ${t.injured} injured`:''}</div></div>
+  <div class="metric"><div class="lbl">NHL contracts</div><div class="val ${t.contracts>S.maxContracts?'state-bad':''}">${t.contracts}<span style="color:var(--muted)">/${S.maxContracts}</span>${delta(t.contracts,b.contracts,{money:false,goodUp:false})}</div><div class="sub">${S.maxContracts-t.contracts} open</div></div>
+  <div class="metric"><div class="lbl">Committed ${seasonLbl(1)}</div><div class="val">${money(t.yr[1])}${delta(t.yr[1],b.yr[1],{goodUp:false})}</div><div class="sub">${t.signed[1]} signed · ${money(capAt(1)-t.yr[1])} open of ${money(capAt(1))}</div></div>
+  <div class="metric"><div class="lbl">Scenario</div><div class="val">${TX.length} move${TX.length===1?'':'s'}</div><div class="sub">${TX.filter(x=>x._r&&!x._r.ok).length?`<span class="state-bad">${TX.filter(x=>!x._r.ok).length} invalid</span>`:TX.length?'vs. live baseline':'Showing baseline'}</div></div>`;
+  $('#pills').innerHTML=compliance(t).map(c=>`<span class="pill ${c.l}">${esc(c.t)}</span>`).join('');
+}
+
+/* ---------- render: boards ---------- */
+function changed(p){ const b=BASE.players.get(p.id); if(!b) return 'new'; return (b.team!==p.team||b.status!==p.status||b.unit!==p.unit||b.slot!==p.slot||b.capHit!==p.capHit)?'moved':''; }
+function chip(p){
+  const tags=[];
+  if(p.status==='IR'||p.status==='LTIR') tags.push(`<span class="tag ir">${p.status}</span>`);
+  if(p.waiverExempt) tags.push(`<span class="tag we" title="Waiver exempt">WE</span>`);
+  if(p.nmc) tags.push(`<span class="tag nmc" title="No-move clause">NMC</span>`); else if(p.ntc) tags.push(`<span class="tag ntc" title="No-trade clause: ${esc(p.ntc)}">NTC</span>`);
+  if(p.contractType==='ELC') tags.push(`<span class="tag">ELC</span>`);
+  if(p.contractType==='AHL') tags.push(`<span class="tag">AHL</span>`);
+  if(p.expiry===S.seasonStartYear+1) tags.push(`<span class="tag exp" title="Expires summer ${p.expiry}">${p.expiryStatus||''} '${String(p.expiry).slice(2)}</span>`);
+  const ch=changed(p);
+  const c=charge(p,0);
+  return `<button class="chip ${p.team==='HFD'?'ahl':''} ${p.posGroup==='G'?'g':''} ${UI.sel===p.id?'sel':''} ${ch} ${p.status!=='Active'?'hurt':''}" data-pid="${p.id}" draggable="true" aria-label="${esc(p.name)}, ${p.pos}">
+    <span class="n">${p.num??'–'}</span><span class="nm">${esc(p.last)}</span>
+    <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
+}
+function renderBoard(team){
+  const ps=[...CUR.players.values()].filter(p=>p.team===team);
+  const unitCap=u=>ps.filter(p=>p.unit===u&&isActive(p)).reduce((s,p)=>s+charge(p,0),0);
+  const avgAge=Math.round(ps.reduce((s,p)=>s+(p.age||0),0)/Math.max(1,ps.length)*10)/10;
+  const cap=ps.reduce((s,p)=>s+charge(p,0),0);
+  let h=`<div class="panel-h"><h2>${team==='NYR'?'New York Rangers':'Hartford Wolf Pack'}</h2><span class="lvl ${team==='HFD'?'ahl':''}">${team==='NYR'?'NHL':'AHL'}</span>
+    <span class="meta">${ps.length} players · avg age ${avgAge} · ${team==='NYR'?'cap ':'buried '}${money(cap)}</span></div>`;
+  for(const grp of [['F','Forwards'],['D','Defense'],['G','Goaltenders']]){
+    h+=`<div class="sec"><div class="sec-t"><span>${grp[1]}</span></div>`;
+    for(const U of UNITS.filter(x=>x.g===grp[0])){
+      h+=`<div class="row ${U.slots.length===2?'pair':''}"><div class="ulbl">${U.u==='Goalies'?'G':U.u.replace('Line ','L').replace('Pair ','P')}</div>`;
+      for(const sl of U.slots){ const p=ps.find(q=>q.unit===U.u&&q.slot===sl);
+        h+=`<div class="slot ${p?'':'empty'}" data-team="${team}" data-unit="${U.u}" data-slot="${sl}"><span class="sl">${sl}</span>${p?chip(p):'Open'}</div>`; }
+      h+=`<div class="ucap" title="Unit cap charge">${money(unitCap(U.u))}</div></div>`;
+    }
+    h+=`</div>`;
+  }
+  const extras=ps.filter(p=>!p.unit&&isActive(p)).sort((a,b)=>'FDG'.indexOf(a.posGroup)-'FDG'.indexOf(b.posGroup)||charge(b,0)-charge(a,0));
+  const hurt=ps.filter(p=>p.status==='IR'||p.status==='LTIR');
+  h+=`<div class="sec"><div class="sec-t"><span>Extras and depth</span><span>${extras.length}</span></div><div class="zone" data-team="${team}" data-zone="extras">${extras.map(chip).join('')||'<span class="none">Drop a player here to scratch him</span>'}</div></div>`;
+  if(hurt.length) h+=`<div class="sec"><div class="sec-t"><span>Injured reserve</span><span>${hurt.length}</span></div><div class="zone">${hurt.map(chip).join('')}</div></div>`;
+  $('#board-'+team).innerHTML=h;
+}
+
+/* ---------- render: rail ---------- */
+function statsTable(p){
+  if(!p.stats2526?.length) return '';
+  const g=p.posGroup==='G';
+  return `<table class="mini"><thead><tr><th>2025-26</th><th>GP</th>${g?'<th>W</th><th>L</th><th>OT</th><th>GAA</th>':'<th>G</th><th>A</th><th>PTS</th><th>PIM</th>'}</tr></thead><tbody>
+  ${p.stats2526.map(s=>`<tr><td>${esc(s.Team)} <span style="color:var(--muted)">${esc(s.League)}</span></td><td>${s.GP??''}</td>${g?`<td>${s.W??''}</td><td>${s.L??''}</td><td>${s.OT??''}</td><td>${s.GAA!=null?(+s.GAA).toFixed(2):''}</td>`:`<td>${s.G??''}</td><td>${s.A??''}</td><td>${s.PTS??''}</td><td>${s.PIM??''}</td>`}</tr>`).join('')}</tbody></table>`;
+}
+function actionsFor(p){
+  const a=[];
+  if(p.team==='NYR'){
+    if(isActive(p)) a.push(['assign',p.waiverExempt?'Assign to Hartford':'Waive and assign',p.waiverExempt?'No waivers needed':'Needs waivers']);
+    if(isActive(p)) a.push(['ir','Place on IR','Frees a roster spot'],['ltir','Place on LTIR','Cap relief pool']);
+    else a.push(['activate','Activate','Back to the active roster']);
+  } else {
+    a.push(['recall','Recall to Rangers',p.contractType==='AHL'?'Needs an NHL contract':'No waivers on recall']);
+  }
+  a.push(['trade','Trade','Build a deal around him']);
+  if(nhlContract(p)) a.push(['buyout','Buy out','Dead cap estimate']); else a.push(['release','Release','Terminate AHL deal']);
+  return a;
+}
+function railOpen(){ return !!(UI.form||(UI.sel&&CUR.players.get(UI.sel))||UI.rail); }
+function renderRail(){
+  const r=$('#rail'); let h='';
+  const open=railOpen(); $('#main').classList.toggle('closed',!open); $('#b-moves').setAttribute('aria-pressed',String(!!UI.rail)); $('#moves-ct').textContent=TX.length;
+  if(!open){ r.innerHTML=''; return; }
+  if(!UI.form&&!(UI.sel&&CUR.players.get(UI.sel))) h+=`<div class="rail-h"><span>Scenario</span><button class="x" data-act="close-rail" aria-label="Close panel">×</button></div>`;
+  if(UI.form){ h=renderForm(); }
+  else if(UI.sel && CUR.players.get(UI.sel)){
+    const p=CUR.players.get(UI.sel), c=charge(p,0);
+    h=`<div class="sec pcard"><div class="sec-t"><span>${p.team==='OUT'?esc(p.outReason||'Left the organization'):TEAMS[p.team]} · ${p.pos}${p.num?` · #${p.num}`:''}</span><button class="x" data-act="close" aria-label="Close">×</button></div>
+      <h3>${esc(p.name)}</h3>
+      <div class="bio">${p.age??'–'} yrs${p.ht?` · ${p.ht}, ${p.wt} lb`:''}${p.shoots?` · ${p.posGroup==='G'?'catches':'shoots'} ${p.shoots}`:''}${p.birthplace?` · ${esc(p.birthplace)}`:''}</div>
+      <dl class="kv">
+        <dt>Cap hit</dt><dd>${p.contractType==='AHL'?'AHL contract':money(p.capHit,{full:true})}</dd>
+        ${p.retainedPct?`<dt>Retained elsewhere</dt><dd>${Math.round(p.retainedPct*100)}%</dd>`:''}
+        <dt>Charge to NYR now</dt><dd>${money(c,{full:true})}</dd>
+        ${p.aav&&p.aav!==p.capHit?`<dt>AAV (with bonuses)</dt><dd>${money(p.aav,{full:true})}</dd>`:''}
+        ${p.perfBonus?`<dt>Performance bonuses</dt><dd>${money(p.perfBonus)}</dd>`:''}
+        ${p.expiry?`<dt>Expires</dt><dd>${p.expiry} ${p.expiryStatus||''} (${p.expiry-S.seasonStartYear} yr${p.expiry-S.seasonStartYear===1?'':'s'})</dd>`:''}
+        <dt>Contract</dt><dd>${p.contractType||'–'}${p.signed?` · signed ${p.signed}`:''}</dd>
+        <dt>Waivers</dt><dd>${p.waiverExempt?'Exempt':'Required'}</dd>
+        <dt>Clauses</dt><dd>${p.nmc?'NMC':''}${p.nmc&&p.ntc?' + ':''}${p.ntc?`${p.ntc} NTC`:''}${!p.nmc&&!p.ntc?'None':''}</dd>
+        ${p.lastTeam?`<dt>Primary 2025-26</dt><dd>${esc(p.lastTeam)} (${esc(p.lastLeague)})</dd>`:''}
+      </dl>
+      ${p.notes?`<div class="note">${esc(p.notes)}</div>`:''}
+      ${p.liveStats&&LEAGUE?`<div class="note">${esc(statLine({group:p.posGroup,stats:p.liveStats}))}</div>`:''}
+      ${statsTable(p)}
+      ${p.team!=='OUT'?`<div class="acts">${actionsFor(p).map(([k,t,s])=>`<button class="act" data-act="open" data-type="${k}"><b>${t}</b><span>${s}</span></button>`).join('')}</div>`:''}
+    </div>`;
+  }
+  h+=`<div class="sec"><div class="sec-t"><span>Scenario moves</span><span>${TX.length}</span></div>${renderLog()}</div>`;
+  const gone=[...CUR.players.values()].filter(p=>p.team==='OUT');
+  if(gone.length) h+=`<div class="sec"><div class="sec-t"><span>Leaving the organization</span><span>${gone.length}</span></div><div class="zone">${gone.map(p=>`<button class="chip" data-pid="${p.id}"><span class="n">${p.num??'–'}</span><span class="nm">${esc(p.last)}</span><span class="ln2"><span class="cap">${esc(p.outReason||'')}</span></span></button>`).join('')}</div></div>`;
+  r.innerHTML=h;
+}
+function renderLog(){
+  if(!TX.length) return `<p class="hint">No moves yet. The board shows the live roster as of ${esc(S.updated)}.</p>`;
+  let st=initState();
+  return `<ol class="log">${TX.map((tx,i)=>{ const pre=st; st=clone(st); const lbl=txLabel(tx,pre); const r=tx._r; const before=totals(pre); if(r?.ok) apply(st,tx); else st=pre; const after=totals(st);
+    const d=after.cap-before.cap;
+    return `<li class="${tx.type==='lineup'?'lineup':''} ${r&&!r.ok?'skip':''}"><span class="k">${i+1}</span><span class="t"><b>${esc(lbl)}</b>${r&&!r.ok?`<small>${esc(r.notes[0].t)}</small>`:tx.type==='lineup'?'':`<small>Cap ${money(d,{sign:true})} · roster ${after.active}</small>`}</span><button class="x" data-act="undo" data-i="${i}" aria-label="Remove move">×</button></li>`; }).join('')}</ol>`;
+}
+
+/* ---------- forms ---------- */
+function openForm(type,pid,extra={}){
+  const p=pid?CUR.players.get(pid):null;
+  const f={type,pid,...extra};
+  if(type==='assign') f.outcome=f.outcome||'clears';
+  if(type==='recall'){ f.capM=f.capM||(S.minSalary/1e6).toFixed(3); f.years=f.years||1; if(!f.unit){ const open=CT.open[0]; if(open){ const m=open.match(/^(.*) (\w+)$/); const U=UNITS.find(u=>u.u===m[1]); if(U&&U.g===p.posGroup){f.unit=m[1];f.slot=m[2];} } } }
+  if(type==='trade'){ f.partner=f.partner||''; f.out=f.out||(pid?[{pid,retain:0}]:[]); f.inc=f.inc||[]; f.pid=null; }
+  if(type==='sign'){ f.inc=[{name:'',pos:'C',capM:(S.minSalary/1e6).toFixed(3),years:1,team:'NYR',type:'SPC',we:false,age:27,source:extra.source||'Free agent'}]; }
+  UI.form=f; renderRail(); $('#rail').scrollTop=0;
+  const first=$('#rail input, #rail select'); if(first) first.focus({preventScroll:true});
+}
+function formTx(){ const f=UI.form; const tx=JSON.parse(JSON.stringify(f)); if(tx.type==='trade'||tx.type==='sign'){ tx.inc=tx.inc.filter(x=>x.name||x.capM); } if(tx.unit==='') {tx.unit=null;tx.slot=null;} return tx; }
+function slotOptions(team,posGroup,cur){
+  const st=CUR; let o=`<option value="">Extras (no lineup slot)</option>`;
+  for(const U of UNITS.filter(u=>!posGroup||u.g===posGroup)) for(const sl of U.slots){ const q=slotOccupant(st,team,U.u,sl); const v=`${U.u}|${sl}`; o+=`<option value="${v}" ${cur===v?'selected':''}>${U.u} ${sl}${q?` (replaces ${esc(q.last)})`:' (open)'}</option>`; }
+  return o;
+}
+function incRow(x,i,tradeMode){
+  if(x.lg) return `<div class="lineitem lgcard"><div class="top2"><span>${esc(x.name)} <span style="color:var(--muted);font-weight:400">${esc(x.pos)} · ${esc(x.fromTeam||'')}</span></span><button class="x" data-act="rm-inc" data-i="${i}" aria-label="Remove">×</button></div>
+   <div class="meta2">${x.age??'–'} yrs · ${money(Math.round(x.capM*1e6),{full:true})} through ${S.seasonStartYear+(+x.years)} ${esc(x.expiryStatus||'')} · ${esc(x.type)}${x.nmc?' · NMC':''}${x.ntc?` · ${esc(x.ntc)}`:''} · waivers ${x.we?'exempt':'required'}</div>
+   ${x.statLine?`<div class="meta2">${esc(x.statLine)}</div>`:''}
+   <div class="two"><label>Goes to<select id="inc-${i}-team" data-k="inc.${i}.team"><option value="NYR" ${x.team==='NYR'?'selected':''}>Rangers</option><option value="HFD" ${x.team==='HFD'?'selected':''}>Hartford</option></select></label>
+   <label>Retained by ${esc(x.fromTeam||'them')} (%)<input id="inc-${i}-ret" data-k="inc.${i}.retainedIn" type="number" min="0" max="50" step="5" value="${esc(x.retainedIn||0)}"></label></div></div>`;
+  return `<div class="lineitem"><div class="top2"><span>${tradeMode?'Incoming':'Player'} ${tradeMode?i+1:''}</span>${tradeMode?`<button class="x" data-act="rm-inc" data-i="${i}" aria-label="Remove">×</button>`:''}</div>
+   <label>Name<input id="inc-${i}-name" data-k="inc.${i}.name" value="${esc(x.name)}" placeholder="Player name"></label>
+   <div class="three"><label>Pos<select id="inc-${i}-pos" data-k="inc.${i}.pos">${['C','LW','RW','D','G'].map(v=>`<option ${x.pos===v?'selected':''}>${v}</option>`).join('')}</select></label>
+   <label>Cap hit ($M)<input id="inc-${i}-cap" data-k="inc.${i}.capM" type="number" step="0.025" min="0" value="${esc(x.capM)}"></label>
+   <label>Years<input id="inc-${i}-yrs" data-k="inc.${i}.years" type="number" min="1" max="${tradeMode?8:MAX_TERM_FA}" value="${esc(x.years)}"></label></div>
+   <div class="three"><label>Age<input id="inc-${i}-age" data-k="inc.${i}.age" type="number" min="18" max="45" value="${esc(x.age)}"></label>
+   <label>Contract<select id="inc-${i}-type" data-k="inc.${i}.type">${['SPC','ELC','35+'].map(v=>`<option ${x.type===v?'selected':''}>${v}</option>`).join('')}</select></label>
+   <label>Goes to<select id="inc-${i}-team" data-k="inc.${i}.team"><option value="NYR" ${x.team==='NYR'?'selected':''}>Rangers</option><option value="HFD" ${x.team==='HFD'?'selected':''}>Hartford</option></select></label></div>
+   ${tradeMode?`<label>Salary retained by other team (%)<input id="inc-${i}-ret" data-k="inc.${i}.retainedIn" type="number" min="0" max="50" value="${esc(x.retainedIn||0)}"></label>`:''}
+   <label class="chk"><input id="inc-${i}-we" type="checkbox" data-k="inc.${i}.we" ${x.we?'checked':''}> Waiver exempt</label></div>`;
+}
+/* ---------- league database ---------- */
+let LEAGUE=null;
+const teamName=a=>LEAGUE?.teams.find(t=>t.abbr===a)?.name||a;
+const teamAbbr=n=>LEAGUE?.teams.find(t=>t.name===n)?.abbr||null;
+const fold=s=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function statLine(r){
+  const st=r.stats||{}, [cs,ps]=LEAGUE.statSeasons, lbl=s=>`${s.slice(0,4)}-${s.slice(6)}`;
+  const one=(s,k)=>{ const d=st[s]; if(!d) return null; return r.group==='G'?`${lbl(s)}: ${d.gp} GP, ${d.w}-${d.l}-${d.otl}, ${d.svPct!=null?d.svPct.toFixed(3).replace(/^0/,''):'–'} SV%, ${d.gaa??'–'} GAA`:`${lbl(s)}: ${d.gp} GP, ${d.g} G, ${d.a} A, ${d.p} P, ${d.pm>0?'+':''}${d.pm}, ${d.toi} TOI`; };
+  return [one(cs),one(ps)].filter(Boolean).join(' · ');
+}
+function posMatch(r,f){ if(!f) return true; if(f==='F') return r.group==='F'; if(f==='D') return r.group==='D'; if(f==='G') return r.group==='G'; if(f==='C') return /(^|,)C/.test(r.pos); if(f==='W') return /W/.test(r.pos); return true; }
+function leagueResults(f){
+  const q=fold(UI.lq).trim(), tm=teamAbbr(f.partner);
+  if(!q&&!tm) return '';
+  const taken=new Set(f.inc.filter(x=>x.lg).map(x=>x.pp));
+  let rs=LEAGUE.players.filter(r=>r.team!=='NYR'&&!r.unsigned&&!taken.has(r.pp)&&(!tm||r.team===tm)&&(!q||fold(r.name).includes(q)));
+  rs.sort((a,b)=>(a.where==='roster'?0:1)-(b.where==='roster'?0:1)||b.capHit-a.capHit);
+  if(!rs.length) return `<li><span class="hint" style="display:block;padding:6px 8px">No match${tm?` on the ${esc(f.partner)}`:''}</span></li>`;
+  return rs.slice(0,40).map(r=>`<li><button data-act="pick-inc" data-pp="${esc(r.pp)}"><span><b>${esc(r.name)}</b> <span style="color:var(--muted)">${esc(r.pos)} · ${r.team}${r.where!=='roster'?' · minors':''}${r.injury?` · ${r.injury}`:''}</span></span><span class="c">${money(r.capHit)} · ${r.expiry||'–'}</span><span class="m">${r.age??'–'} yrs${r.nmc?' · NMC':r.ntc?' · NTC':''}${r.elc?' · ELC':''} · ${esc(statLine(r)||'no NHL stats this season or last')}</span></button></li>`).join('');
+}
+function partnerLine(name){
+  const t=LEAGUE?.teams.find(x=>x.name===name); if(!t||t.capSpace==null) return '';
+  return `<p class="hint" style="margin-top:4px">${esc(t.name)}: ${money(t.capSpace)} cap space · ${t.active} active · ${t.contracts}/50 contracts (PuckPedia)</p>`;
+}
+function incFromLeague(r){
+  const yrs=Math.max(1,(r.expiry||S.seasonStartYear+1)-S.seasonStartYear);
+  return {lg:true,pp:r.pp,nhlId:r.nhlId||null,name:r.name,pos:(r.pos||'C').split(',')[0].replace(/^[LR]D$/,'D'),capM:(r.capHit/1e6).toFixed(6),years:yrs,
+    team:r.where==='roster'?'NYR':'HFD',type:r.elc?'ELC':'SPC',we:!!r.waiverExempt,age:r.age,retainedIn:0,
+    twoWay:!!r.twoWay,nmc:!!r.nmc,ntc:r.ntc?(/no trade/i.test(r.ntc)?r.ntc:'NTC: '+r.ntc):null,expiryStatus:r.expiryStatus,fromTeam:teamName(r.team),stats:r.stats||null,statLine:statLine(r),dob:r.dob||null,shoots:r.shoots||null};
+}
+function pickLeague(pp){
+  const r=LEAGUE.players.find(x=>x.pp===pp); if(!r||!UI.form) return;
+  if(!UI.form.partner) UI.form.partner=teamName(r.team);
+  UI.form.inc.push(incFromLeague(r)); UI.lq=''; renderRail();
+  const el=$('#f-lsearch'); if(el) el.focus({preventScroll:true});
+}
+function renderLeague(){
+  if(!LEAGUE) return;
+  const q=fold($('#lg-q').value).trim(), tm=$('#lg-team').value, pf=$('#lg-pos').value, wh=$('#lg-where').value, ex=$('#lg-exp').value;
+  let rs=LEAGUE.players.filter(r=>!r.unsigned&&(!q||fold(r.name).includes(q))&&(!tm||r.team===tm)&&posMatch(r,pf)&&(!wh||r.where===wh)&&(!ex||String(r.expiry)===ex));
+  const {k,d}=UI.lsort; const val=(r,k)=>k==='p'?(r.group==='G'?(r.stats?.[LEAGUE.statSeasons[1]]?.svPct??0):(r.stats?.[LEAGUE.statSeasons[1]]?.p??-1)):k==='cp'?(r.group==='G'?(r.stats?.[LEAGUE.statSeasons[0]]?.svPct??0):(r.stats?.[LEAGUE.statSeasons[0]]?.p??-1)):r[k];
+  rs.sort((a,b)=>{ const x=val(a,k),y=val(b,k); return (typeof x==='number'||typeof y==='number')?((x??-1)-(y??-1))*d:String(x??'').localeCompare(String(y??''))*d; });
+  const cols=[['name','Player'],['team','Team'],['pos','Pos'],['age','Age','r'],['capHit','Cap hit','r'],['expiry','Expires','r'],['expiryStatus','Status'],['cl','Clauses'],['cp',`${LEAGUE.statSeasons[0].slice(0,4)}-${LEAGUE.statSeasons[0].slice(6)}`,'r'],['p',`${LEAGUE.statSeasons[1].slice(0,4)}-${LEAGUE.statSeasons[1].slice(6)}`,'r'],['act','']];
+  const sline=(r,s)=>{ const x=r.stats?.[s]; if(!x) return '–'; return r.group==='G'?`${x.gp} GP · ${x.svPct!=null?x.svPct.toFixed(3).replace(/^0/,''):'–'}`:`${x.gp} GP · ${x.p} P`; };
+  const shown=rs.slice(0,200);
+  $('#lg').innerHTML=`<thead><tr>${cols.map(c=>`<th class="${c[2]||''}" data-lk="${c[0]}">${c[1]}${UI.lsort.k===c[0]?(d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${shown.map(r=>`<tr title="${esc(statLine(r))}">
+    <td>${esc(r.name)}${r.injury?` <span style="color:var(--bad);font-size:11px">${r.injury}</span>`:''}</td><td>${r.team}${r.where!=='roster'?' <span style="color:var(--muted);font-size:11px">minors</span>':''}</td><td>${esc(r.pos)}</td><td class="r">${r.age??''}</td>
+    <td class="r mono">${money(r.capHit,{full:true})}</td><td class="r">${r.expiry||''}</td><td>${esc(r.expiryStatus||'')}${r.elc?' · ELC':''}</td>
+    <td>${[r.nmc?'NMC':'',r.ntc&&!r.nmc?'NTC':''].filter(Boolean).join(' + ')}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[0])}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[1])}</td>
+    <td>${r.team!=='NYR'?`<button class="mini-btn" data-act="lg-trade" data-pp="${esc(r.pp)}">Trade for</button>`:''}</td></tr>`).join('')}</tbody>`;
+  $('#lg-meta').textContent=`${rs.length.toLocaleString()} player${rs.length===1?'':'s'}${rs.length>200?', showing the first 200':''}. Contracts from PuckPedia and stats from NHL.com as of ${LEAGUE.updated}. Hover a row for full stats.`;
+}
+function initLeague(){
+  const ts=$('#lg-team'); ts.innerHTML='<option value="">All teams</option>'+LEAGUE.teams.map(t=>`<option value="${t.abbr}">${esc(t.name)}</option>`).join('');
+  const ys=[...new Set(LEAGUE.players.map(r=>r.expiry).filter(Boolean))].sort();
+  $('#lg-exp').innerHTML='<option value="">Any expiry</option>'+ys.map(y=>`<option value="${y}">Expires ${y}</option>`).join('');
+  ['#lg-q','#lg-team','#lg-pos','#lg-where','#lg-exp'].forEach(id=>$(id).addEventListener('input',renderLeague));
+  $('#lg').addEventListener('click',e=>{ const th=e.target.closest('th[data-lk]'); if(!th||th.dataset.lk==='act') return; const k=th.dataset.lk; UI.lsort={k,d:UI.lsort.k===k?-UI.lsort.d:(['name','team','pos','expiryStatus'].includes(k)?1:-1)}; renderLeague(); });
+  renderLeague(); if(UI.form?.type==='trade') renderRail();
+}
+function renderForm(){
+  const f=UI.form, p=f.pid?CUR.players.get(f.pid):null;
+  const titles={assign:p&&p.waiverExempt?'Assign to Hartford':'Waive and assign',recall:'Recall to the Rangers',ir:'Place on injured reserve',ltir:'Place on long-term injured reserve',activate:'Activate from injured reserve',buyout:'Buy out contract',release:'Release AHL contract',trade:'Trade builder',sign:f.inc?.[0]?.source==='Waiver claim'?'Claim off waivers':'Sign a free agent'};
+  let h=`<div class="sec form"><div class="sec-t"><span>${titles[f.type]}</span><button class="x" data-act="cancel" aria-label="Cancel">×</button></div>`;
+  if(p) h+=`<div style="font-family:var(--f-display);font-weight:700;font-size:20px;text-transform:uppercase">${esc(p.name)}</div><div class="hint" style="margin:0">${p.pos} · ${TEAMS[p.team]} · ${p.contractType==='AHL'?'AHL contract':money(p.capHit)+' through '+p.expiry}</div>`;
+  if(f.type==='assign'){
+    if(!p.waiverExempt) h+=`<label>If he goes on waivers</label><div class="seg" role="group"><button data-k="outcome" data-v="clears" aria-pressed="${f.outcome==='clears'}">He clears</button><button data-k="outcome" data-v="claimed" aria-pressed="${f.outcome==='claimed'}">He is claimed</button></div>`;
+    if(f.outcome!=='claimed'||p.waiverExempt) h+=`<label>Hartford slot<select id="f-slot" data-k="slotpair">${slotOptions('HFD',p.posGroup,f.unit?`${f.unit}|${f.slot}`:'')}</select></label>`;
+  }
+  if(f.type==='recall'){
+    if(p.contractType==='AHL') h+=`<div class="note">He is on an AHL contract. Recalling him means signing an NHL deal, which uses one of the 50 contract slots.</div><div class="two"><label>NHL cap hit ($M)<input id="f-cap" type="number" step="0.025" min="0" data-k="capM" value="${esc(f.capM)}"></label><label>Years<input id="f-yrs" type="number" min="1" max="8" data-k="years" value="${esc(f.years)}"></label></div>`;
+    h+=`<label>Rangers slot<select id="f-slot" data-k="slotpair">${slotOptions('NYR',p.posGroup,f.unit?`${f.unit}|${f.slot}`:'')}</select></label>`;
+  }
+  if(f.type==='trade'){
+    h+=LEAGUE?`<label>Trade partner<select id="f-partner" data-k="partner"><option value="">Choose a team…</option>${LEAGUE.teams.filter(t=>t.abbr!=='NYR').map(t=>`<option ${f.partner===t.name?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label>${partnerLine(f.partner)}`
+      :`<label>Trade partner<input id="f-partner" data-k="partner" value="${esc(f.partner)}" placeholder="e.g. Seattle Kraken"></label>`;
+    h+=`
+      <div class="sec-t" style="margin-top:10px"><span>Rangers send</span></div>
+      ${f.out.map((o,i)=>{ const q=CUR.players.get(o.pid); return `<div class="lineitem"><div class="top2"><span>${esc(q?.name||o.pid)} <span style="color:var(--muted);font-weight:400">${q?`${q.pos} · ${money(baseAmt(q))} to ${q.expiry||'–'}`:''}</span></span><button class="x" data-act="rm-out" data-i="${i}" aria-label="Remove">×</button></div>
+        ${q&&nhlContract(q)?`<label>Retain salary (%, max 50)<input id="out-${i}-ret" type="number" min="0" max="50" step="5" data-k="out.${i}.retain" value="${esc(o.retain)}"></label>`:''}</div>`; }).join('')}
+      <label>Add a player to send<select id="f-addout" data-act="add-out"><option value="">Choose…</option>${['NYR','HFD'].map(t=>`<optgroup label="${TEAMS[t]}">${[...CUR.players.values()].filter(q=>q.team===t&&!f.out.some(o=>o.pid===q.id)).sort((a,b)=>baseAmt(b)-baseAmt(a)).map(q=>`<option value="${q.id}">${esc(q.name)} (${q.pos}, ${q.contractType==='AHL'?'AHL':money(baseAmt(q))})</option>`).join('')}</optgroup>`).join('')}</select></label>
+      <div class="sec-t" style="margin-top:12px"><span>Rangers receive</span></div>
+      ${f.inc.map((x,i)=>incRow(x,i,true)).join('')}
+      ${LEAGUE?`<label>Add a player from ${f.partner?esc(f.partner):'any team'}<input id="f-lsearch" type="search" data-act="lsearch" autocomplete="off" value="${esc(UI.lq||'')}" placeholder="${f.partner?'Type a name, or leave blank to list the roster':'Type a player name'}"></label><ul class="lres" id="lres">${leagueResults(f)}</ul>`:''}
+      <button class="btn ${LEAGUE?'ghost':''}" data-act="add-inc" style="margin-top:6px">${LEAGUE?'Enter an unlisted player by hand':'Add incoming player'}</button>
+      <label>Picks, prospects or notes<input id="f-note" data-k="note" value="${esc(f.note||'')}" placeholder="e.g. 2027 2nd-round pick"></label>`;
+  }
+  if(f.type==='sign'){
+    h+=`<label>Type</label><div class="seg" role="group"><button data-k="inc.0.source" data-v="Free agent" aria-pressed="${f.inc[0].source==='Free agent'}">Free agent</button><button data-k="inc.0.source" data-v="Waiver claim" aria-pressed="${f.inc[0].source==='Waiver claim'}">Waiver claim</button></div>${incRow(f.inc[0],0,false)}`;
+  }
+  h+=`<div id="impact">${renderImpact()}</div>
+    <div class="formbtns"><button class="btn primary" data-act="commit" id="f-commit">Add to scenario</button><button class="btn ghost" data-act="cancel">Cancel</button></div></div>`;
+  return h;
+}
+function renderImpact(){
+  const tx=formTx(); const after=compute([...TX.map(t=>({...t})),tx]); const r=tx._r; const a=totals(after), b=CT;
+  const row=(l,x,y,o={})=>`<span>${l}</span><span class="v" style="color:var(--muted)">${o.m===false?y:money(y)}</span><span class="v">${o.m===false?x:money(x)} ${delta(x,y,{money:o.m!==false,goodUp:o.goodUp!==false})}</span>`;
+  const cb=compliance(b), ca=compliance(a);
+  const newIssues=ca.filter(c=>(c.l==='bad'||c.l==='warn')&&!cb.some(o=>o.k===c.k&&o.t===c.t));
+  const fixed=cb.filter(c=>(c.l==='bad'||c.l==='warn')&&!ca.some(o=>o.k===c.k&&(o.l==='bad'||o.l==='warn')));
+  let h=`<div class="impact"><h4>Impact if you make this move</h4><div class="imp">
+    <span style="color:var(--muted);font-size:11px">&nbsp;</span><span class="v" style="color:var(--muted);font-size:11px">now</span><span class="v" style="color:var(--muted);font-size:11px">after</span>
+    ${row(`Cap space ${seasonLbl(0)}`,a.space,b.space)}
+    ${row('Active roster',a.active,b.active,{m:false,goodUp:false})}
+    ${row('NHL contracts',a.contracts,b.contracts,{m:false,goodUp:false})}
+    ${[1,2,3].map(y=>row(`Committed ${seasonLbl(y)}`,a.yr[y],b.yr[y],{goodUp:false})).join('')}
+  </div><div class="flags">`;
+  (r?.notes||[]).forEach(n=>h+=`<div class="flag ${n.l}">${esc(n.t)}</div>`);
+  if(r?.ok){ newIssues.forEach(c=>h+=`<div class="flag ${c.l}">${esc(c.t)}</div>`); fixed.forEach(c=>h+=`<div class="flag ok">Resolves: ${esc(cb.find(o=>o.k===c.k).t)}</div>`); if(!newIssues.length&&!(r.notes||[]).some(n=>n.l==='bad')) h+=`<div class="flag ok">No new compliance problems</div>`; }
+  h+=`</div></div>`;
+  return h;
+}
+function setPath(obj,path,val){ const k=path.split('.'); let o=obj; for(let i=0;i<k.length-1;i++) o=o[k[i]]; o[k.at(-1)]=val; }
+function refreshImpact(){ const el=$('#impact'); if(el) el.innerHTML=renderImpact(); const btn=$('#f-commit'); if(btn){ const tx=formTx(); compute([...TX.map(t=>({...t})),tx]); btn.disabled=!tx._r?.ok; } }
+
+/* ---------- charts ---------- */
+function renderOutlook(){
+  const W=640,H=230,L=46,R=10,T=14,B=26, max=Math.max(...CAPS.map((_,i)=>capAt(i)*1.08),...CT.yr,...BT.yr);
+  const y=v=>T+(H-T-B)*(1-v/max), bw=(W-L-R)/YEARS;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Committed cap by season">`;
+  for(let v=0;v<=max;v+=25e6) s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">$${v/1e6}M</text>`;
+  CT.yr.forEach((v,i)=>{ const x=L+i*bw+bw*.22, w=bw*.56, top=y(v), h0=y(0)-top;
+    s+=`<path class="bar" d="M${x},${y(0)} V${top+4} q0,-4 4,-4 H${x+w-4} q4,0 4,4 V${y(0)} Z"/>`;
+    s+=`<line class="baseline" x1="${x-6}" x2="${x+w+6}" y1="${y(BT.yr[i])}" y2="${y(BT.yr[i])}"/>`;
+    s+=`<text x="${x+w/2}" y="${Math.min(top,y(BT.yr[i]))-6}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${money(v)}</text>`;
+    s+=`<text x="${x+w/2}" y="${H-8}" text-anchor="middle">${seasonLbl(i)}</text>`;
+    s+=`<rect class="hit" data-i="${i}" x="${L+i*bw}" y="${T}" width="${bw}" height="${H-T-B}"/>`; });
+  CT.yr.forEach((_,i)=>{ const c=capAt(i), x1=L+i*bw+2, x2=L+(i+1)*bw-2; s+=`<line class="capline" x1="${x1}" x2="${x2}" y1="${y(c)}" y2="${y(c)}"/>`; });
+  s+=`</svg>`;
+  s+=`<div class="legend"><span><i style="background:var(--s1)"></i>Scenario</span><span><i class="tick"></i>Baseline ${esc(S.updated)}</span><span><i class="dash"></i>Cap upper limit (${[...new Set(CT.yr.map((_,i)=>money(capAt(i))))].join(", then ")})</span></div><div class="tip" hidden></div>`;
+  const box=$('#outlook'); box.innerHTML=s;
+  const tip=box.querySelector('.tip');
+  box.querySelectorAll('.hit').forEach(r=>{ r.addEventListener('mousemove',e=>{ const i=+r.dataset.i; tip.hidden=false;
+    tip.innerHTML=`${seasonLbl(i)}<br>Scenario <b>${money(CT.yr[i],{full:true})}</b><br>Baseline <b>${money(BT.yr[i],{full:true})}</b><br>Space <b>${money(capAt(i)-CT.yr[i])}</b> under ${money(capAt(i))} · ${CT.signed[i]} signed`;
+    const bb=box.getBoundingClientRect(); let lx=e.clientX-bb.left+12; if(lx>bb.width-190) lx-=210; tip.style.left=lx+'px'; tip.style.top=(e.clientY-bb.top-10)+'px'; });
+    r.addEventListener('mouseleave',()=>tip.hidden=true); });
+}
+function renderBreakdown(){
+  const t=CT, segs=[['Forwards',t.grp.F,'var(--s1)'],['Defense',t.grp.D,'var(--s2)'],['Goalies',t.grp.G,'var(--s3)'],['Buried in AHL',t.buried,'var(--s4)'],['Dead and retained',t.dead,'var(--ink-2)']].filter(s=>s[1]>0);
+  const lim=S.capUpper+t.ltirPool, tot=Math.max(lim,t.cap);
+  $('#brk-meta').textContent=`${seasonLbl(0)} · ${money(t.cap)} of ${money(lim)}`;
+  let h=`<div class="stack" role="img" aria-label="Cap charge by group">${segs.map(s=>`<div style="flex:0 0 ${s[1]/tot*100}%;background:${s[2]}" title="${s[0]}: ${money(s[1],{full:true})}"></div>`).join('')}</div>`;
+  h+=`<div class="brk">${segs.map(s=>{ const b=s[0]==='Forwards'?BT.grp.F:s[0]==='Defense'?BT.grp.D:s[0]==='Goalies'?BT.grp.G:s[0]==='Buried in AHL'?BT.buried:BT.dead; return `<i style="background:${s[2]}"></i><span>${s[0]}</span><span class="v">${money(s[1])}</span><span class="v">${(s[1]/t.cap*100).toFixed(1)}%</span>`; }).join('')}
+    <i style="background:var(--line-2);border:1px solid var(--line)"></i><span>Cap space</span><span class="v">${money(t.space)}</span><span class="v"></span></div>`;
+  const top=[...CUR.players.values()].filter(p=>p.team==='NYR').sort((a,b)=>charge(b,0)-charge(a,0)).slice(0,5);
+  const topSum=top.reduce((s,p)=>s+charge(p,0),0);
+  h+=`<p class="hint" style="margin-top:12px">Top five cap hits (${top.map(p=>esc(p.last)).join(', ')}) take ${money(topSum)}, ${(topSum/S.capUpper*100).toFixed(0)}% of the limit.</p>`;
+  $('#breakdown').innerHTML=h;
+}
+
+/* ---------- contracts table ---------- */
+const COLS=[['name','Player'],['pos','Pos'],['team','Team'],['age','Age','r'],['capHit','Cap hit','r'],['cap','Charge now','r'],['expiry','Expires','r'],['expiryStatus','Status'],['contractType','Type'],['we','Waivers'],['cl','Clauses'],['y1',seasonLbl(1),'r'],['y2',seasonLbl(2),'r']];
+function cell(p,k){ switch(k){ case 'team': return p.team==='OUT'?(p.outReason||'Gone'):TEAMS[p.team]+(p.status!=='Active'?` (${p.status})`:''); case 'cap': return charge(p,0); case 'we': return p.waiverExempt?'Exempt':'Required'; case 'cl': return [p.nmc?'NMC':'',p.ntc?p.ntc+' NTC':''].filter(Boolean).join(' + '); case 'y1': return charge(p,1); case 'y2': return charge(p,2); default: return p[k]; } }
+function renderTable(){
+  const f=UI.ctf; let ps=[...CUR.players.values()];
+  if(f==='NYR'||f==='HFD') ps=ps.filter(p=>p.team===f); else if(f==='exp') ps=ps.filter(p=>p.expiry===S.seasonStartYear+1&&p.team!=='OUT'); else if(f==='chg') ps=ps.filter(p=>changed(p)||p.team==='OUT'); else ps=ps.filter(p=>p.team!=='OUT'||f==='all');
+  const {k,d}=UI.sort; ps.sort((a,b)=>{ const x=cell(a,k),y=cell(b,k); return (typeof x==='number'||typeof y==='number')?((x||0)-(y||0))*d:String(x??'').localeCompare(String(y??''))*d; });
+  const m=['capHit','cap','y1','y2'];
+  $('#ct').innerHTML=`<thead><tr>${COLS.map(c=>`<th class="${c[2]||''}" data-k="${c[0]}">${c[1]}${UI.sort.k===c[0]?(UI.sort.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${ps.map(p=>`<tr data-pid="${p.id}" class="${p.team==='OUT'?'out':''}">${COLS.map(c=>{ let v=cell(p,c[0]); if(m.includes(c[0])) v=(c[0]==='capHit'&&p.contractType==='AHL')?'AHL':v?money(v,{full:true}):'–'; return `<td class="${c[2]||''} ${m.includes(c[0])?'mono':''}">${esc(v??'')}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+  $('#ct-filters').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===f));
+}
+
+function renderAll(){ renderTicker(); renderStrip(); renderBoard('NYR'); renderBoard('HFD'); renderRail(); renderOutlook(); renderBreakdown(); renderTable();
+  $('#stamp').innerHTML=`<span class="dot"></span>${esc(S.season)} · roster and contracts as of ${esc(S.updated)} · source: ${esc(S.source)}`;
+  $('#foot').textContent=`Rules follow the 2025 CBA. Buried relief for Wolf Pack players is the league minimum plus $375,000 (${money(reliefAt(0))} this season, rising with the minimum); 35+ deals get $100k. Upper limit ${money(capAt(0))} this season and ${money(capAt(1))} in ${seasonLbl(1)}, assumed flat after that. Free-agent terms max out at ${MAX_TERM_FA} years (${MAX_TERM_OWN} for your own players); retention is capped at 50% per contract, three contracts and 15% of the cap. LTIR relief is the injured player's hit minus space at placement. Buyouts are estimated with flat salaries. Contracts and roster status come from PuckPedia and stats from NHL.com, refreshed daily; lines and AHL-only deals come from your spreadsheet. No transaction here is real; the scenario lives in this browser only.`; }
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-pid],th[data-k],#ct-filters button,.seg button');
+  if(!t) return;
+  if(t.matches('.seg button')){ setPath(UI.form,t.dataset.k,t.dataset.v); renderRail(); return; }
+  if(t.matches('#ct-filters button')){ UI.ctf=t.dataset.f; renderTable(); return; }
+  if(t.matches('th[data-k]')){ const k=t.dataset.k; UI.sort={k,d:UI.sort.k===k?-UI.sort.d:(['name','pos','team'].includes(k)?1:-1)}; renderTable(); return; }
+  const act=t.dataset.act;
+  if(act==='close'){ UI.sel=null; renderAll(); return; }
+  if(act==='close-rail'){ UI.rail=false; UI.sel=null; UI.form=null; renderAll(); return; }
+  if(act==='open'){ openForm(t.dataset.type,UI.sel); return; }
+  if(act==='cancel'){ UI.form=null; renderRail(); return; }
+  if(act==='commit'){ const tx=formTx(); compute([...TX.map(x=>({...x})),tx]); if(!tx._r?.ok) return; delete tx._r; commit(tx); return; }
+  if(act==='undo'){ const i=+t.dataset.i; const [x]=TX.splice(i,1); save(); recompute(); renderAll(); toast(`Removed: ${txLabel(x,CUR)}`); return; }
+  if(act==='add-inc'){ UI.form.inc.push({name:'',pos:'C',capM:'1.000',years:1,team:'NYR',type:'SPC',we:false,age:26,retainedIn:0}); renderRail(); return; }
+  if(act==='rm-inc'){ UI.form.inc.splice(+t.dataset.i,1); renderRail(); return; }
+  if(act==='pick-inc'){ pickLeague(t.dataset.pp); return; }
+  if(act==='lg-trade'){ const r=LEAGUE.players.find(x=>x.pp===t.dataset.pp); if(!r) return; if(!(UI.form&&UI.form.type==='trade')) openForm('trade',null,{partner:teamName(r.team)}); else if(!UI.form.partner) UI.form.partner=teamName(r.team); if(!UI.form.inc.some(x=>x.pp===r.pp)) UI.form.inc.push(incFromLeague(r)); renderRail(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if(act==='rm-out'){ UI.form.out.splice(+t.dataset.i,1); renderRail(); return; }
+  if(t.dataset.pid && !t.closest('.form')){ UI.sel=t.dataset.pid; UI.form=null; renderBoard('NYR'); renderBoard('HFD'); renderRail(); if(window.innerWidth<=1280) $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); }
+});
+document.addEventListener('input',e=>{
+  const t=e.target; if(!UI.form||!t.closest('.form')) return;
+  if(t.dataset.act==='lsearch'){ UI.lq=t.value; const ul=$('#lres'); if(ul) ul.innerHTML=leagueResults(UI.form); return; }
+  if(t.id==='f-partner'&&LEAGUE){ UI.form.partner=t.value; UI.lq=''; renderRail(); return; }
+  if(t.dataset.act==='add-out'){ if(t.value){ UI.form.out.push({pid:t.value,retain:0}); renderRail(); } return; }
+  if(t.dataset.k==='slotpair'){ const [u,s]=t.value.split('|'); UI.form.unit=u||null; UI.form.slot=s||null; refreshImpact(); return; }
+  if(t.dataset.k){ setPath(UI.form,t.dataset.k,t.type==='checkbox'?t.checked:t.value); refreshImpact(); }
+});
+$('#b-trade').onclick=()=>openForm('trade',null);
+$('#b-sign').onclick=()=>openForm('sign',null,{source:'Free agent'});
+$('#b-reset').onclick=()=>{ if(!TX.length) return; if(UI.armed){ TX=[];save();recompute();UI.form=null;UI.armed=false;$('#b-reset').textContent='Reset scenario';renderAll();toast('Scenario cleared'); } else { UI.armed=true; $('#b-reset').textContent='Click again to clear '+TX.length+' moves'; setTimeout(()=>{UI.armed=false;$('#b-reset').textContent='Reset scenario';},3000); } };
+$('#b-copy').onclick=async()=>{
+  const lines=[`NYR scenario (${S.season}), baseline ${S.updated}`, ...TX.map((x,i)=>`${i+1}. ${txLabel(x,CUR)}${x._r&&!x._r.ok?' [invalid]':''}`), '',
+    `Cap space: ${money(CT.space,{full:true})} (baseline ${money(BT.space,{full:true})})`, `Active roster: ${CT.active}/${S.maxRoster} · Contracts: ${CT.contracts}/${S.maxContracts}`,
+    `Committed ${seasonLbl(1)}: ${money(CT.yr[1])} · ${seasonLbl(2)}: ${money(CT.yr[2])}`, ...compliance(CT).filter(c=>c.l==='bad'||c.l==='warn').map(c=>`! ${c.t}`)];
+  try{ await navigator.clipboard.writeText(lines.join('\n')); toast('Summary copied'); }catch(err){ toast('Copy is blocked here'); }
+};
+// drag and drop
+let DRAG=null;
+document.addEventListener('dragstart',e=>{ const c=e.target.closest?.('.chip[data-pid]'); if(!c) return; DRAG=c.dataset.pid; e.dataTransfer.effectAllowed='move'; try{e.dataTransfer.setData('text/plain',DRAG);}catch(_){} });
+document.addEventListener('dragend',()=>{ DRAG=null; document.querySelectorAll('.drop').forEach(x=>x.classList.remove('drop')); });
+document.addEventListener('dragover',e=>{ const z=e.target.closest('.slot,.zone[data-zone]'); if(!z||!DRAG) return; e.preventDefault(); document.querySelectorAll('.drop').forEach(x=>x!==z&&x.classList.remove('drop')); z.classList.add('drop'); });
+document.addEventListener('drop',e=>{
+  const z=e.target.closest('.slot,.zone[data-zone]'); if(!z||!DRAG) return; e.preventDefault();
+  const p=CUR.players.get(DRAG); const team=z.dataset.team, unit=z.dataset.unit||null, slot=z.dataset.slot||null; DRAG=null;
+  if(!p||p.team==='OUT') return;
+  UI.sel=p.id;
+  if(p.team===team){ if(p.unit===unit&&p.slot===slot) return; if(!isActive(p)){ toast('Activate him from IR first'); return; } commit({type:'lineup',pid:p.id,team,unit,slot}); }
+  else if(team==='HFD'){ if(!isActive(p)){ toast('Activate him from IR first'); return; } openForm('assign',p.id,{unit,slot}); }
+  else openForm('recall',p.id,{unit,slot});
+  renderBoard('NYR'); renderBoard('HFD');
+});
+
+/* ---------- roster updates ticker ---------- */
+function tickerItems(){
+  const all=(LEAGUE?.transactions)||(S.updates||[]).map(t=>({...t,team:'NYR'}));
+  return UI.tk==='NYR'?all.filter(t=>t.team==='NYR'):all;
+}
+function renderTicker(){
+  const items=tickerItems().slice(0,UI.tk==='NYR'?20:60), el=$('#ticker');
+  document.querySelectorAll('.ticker [data-tk]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tk===UI.tk)));
+  if(!items.length){ el.innerHTML=`<span class="empty">${LEAGUE||S.updates?'No recent roster moves.':'Loading updates…'}</span>`; el.style.animation='none'; return; }
+  const fmt=d=>new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const cls=k=>/injur/i.test(k||'')?'inj':/waiv/i.test(k||'')?'wv':'';
+  const one=t=>`<span class="it"><time datetime="${t.date}">${fmt(t.date)}</time>${UI.tk==='ALL'?`<span class="tm">${esc(t.team)}</span>`:''}<span class="k ${cls(t.kind)}">${esc(t.kind||'Move')}</span><span>${t.text&&t.text.length>12?esc(t.text):`<b>${esc(t.name)}</b>: ${esc(t.kind||'')} ${esc(t.text||'')}`}</span></span>`;
+  const seq=items.map(one).join('');
+  el.innerHTML=seq+`<span aria-hidden="true" style="display:contents">${seq}</span>`; // doubled for a seamless loop
+  el.style.animation=''; el.style.setProperty('--dur',Math.max(30,items.length*9)+'s');
+}
+document.querySelectorAll('.ticker [data-tk]').forEach(b=>b.addEventListener('click',()=>{ UI.tk=b.dataset.tk; renderTicker(); }));
+$('#b-moves').onclick=()=>{ UI.rail=!UI.rail; if(!UI.rail){ UI.sel=null; UI.form=null; renderAll(); } else { renderRail(); if(window.innerWidth<=1280) $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); } };
+
+/* ---------- how-to dialog ---------- */
+const HELPKEY='nyr-ops-help-hidden';
+function openHelp(){ const d=$('#help'); $('#help-hide').checked=(()=>{ try{ return localStorage.getItem(HELPKEY)==='1'; }catch(e){ return false; } })(); if(d.showModal&&!d.open) d.showModal(); }
+$('#help-ok').onclick=()=>{ try{ if($('#help-hide').checked) localStorage.setItem(HELPKEY,'1'); else localStorage.removeItem(HELPKEY); }catch(e){} $('#help').close(); };
+$('#b-help').onclick=openHelp;
+try{ if(localStorage.getItem(HELPKEY)!=='1') setTimeout(openHelp,300); }catch(e){ setTimeout(openHelp,300); }
+
+/* ---------- boot ---------- */
+function boot(){ BASE=initState(); BT=totals(BASE); load(); recompute(); renderAll(); }
+boot();
+fetch('data/league.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
+// Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
+fetch('data/org.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
+</script>
+
+</body>
+</html>
