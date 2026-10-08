@@ -83,6 +83,13 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
 /* main grid */
 .main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 360px;gap:14px;margin-top:12px;align-items:start}
 .main.closed{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.editbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:8px 12px;border:1px solid var(--blue);border-radius:10px;background:var(--blue-soft);color:var(--ink);font-size:13px}
+body.editing .editbar{display:flex}
+.editbar b{font-family:var(--f-display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.editbar .sp{flex:1}
+body.editing .slot,body.editing .zone[data-zone]{border-color:var(--blue);border-style:dashed;cursor:pointer}
+body.editing .chip.pick{outline:3px solid var(--blue);outline-offset:1px;background:var(--blue-soft)}
+#b-lines[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--board)}
 .main.closed .rail{display:none}
 .rail-h{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 0;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 #b-moves .ct{display:inline-block;min-width:18px;margin-left:4px;padding:0 5px;border-radius:9px;background:var(--line-2);font-family:var(--f-mono);font-size:11px}
@@ -277,6 +284,7 @@ table.ct tr.out td{color:var(--muted);text-decoration:line-through}
       <span class="stamp" id="stamp"><span class="dot"></span>Loading data…</span>
     </div>
     <div class="tools">
+      <button class="btn" id="b-lines" aria-pressed="false">Edit lines</button>
       <button class="btn" id="b-trade">Build a trade</button>
       <button class="btn" id="b-sign">Sign or claim a player</button>
       <button class="btn" id="b-moves" aria-pressed="false">Scenario moves<span class="ct" id="moves-ct">0</span></button>
@@ -288,6 +296,7 @@ table.ct tr.out td{color:var(--muted);text-decoration:line-through}
 
   <section class="strip" id="strip" aria-label="Cap and roster summary"></section>
   <div class="pills" id="pills" aria-label="Compliance"></div>
+  <div class="editbar" role="status"><b>Editing lines</b><span id="edit-msg">Tap a player, then tap a slot or another player to swap them. Dragging works too. Drop a player in Extras to scratch him.</span><span class="sp"></span><button class="btn ghost" id="b-lines-reset">Reset to default lines</button><button class="btn primary" id="b-lines-done">Done</button></div>
 
   <div class="main closed" id="main">
     <section class="panel" id="board-NYR" aria-label="Rangers board"></section>
@@ -368,7 +377,8 @@ const CAPS=[104000000,113500000,113500000,113500000,113500000];
 const capAt=y=>y===0?S.capUpper:(S.capByYear?.[y]??CAPS[y]??CAPS.at(-1));
 const reliefAt=y=>(MINSAL[y]??MINSAL.at(-1))+375000;
 const MAX_TERM_OWN=7, MAX_TERM_FA=6, RET_MAX_SHARE=.15;
-const STORE='nyr-ops-scenario-v1';
+const STORE='nyr-ops-scenario-v1', LINESKEY='nyr-ops-lines-v1';
+let LINES=(()=>{ try{ return JSON.parse(localStorage.getItem(LINESKEY)||'{}')||{}; }catch(e){ return {}; } })();
 const UNITS=[
   {u:'Line 1',slots:['LW','C','RW'],g:'F'},{u:'Line 2',slots:['LW','C','RW'],g:'F'},{u:'Line 3',slots:['LW','C','RW'],g:'F'},{u:'Line 4',slots:['LW','C','RW'],g:'F'},
   {u:'Pair 1',slots:['LD','RD'],g:'D'},{u:'Pair 2',slots:['LD','RD'],g:'D'},{u:'Pair 3',slots:['LD','RD'],g:'D'},
@@ -394,6 +404,10 @@ function normUnit(u){ return (u==='Starter'||u==='Backup')?'Goalies':u; }
 function initState(){
   const players=new Map();
   for(const p of DATA.players){ players.set(p.id,{...p,unit:normUnit(p.unit),age:ageOf(p.dob),charge0:p.capCharge,origTeam:p.team}); }
+  // Saved line edits (this browser): {id:{team,unit,slot}}; only applied while the player is still active on that team
+  for(const [id,o] of Object.entries(LINES)){ const p=players.get(id); if(!p||p.team!==o.team||p.status!=='Active') continue;
+    if(o.unit){ for(const q of players.values()) if(q!==p&&q.team===o.team&&q.unit===o.unit&&q.slot===o.slot){ q.unit=null; q.slot=null; } }
+    p.unit=o.unit; p.slot=o.slot; }
   const dead=(S.deadCap||[]).map(d=>({label:d.label,amt:[...Array(YEARS)].map((_,y)=>d.amt[y]||0),base:true}));
   return {players,dead,ltir:{},retained:[],seq:0};
 }
@@ -555,7 +569,7 @@ function txLabel(tx,st){
 
 /* ---------- app state ---------- */
 let TX=[], BASE=initState(), BT=totals(BASE), CUR=BASE, CT=BT;
-const UI={rail:false,tk:'NYR',sel:null,form:null,ctf:'all',sort:{k:'cap',d:-1},lq:'',lsort:{k:'capHit',d:-1}};
+const UI={edit:false,pick:null,rail:false,tk:'NYR',sel:null,form:null,ctf:'all',sort:{k:'cap',d:-1},lq:'',lsort:{k:'capHit',d:-1}};
 function save(){ try{ localStorage.setItem(STORE,JSON.stringify(TX.map(({_r,...t})=>t))); }catch(e){} }
 function load(){ try{ const v=JSON.parse(localStorage.getItem(STORE)||'[]'); if(Array.isArray(v)) TX=v; }catch(e){ TX=[]; } }
 function recompute(){ CUR=compute(TX); CT=totals(CUR); }
@@ -590,7 +604,7 @@ function chip(p){
   if(p.expiry===S.seasonStartYear+1) tags.push(`<span class="tag exp" title="Expires summer ${p.expiry}">${p.expiryStatus||''} '${String(p.expiry).slice(2)}</span>`);
   const ch=changed(p);
   const c=charge(p,0);
-  return `<button class="chip ${p.team==='HFD'?'ahl':''} ${p.posGroup==='G'?'g':''} ${UI.sel===p.id?'sel':''} ${ch} ${p.status!=='Active'?'hurt':''}" data-pid="${p.id}" draggable="true" aria-label="${esc(p.name)}, ${p.pos}">
+  return `<button class="chip ${p.team==='HFD'?'ahl':''} ${p.posGroup==='G'?'g':''} ${UI.sel===p.id?'sel':''} ${UI.pick===p.id?'pick':''} ${ch} ${p.status!=='Active'?'hurt':''}" data-pid="${p.id}" draggable="true" aria-label="${esc(p.name)}, ${p.pos}">
     <span class="n">${p.num??'–'}</span><span class="nm">${esc(p.last)}</span>
     <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
 }
@@ -878,8 +892,8 @@ function renderTable(){
 }
 
 function renderAll(){ renderTicker(); renderStrip(); renderBoard('NYR'); renderBoard('HFD'); renderRail(); renderOutlook(); renderBreakdown(); renderTable();
-  $('#stamp').innerHTML=`<span class="dot"></span>${esc(S.season)} · roster and contracts as of ${esc(S.updated)} · source: ${esc(S.source)}`;
-  $('#foot').textContent=`Rules follow the 2025 CBA. Buried relief for Wolf Pack players is the league minimum plus $375,000 (${money(reliefAt(0))} this season, rising with the minimum); 35+ deals get $100k. Upper limit ${money(capAt(0))} this season and ${money(capAt(1))} in ${seasonLbl(1)}, assumed flat after that. Free-agent terms max out at ${MAX_TERM_FA} years (${MAX_TERM_OWN} for your own players); retention is capped at 50% per contract, three contracts and 15% of the cap. LTIR relief is the injured player's hit minus space at placement. Buyouts are estimated with flat salaries. Contracts and roster status come from PuckPedia and stats from NHL.com, refreshed daily; lines and AHL-only deals come from your spreadsheet. No transaction here is real; the scenario lives in this browser only.`; }
+  $('#stamp').innerHTML=`<span class="dot"></span>${esc(S.season)} · updated ${esc(S.updated)}`;
+  $('#foot').textContent=`Rules follow the 2025 CBA. Buried relief for Wolf Pack players is the league minimum plus $375,000 (${money(reliefAt(0))} this season, rising with the minimum); 35+ deals get $100k. Upper limit ${money(capAt(0))} this season and ${money(capAt(1))} in ${seasonLbl(1)}, assumed flat after that. Free-agent terms max out at ${MAX_TERM_FA} years (${MAX_TERM_OWN} for your own players); retention is capped at 50% per contract, three contracts and 15% of the cap. LTIR relief is the injured player's hit minus space at placement. Buyouts are estimated with flat salaries. Data as of ${esc(S.updated)}: contracts and roster status from PuckPedia, stats from NHL.com, refreshed daily; AHL-only deals and default lines from the 9/29 spreadsheet, with line edits saved in this browser. No transaction here is real; the scenario lives in this browser only.`; }
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -928,6 +942,7 @@ document.addEventListener('drop',e=>{
   const z=e.target.closest('.slot,.zone[data-zone]'); if(!z||!DRAG) return; e.preventDefault();
   const p=CUR.players.get(DRAG); const team=z.dataset.team, unit=z.dataset.unit||null, slot=z.dataset.slot||null; DRAG=null;
   if(!p||p.team==='OUT') return;
+  if(UI.edit){ editMove(p.id,team,unit,slot); return; }
   UI.sel=p.id;
   if(p.team===team){ if(p.unit===unit&&p.slot===slot) return; if(!isActive(p)){ toast('Activate him from IR first'); return; } commit({type:'lineup',pid:p.id,team,unit,slot}); }
   else if(team==='HFD'){ if(!isActive(p)){ toast('Activate him from IR first'); return; } openForm('assign',p.id,{unit,slot}); }
@@ -953,6 +968,37 @@ function renderTicker(){
 }
 document.querySelectorAll('.ticker [data-tk]').forEach(b=>b.addEventListener('click',()=>{ UI.tk=b.dataset.tk; renderTicker(); }));
 $('#b-moves').onclick=()=>{ UI.rail=!UI.rail; if(!UI.rail){ UI.sel=null; UI.form=null; renderAll(); } else { renderRail(); if(window.innerWidth<=1280) $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); } };
+
+/* ---------- line editing ---------- */
+function setEditing(on){ UI.edit=on; UI.pick=null; document.body.classList.toggle('editing',on); $('#b-lines').setAttribute('aria-pressed',String(on)); if(on){ UI.sel=null; UI.form=null; } renderAll(); }
+function saveLines(){ try{ localStorage.setItem(LINESKEY,JSON.stringify(LINES)); }catch(e){} }
+function rebase(){ BASE=initState(); BT=totals(BASE); recompute(); renderAll(); }
+// Move p into team/unit/slot in the default lines; whoever is there takes p's old spot (swap)
+function editMove(pid,team,unit,slot){
+  const p=BASE.players.get(pid); if(!p) return;
+  if(p.team!==team){ toast('Moving between the Rangers and Wolf Pack is a transaction: use Done, then drag or click the player'); return; }
+  if(p.status!=='Active'){ toast('Injured players cannot be placed in the lineup'); return; }
+  if(unit){ const U=UNITS.find(u=>u.u===unit); if(U&&U.g!==p.posGroup){ toast(`${p.last} is a ${({F:'forward',D:'defenseman',G:'goalie'})[p.posGroup]}: put him in a ${({F:'line',D:'pair',G:'goalie slot'})[p.posGroup]}`); return; } }
+  const q=unit?[...BASE.players.values()].find(x=>x!==p&&x.team===team&&x.unit===unit&&x.slot===slot):null;
+  if(q) LINES[q.id]={team,unit:p.unit||null,slot:p.slot||null};
+  LINES[p.id]={team,unit:unit||null,slot:slot||null};
+  saveLines(); UI.pick=null; rebase();
+}
+$('#b-lines').onclick=()=>setEditing(!UI.edit);
+$('#b-lines-done').onclick=()=>{ setEditing(false); toast('Lines saved in this browser'); };
+$('#b-lines-reset').onclick=()=>{ LINES={}; saveLines(); UI.pick=null; rebase(); toast('Back to the default lines'); };
+document.addEventListener('click',e=>{
+  if(!UI.edit) return;
+  const chipEl=e.target.closest('.chip[data-pid]'), slotEl=e.target.closest('.slot,.zone[data-zone]');
+  if(!chipEl&&!slotEl) return;
+  if(!e.target.closest('#board-NYR,#board-HFD')) return;
+  e.stopPropagation(); e.preventDefault();
+  if(!UI.pick){ if(chipEl){ UI.pick=chipEl.dataset.pid; renderBoard('NYR'); renderBoard('HFD'); $('#edit-msg').textContent=`${BASE.players.get(UI.pick)?.name||''} selected: tap where he should go.`; } return; }
+  if(chipEl&&chipEl.dataset.pid===UI.pick){ UI.pick=null; renderBoard('NYR'); renderBoard('HFD'); return; }
+  const tgt=slotEl||chipEl.closest('.slot,.zone'); if(!tgt) return;
+  editMove(UI.pick,tgt.dataset.team||BASE.players.get(UI.pick).team,tgt.dataset.unit||null,tgt.dataset.slot||null);
+  $('#edit-msg').textContent='Tap a player, then tap a slot or another player to swap them.';
+},true);
 
 /* ---------- how-to dialog ---------- */
 const HELPKEY='nyr-ops-help-hidden';
