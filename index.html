@@ -281,7 +281,42 @@ table.ct tr.out td{color:var(--muted);text-decoration:line-through}
 .vmenu span{font-size:12px;color:var(--ink-2)}
 .vmenu button[aria-current="page"]{background:var(--blue-soft)}
 .vmenu button[aria-current="page"] b{color:var(--blue)}
-body:not([data-view="house"]) #view-house,body[data-view="house"] #view-ops,body[data-view="house"] .tools,body[data-view="house"] .editbar{display:none!important}
+body:not([data-view="house"]) #view-house,body:not([data-view="analytics"]) #view-analytics,body:not([data-view="house"]):not([data-view="analytics"]) .subnav,
+body[data-view="house"] #view-ops,body[data-view="house"] .tools,body[data-view="house"] .editbar,body[data-view="analytics"] #view-ops,body[data-view="analytics"] .tools,body[data-view="analytics"] .editbar{display:none!important}
+.vmenu button.sub{padding-left:28px;position:relative}
+.vmenu button.sub::before{content:"";position:absolute;left:14px;top:10px;bottom:22px;width:8px;border-left:1.5px solid var(--line);border-bottom:1.5px solid var(--line);border-bottom-left-radius:4px}
+.vmenu button.sub b{font-size:16px}
+.subnav{display:flex;gap:4px;margin:0 0 10px;border-bottom:1px solid var(--line)}
+.subnav a{padding:7px 14px 8px;font-family:var(--f-display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-1px}
+.subnav a:hover{color:var(--ink)}
+.subnav a[aria-current="page"]{color:var(--blue);border-bottom-color:var(--blue)}
+.bw.thin .b{opacity:.4}
+button.nm.thin{opacity:.7}
+.bw .mid{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--ink-2)}
+.bw.dmb .ln{position:absolute;top:7px;height:3px;border-radius:2px}
+.bw.dmb i{position:absolute;top:3px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;box-shadow:0 0 0 2px var(--board)}
+.bw.dmb i.x{background:var(--s4)}
+.bw.dmb i.g{background:var(--ink)}
+.pcard2{display:grid;grid-template-columns:auto minmax(80px,1fr) 34px;gap:7px 12px;align-items:center;padding:6px 20px 4px;font-size:13px}
+.pcard2 .l{color:var(--ink-2)}
+.pcard2 .r{text-align:right;font-weight:700}
+.pbar{height:12px;background:var(--board-2);border-radius:6px;overflow:hidden}
+.pbar i{display:block;height:100%;border-radius:6px}
+details.gloss summary{padding:12px 14px}
+details.gloss dl{display:grid;grid-template-columns:minmax(150px,auto) 1fr;gap:6px 16px;padding:0 14px 14px;margin:0;font-size:13px}
+details.gloss dt{font-weight:600}
+details.gloss dd{margin:0;color:var(--ink-2)}
+.foot a{color:inherit}
+details.adv{margin-top:12px;border:1px solid var(--line);border-radius:8px}
+details.adv>summary{cursor:pointer;padding:9px 12px;font-size:13px;font-weight:700;color:var(--blue)}
+details.adv[open]>summary{border-bottom:1px solid var(--line-2)}
+#adv-body{padding:4px 0 10px}
+#adv-body .chartbox{padding:4px 12px 8px}
+#adv-body>.hint{padding:0 12px}
+.adv-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px 0}
+.adv-h b{font-family:var(--f-display);font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.adv-h .filters{margin-left:auto}
+.rink-l{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:4px}
 /* the house */
 .games{display:grid;grid-template-columns:minmax(220px,260px) minmax(0,1fr);gap:16px;padding:10px 14px 14px}
 .cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -408,6 +443,7 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
         <div class="vmenu" id="vmenu" hidden>
           <button data-view="ops" aria-current="page"><b>NYR Ops Board</b><span>Cap, rosters, lines and moves</span></button>
           <button data-view="house" aria-current="false"><b>The House</b><span>Team and player stats</span></button>
+          <button data-view="analytics" class="sub" aria-current="false"><b>Analytics</b><span>Advanced stats from MoneyPuck</span></button>
         </div>
       </div>
       <h1 id="vname">NYR <b>Ops</b> Board</h1>
@@ -482,6 +518,7 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
   <p class="foot" id="foot"></p>
   </div>
 
+  <nav class="subnav" aria-label="The House"><a href="#house" data-sub="house">Overview</a><a href="#analytics" data-sub="analytics">Analytics</a></nav>
   <div id="view-house">
     <section class="strip hs" id="h-strip" aria-label="Rangers season summary"></section>
     <p class="hint" id="h-msg" style="margin:8px 2px 0">Loading stats…</p>
@@ -509,6 +546,41 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
       <details class="raw"><summary>Show the numbers</summary><div class="tablewrap"><table class="ct" id="h-ptable"></table></div></details>
     </section>
     <p class="foot" id="h-foot"></p>
+  </div>
+  <div id="view-analytics">
+    <section class="strip hs" id="a-strip" aria-label="Rangers advanced summary"></section>
+    <p class="hint" id="a-msg" style="margin:8px 2px 0">Loading advanced stats…</p>
+    <div class="hgrid even">
+      <section class="panel"><div class="panel-h"><h2>Chance map</h2><div class="filters" id="a-map-f"><button data-s="cur" aria-pressed="true">This season</button><button data-s="prev" aria-pressed="false">Last season</button></div></div><div class="chartbox" id="a-map"></div></section>
+      <section class="panel"><div class="panel-h"><h2>Advanced ranks</h2><div class="filters" id="a-rank-f"><button data-s="cur" aria-pressed="true">This season</button><button data-s="prev" aria-pressed="false">Last season</button></div></div><div class="chartbox" id="a-ranks"></div></section>
+    </div>
+    <section class="panel" style="margin-top:14px"><div class="panel-h"><h2>Six-season trend</h2><select id="a-tm" aria-label="Trend to show" class="hsel"></select></div><div class="chartbox" id="a-trend"></div>
+      <details class="raw"><summary>Team numbers by season</summary><div class="tablewrap"><table class="ct" id="a-hist"></table></div></details></section>
+    <section class="panel" style="margin-top:14px">
+      <div class="panel-h"><h2>Skater impact</h2>
+        <div class="hf">
+          <div class="filters" id="a-team"><button data-v="NYR" aria-pressed="true">Rangers</button><button data-v="HFD" aria-pressed="false">Wolf Pack</button></div>
+          <select id="a-season" aria-label="Season"></select><select id="a-sit" aria-label="Situation"></select><select id="a-metric" aria-label="Chart by"></select>
+        </div></div>
+      <p class="hint" id="a-skmeta" style="padding:8px 14px 0"></p>
+      <div class="chartbox" id="a-skchart"></div>
+      <details class="raw"><summary>Show the numbers</summary><div class="tablewrap"><table class="ct" id="a-sktable"></table></div></details>
+    </section>
+    <section class="panel" style="margin-top:14px">
+      <div class="panel-h"><h2>Goaltending</h2><span class="meta" id="a-gmeta"></span></div>
+      <div class="chartbox" id="a-gchart"></div>
+      <details class="raw"><summary>Show the numbers</summary><div class="tablewrap"><table class="ct" id="a-gtable"></table></div></details>
+    </section>
+    <details class="panel raw gloss" style="margin-top:14px"><summary>What these stats mean</summary><dl>
+      <dt>Expected goals (xG)</dt><dd>MoneyPuck's estimate of how likely each shot was to score, from its location, type, angle, rebound and rush context. Adding them up measures chance quality, not just volume.</dd>
+      <dt>xG share (xGF%)</dt><dd>The team's share of all expected goals while on the ice. Above 50% means it is out-chancing opponents.</dd>
+      <dt>Corsi and Fenwick</dt><dd>Shot attempt share: Corsi counts all attempts, Fenwick leaves out blocked ones.</dd>
+      <dt>xG share vs teammates (Rel)</dt><dd>The team's xG share with the player on the ice minus without him. It filters out how good the team is overall.</dd>
+      <dt>Finishing</dt><dd>Goals scored minus expected goals. Positive means shooters converted more than average shooters would on the same chances.</dd>
+      <dt>Goals saved above expected (GSAx)</dt><dd>Expected goals faced minus goals allowed. Positive means the goalie stopped more than an average goalie would have.</dd>
+      <dt>Game score</dt><dd>MoneyPuck's single-number summary of a player's contribution in a game, built from goals, assists, shots, chances, penalties and faceoffs.</dd>
+    </dl></details>
+    <p class="foot" id="a-foot"></p>
   </div>
   <dialog class="help prof" id="prof" aria-labelledby="prof-t"></dialog>
 </div>
@@ -1193,23 +1265,27 @@ const lgColor=l=>l==='NHL'?'var(--blue)':l==='AHL'?'var(--red)':'var(--s4)';
 
 function setView(v){
   document.body.dataset.view=v;
-  document.title=v==='house'?'The House':'NYR Ops Board';
-  $('#vname').innerHTML=v==='house'?'The <b>House</b>':'NYR <b>Ops</b> Board';
+  document.title=v==='house'?'The House':v==='analytics'?'The House: Analytics':'NYR Ops Board';
+  $('#vname').innerHTML=v==='house'?'The <b>House</b>':v==='analytics'?'The House <b>Analytics</b>':'NYR <b>Ops</b> Board';
+  document.querySelectorAll('.subnav a').forEach(a=>a.setAttribute('aria-current',a.dataset.sub===v?'page':'false'));
   document.querySelectorAll('#vmenu [data-view]').forEach(b=>b.setAttribute('aria-current',b.dataset.view===v?'page':'false'));
   if(v==='house') loadHouse();
+  if(v==='analytics') loadAnalytics();
   renderStamp();
 }
 function renderStamp(){
-  if(document.body.dataset.view==='house') $('#stamp').innerHTML=`<span class="dot"></span>${HS.d?`${sName(HS.d.season)} · stats as of ${esc(HS.d.updated)}`:'Loading stats…'}`;
+  if(document.body.dataset.view==='analytics') $('#stamp').innerHTML=`<span class="dot"></span>${AN.d?`${mpS(AN.d.season)} · MoneyPuck data as of ${esc(AN.d.updated)}`:'Loading advanced stats…'}`;
+  else if(document.body.dataset.view==='house') $('#stamp').innerHTML=`<span class="dot"></span>${HS.d?`${sName(HS.d.season)} · stats as of ${esc(HS.d.updated)}`:'Loading stats…'}`;
   else $('#stamp').innerHTML=`<span class="dot"></span>${esc(S.season)} · updated ${esc(S.updated)}`;
 }
 function menuOpen(on){ $('#vmenu').hidden=!on; $('#b-view').setAttribute('aria-expanded',String(on)); if(on) $('#vmenu [aria-current="page"]')?.focus(); }
 $('#b-view').onclick=e=>{ e.stopPropagation(); menuOpen($('#vmenu').hidden); };
-$('#vmenu').addEventListener('click',e=>{ const b=e.target.closest('[data-view]'); if(!b) return; menuOpen(false); location.hash=b.dataset.view==='house'?'house':''; setView(b.dataset.view); });
+$('#vmenu').addEventListener('click',e=>{ const b=e.target.closest('[data-view]'); if(!b) return; menuOpen(false); location.hash=b.dataset.view==='ops'?'':b.dataset.view; setView(b.dataset.view); });
 document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest('.vsw')) menuOpen(false); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
-let _hrs; window.addEventListener('resize',()=>{ clearTimeout(_hrs); _hrs=setTimeout(()=>{ if(HS.d&&document.body.dataset.view==='house') renderTrend(); },200); });
-window.addEventListener('hashchange',()=>setView(location.hash==='#house'?'house':'ops'));
+let _hrs; window.addEventListener('resize',()=>{ clearTimeout(_hrs); _hrs=setTimeout(()=>{ if(HS.d&&document.body.dataset.view==='house') renderTrend(); if(AN.d&&document.body.dataset.view==='analytics'){ renderMap(); renderATrend(); } },200); });
+const viewFromHash=()=>location.hash==='#house'?'house':location.hash==='#analytics'?'analytics':'ops';
+window.addEventListener('hashchange',()=>setView(viewFromHash()));
 
 function loadHouse(){
   if(HS.d||HS.loading) return; HS.loading=true;
@@ -1271,7 +1347,8 @@ function renderBox(){
     return `<span class="v">${f(r[1])}</span><span class="tc"><em>${l}</em><span class="tb"><i style="flex:${a||0.0001};background:${b.away==='NYR'?'var(--blue)':'var(--s4)'}"></i><i style="flex:${hm||0.0001};background:${b.home==='NYR'?'var(--blue)':'var(--s4)'}"></i></span></span><span class="v r">${f(r[2])}</span>`; }).join('')}</div>`;
   if(b.goals.length) h+=`<ol class="sc">${b.goals.map(x=>`<li><span class="tm2">${esc(x.per)} ${esc(x.time)}</span>${tm(x.team)}<span><b>${esc(x.who)}</b> (${x.n??''})${x.ast.length?` <small>${x.ast.map(esc).join(', ')}</small>`:' <small>unassisted</small>'}</span>${x.str&&x.str!=='ev'?`<span class="tag">${esc(x.str.toUpperCase())}</span>`:x.mod==='empty-net'?'<span class="tag">EN</span>':''}</li>`).join('')}</ol>`;
   if(b.goalies.length) h+=`<div class="gl">${b.goalies.map(x=>`<span>${tm(x.team)} <b>${esc(x.who)}</b> ${x.sv}/${x.sa} saves${x.dec?` · ${x.dec==='W'?'win':x.dec==='L'?'loss':'OT loss'}`:''}</span>`).join('')}</div>`;
-  $('#h-box').innerHTML=h;
+  h+=advBlock(g);
+  $('#h-box').innerHTML=h; wireAdv(g);
 }
 $('#h-cal').addEventListener('click',e=>{ const n=e.target.closest('[data-cm]'); if(n){ const months=[...new Set(HS.d.team.games.map(g=>g.date.slice(0,7)))]; const i=months.indexOf(HS.month)+(+n.dataset.cm); if(months[i]){ HS.month=months[i]; renderCal(); } return; }
   const b=e.target.closest('[data-gi]'); if(!b) return; HS.gi=+b.dataset.gi; renderCal(); renderBox(); });
@@ -1438,9 +1515,278 @@ function logChart(p){
   return `<div class="chartbox" id="${id}">${s}</div>`;
 }
 
+/* ---------- The House > Analytics (MoneyPuck) ---------- */
+const AN={d:null,loading:false,rank:'cur',tm:'xgfPct',team:'NYR',season:null,sit:'5on5',metric:'relXgf',sort:{k:'relXgf',d:-1}};
+const mpS=y=>`${y}-${String((y+1)%100).padStart(2,'0')}`;
+const pct1=v=>v==null||isNaN(v)?'–':(v*100).toFixed(1)+'%';
+const relp=v=>v==null||isNaN(v)?'–':(v>0?'+':v<0?'−':'')+Math.abs(v*100).toFixed(1);
+const d2=v=>v==null||isNaN(v)?'–':(+v).toFixed(2);
+const sg2=v=>v==null||isNaN(v)?'–':(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(1);
+// Team metrics: key, label, better direction, format, situation source
+const A_TEAM=[['xgfPct','Expected goals share',1,pct1,''],['cfPct','Shot attempt share (Corsi)',1,pct1,''],['hdcfPct','High-danger shot share',1,pct1,''],
+  ['xgf60','Chances created (xGF/60)',1,d2,''],['xga60','Chances allowed (xGA/60)',-1,d2,''],['pp','Power play (xGF/60)',1,d2,'_pp'],['pk','Penalty kill (xGA/60)',-1,d2,'_pk']];
+const aVal=(row,k)=>k==='pp'?row.xgf60:k==='pk'?row.xga60:row[k];
+function loadAnalytics(){
+  if(AN.d||AN.loading) return; AN.loading=true;
+  fetch('data/analytics.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ AN.loading=false; if(!d){ $('#a-msg').textContent='Advanced stats are not available right now.'; return; }
+    AN.d=d; AN.season=d.season; renderAnalytics(); renderStamp(); }).catch(()=>{ AN.loading=false; $('#a-msg').textContent='Advanced stats are not available right now.'; });
+}
+function aLeague(which,sfx=''){ const y=which==='cur'?AN.d.season:AN.d.season-1; return AN.d.league[y+sfx]||[]; }
+function aRank(rows,k,dir){ const me=rows.find(r=>r.team==='NYR'); if(!me) return null; const v=aVal(me,k); return 1+rows.filter(r=>dir>0?aVal(r,k)>v:aVal(r,k)<v).length; }
+function renderAnalytics(){
+  const d=AN.d, T5=d.team['5on5']||[], TA=d.team['all']||[], c5=T5.find(r=>r.season===d.season), ca=TA.find(r=>r.season===d.season), L=aLeague('cur');
+  const m=(l,v,s)=>`<div class="metric"><div class="lbl">${l}</div><div class="val">${v}</div><div class="sub">${s}</div></div>`;
+  $('#a-strip').innerHTML=c5&&ca?[
+    m('xG share, 5 on 5',pct1(c5.xgfPct),`${ord(aRank(L,'xgfPct',1))} in the league · goals ${pct1(c5.gfPct)}`),
+    m('Shot share (Corsi)',pct1(c5.cfPct),`${ord(aRank(L,'cfPct',1))} in the league · Fenwick ${pct1(c5.ffPct)}`),
+    m('Chances per 60',`${d2(c5.xgf60)} / ${d2(c5.xga60)}`,`For ${ord(aRank(L,'xgf60',1))} · against ${ord(aRank(L,'xga60',-1))}`),
+    m('Finishing',sg2(ca.finish),`${ca.gf} goals on ${d2(ca.xgf)} expected, all situations`),
+    m('Goaltending',sg2(ca.goalie),`${ca.ga} allowed on ${d2(ca.xga)} expected, all situations`)].join(''):'';
+  $('#a-msg').textContent=c5&&c5.gp<15?`Early season: ${c5.gp} games of MoneyPuck data, so these will swing. Last season is one tap away on each panel.`:'';
+  renderMap(); renderARanks(); renderATrend(); renderASkaters(); renderAGoalies();
+  $('#a-foot').innerHTML=`Advanced stats from <a href="https://moneypuck.com" target="_blank" rel="noopener">MoneyPuck.com</a>, regular season, refreshed daily with the Ops Board; MoneyPuck's data is free for non-commercial use with credit. 5 on 5 unless noted. Skater percentiles compare against league forwards or defensemen with at least 25 minutes (300 in past seasons) at 5 on 5 that season; goalie percentiles against goalies with a real sample.`;
+}
+function aSeasonBtns(id){ document.querySelectorAll(`#${id} button`).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===AN.rank))); }
+function renderMap(){
+  const rows=aLeague(AN.rank); aSeasonBtns('a-map-f'); const box=$('#a-map');
+  if(!rows.length){ box.innerHTML='<p class="hint">No league data for this season.</p>'; return; }
+  const W=Math.max(300,Math.min(620,(box.clientWidth||620)-28)), H=Math.round(W*.72), L=44,R=14,T=14,B=36;
+  const xs=rows.map(r=>r.xgf60), ys=rows.map(r=>r.xga60), pad=a=>{ const lo=Math.min(...a), hi=Math.max(...a), p=(hi-lo)*.08||.1; return [lo-p,hi+p]; };
+  const [x0,x1]=pad(xs), [y0,y1]=pad(ys), x=v=>L+(W-L-R)*(v-x0)/(x1-x0), y=v=>T+(H-T-B)*(v-y0)/(y1-y0); // y: fewer allowed sits higher
+  const ax=xs.reduce((a,b)=>a+b,0)/xs.length, ay=ys.reduce((a,b)=>a+b,0)/ys.length;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chances created against chances allowed per 60, all teams">`;
+  s+=`<rect x="${x(ax)}" y="${T}" width="${W-R-x(ax)}" height="${y(ay)-T}" style="fill:var(--good-soft);opacity:.6"/><rect x="${L}" y="${y(ay)}" width="${x(ax)-L}" height="${H-B-y(ay)}" style="fill:var(--bad-soft);opacity:.6"/>`;
+  s+=`<line class="grid" x1="${x(ax)}" x2="${x(ax)}" y1="${T}" y2="${H-B}" style="stroke-dasharray:4 4;stroke:var(--line)"/><line class="grid" x1="${L}" x2="${W-R}" y1="${y(ay)}" y2="${y(ay)}" style="stroke-dasharray:4 4;stroke:var(--line)"/>`;
+  s+=`<text x="${W-R-4}" y="${T+14}" text-anchor="end" style="font-size:10.5px;fill:var(--good)">Create more, allow less</text><text x="${L+4}" y="${H-B-6}" style="font-size:10.5px;fill:var(--bad)">Create less, allow more</text>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-4}" text-anchor="middle">${W<480?'Created (xGF/60) →':'Chances created per 60 (xGF/60) →'}</text><text transform="translate(12 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle">${W<480?'Fewer allowed (xGA/60) →':'Fewer chances allowed per 60 (xGA/60) →'}</text>`;
+  [x0,x1].forEach(()=>{}); for(const v of [ax]) s+=`<text x="${x(v)}" y="${H-B+14}" text-anchor="middle" style="font-size:10px">avg ${d2(v)}</text>`;
+  s+=`<text x="${L-6}" y="${y(ay)+4}" text-anchor="end" style="font-size:10px">${d2(ay)}</text>`;
+  const order=[...rows].sort((a,b)=>(a.team==='NYR')-(b.team==='NYR'));
+  order.forEach(r=>{ const me=r.team==='NYR', i=rows.indexOf(r);
+    s+=`<circle cx="${x(r.xgf60)}" cy="${y(r.xga60)}" r="${me?8:5}" style="fill:${me?'var(--blue)':'var(--s4)'};${me?'':'opacity:.55;'}stroke:var(--board);stroke-width:2"/>`;
+    if(me) s+=`<text x="${x(r.xgf60)+11}" y="${y(r.xga60)+4}" style="fill:var(--ink);font-weight:700;font-family:var(--f-display);font-size:14px">NYR</text>`;
+    s+=`<circle class="hit" data-i="${i}" cx="${x(r.xgf60)}" cy="${y(r.xga60)}" r="11"/>`; });
+  s+=`</svg><div class="tip" hidden></div>`;
+  box.innerHTML=s;
+  tipify(box,i=>{ const r=rows[i]; return `<b>${esc(r.team)}</b> · ${r.gp} GP<br>xGF/60 <b>${d2(r.xgf60)}</b> · xGA/60 <b>${d2(r.xga60)}</b><br>xG share ${pct1(r.xgfPct)}`; });
+}
+function renderARanks(){
+  aSeasonBtns('a-rank-f');
+  const base=aLeague(AN.rank); if(!base.length){ $('#a-ranks').innerHTML='<p class="hint">No league data for this season.</p>'; return; }
+  $('#a-ranks').innerHTML=`<div class="rk">${A_TEAM.map(([k,l,dir,fmt,sfx])=>{ const rows=aLeague(AN.rank,sfx), me=rows.find(r=>r.team==='NYR'); if(!me) return '';
+    const vals=rows.map(r=>aVal(r,k)).filter(v=>v!=null), lo=Math.min(...vals), hi=Math.max(...vals), pos=v=>hi===lo?50:(dir>0?(v-lo)/(hi-lo):(hi-v)/(hi-lo))*100, rk=aRank(rows,k,dir), avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+    return `<span class="l">${l}</span><span class="strip2" title="Rangers ${ord(rk)}">${rows.map(r=>r.team==='NYR'?'':`<i style="left:${pos(aVal(r,k))}%"></i>`).join('')}<em style="left:${pos(avg)}%" title="League average ${fmt(avg)}"></em><b style="left:${pos(aVal(me,k))}%;background:${rankColor(rk,rows.length)}"></b></span><span class="v mono">${fmt(aVal(me,k))}</span><span class="r mono ${rk<=8?'pos':rk>=25?'neg':''}">${ord(rk)}</span>`; }).join('')}</div>
+    <div class="legend"><span>Rangers dot by league rank:</span><span class="grad"><small>32nd</small><i></i><small>1st</small></span><span><i class="tick" style="width:2px;height:12px"></i>League average</span><span>5 on 5 except special teams · better is to the right</span></div>`;
+}
+const A_TREND=[['xgfPct','Expected goals share (5v5)','5on5',1,pct1],['cfPct','Shot attempt share (5v5)','5on5',1,pct1],['hdcfPct','High-danger shot share (5v5)','5on5',1,pct1],
+  ['xgf60','Chances created, xGF/60 (5v5)','5on5',1,d2],['xga60','Chances allowed, xGA/60 (5v5)','5on5',-1,d2],['finish','Finishing, goals minus expected (all)','all',1,sg2],
+  ['goalie','Goaltending, goals saved above expected (all)','all',1,sg2],['ppx','Power play xGF/60','5on4',1,d2],['pkx','Penalty kill xGA/60','4on5',-1,d2]];
+function renderATrend(){
+  const M=A_TREND.find(t=>t[0]===AN.tm)||A_TREND[0], [k,l,sit,dir,fmt]=M, rows=(AN.d.team[sit]||[]), key=k==='ppx'?'xgf60':k==='pkx'?'xga60':k;
+  $('#a-tm').innerHTML=A_TREND.map(t=>`<option value="${t[0]}" ${t[0]===M[0]?'selected':''}>${t[1]}</option>`).join('');
+  const box=$('#a-trend'); if(!rows.length){ box.innerHTML=''; return; }
+  lineTrend(box,rows.map(r=>({lbl:mpS(r.season),v:r[key],gp:r.gp,partial:r.season===AN.d.season&&r.gp<82})),fmt,dir,l,(r)=>`${r.gp} GP`);
+  $('#a-hist').innerHTML=`<thead><tr><th>Season</th><th class="r">GP</th><th class="r">xGF%</th><th class="r">CF%</th><th class="r">FF%</th><th class="r">HDCF%</th><th class="r">GF%</th><th class="r">xGF/60</th><th class="r">xGA/60</th><th class="r">Finishing</th><th class="r">Goaltending</th></tr></thead><tbody>${[...(AN.d.team['5on5']||[])].reverse().map(r=>{ const a=(AN.d.team.all||[]).find(x=>x.season===r.season)||{};
+    return `<tr><td>${mpS(r.season)}</td>${[r.gp,pct1(r.xgfPct),pct1(r.cfPct),pct1(r.ffPct),pct1(r.hdcfPct),pct1(r.gfPct),d2(r.xgf60),d2(r.xga60),sg2(a.finish),sg2(a.goalie)].map(v=>`<td class="r mono">${v}</td>`).join('')}</tr>`; }).join('')}</tbody>`;
+}
+// Single-series line chart by season with value labels, hollow partial last point, hover tips
+function lineTrend(box,pts,fmt,dir,label,extra){
+  const W=Math.max(300,(box.clientWidth||680)-28), sm=W<480, Hh=sm?220:260, L=sm?46:54, R=sm?10:16, T=24, B=30;
+  const v=pts.map(p=>p.v).filter(x=>x!=null), lo0=Math.min(...v), hi0=Math.max(...v), raw=((hi0-lo0)||Math.abs(hi0)*.1||1)/3, mag=10**Math.floor(Math.log10(raw)), step=[1,2,2.5,5,10].map(m=>m*mag).find(x=>x>=raw);
+  const lo=Math.floor((lo0-step*.4)/step)*step, hi=Math.ceil((hi0+step*.6)/step)*step, x=i=>L+(sm?14:20)+i*(W-L-R-(sm?28:40))/Math.max(1,pts.length-1), y=u=>T+(Hh-T-B)*(1-(u-lo)/(hi-lo));
+  const last=pts.length-1, partial=pts[last].partial;
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(label)} by season">`;
+  for(let u=lo;u<=hi+step/2;u+=step) s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(u)}" y2="${y(u)}"/><text x="${L-8}" y="${y(u)+4}" text-anchor="end">${fmt(u)}</text>`;
+  if(lo<0&&hi>0) s+=`<line x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}" style="stroke:var(--ink-2);stroke-width:1"/>`;
+  s+=`<polyline points="${pts.slice(0,partial?last:pts.length).map((p,i)=>`${x(i)},${y(p.v)}`).join(' ')}" style="fill:none;stroke:var(--blue);stroke-width:2"/>`;
+  if(partial&&last>0) s+=`<line x1="${x(last-1)}" y1="${y(pts[last-1].v)}" x2="${x(last)}" y2="${y(pts[last].v)}" style="stroke:var(--blue);stroke-width:2;stroke-dasharray:4 4"/>`;
+  pts.forEach((p,i)=>{ const hollow=i===last&&partial;
+    s+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="5" style="fill:${hollow?'var(--board)':'var(--blue)'};stroke:${hollow?'var(--blue)':'var(--board)'};stroke-width:2"/><text x="${x(i)}" y="${y(p.v)-11}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${fmt(p.v)}</text>`;
+    s+=`<text x="${x(i)}" y="${Hh-8}" text-anchor="middle">${sm?p.lbl.slice(2):p.lbl}${hollow?'*':''}</text><rect class="hit" data-i="${i}" x="${x(i)-(sm?22:40)}" y="${T}" width="${sm?44:80}" height="${Hh-T-B}"/>`; });
+  s+=`</svg><p class="hint" style="margin:6px 0 0">${dir<0?'Lower is better. ':''}${partial?`*${pts[last].lbl} so far (${pts[last].gp} games), shown hollow with a dashed link.`:''}</p><div class="tip" hidden></div>`;
+  box.innerHTML=s; tipify(box,i=>`${pts[i].lbl} · ${extra(pts[i])}<br>${esc(label)} <b>${fmt(pts[i].v)}</b>`);
+}
+
+/* analytics: skaters */
+const A_SK={relXgf:['xGF% relative to team (on ice minus off)',r=>r.relXgf,relp,'div'],xgfPct:['On-ice expected goals share',r=>r.xgfPct,pct1,'fifty'],cfPct:['On-ice shot attempt share',r=>r.cfPct,pct1,'fifty'],
+  gax:['Goals vs expected goals (own shots)',r=>r.g-r.ixg,sg2,'dumb'],p60:['Points per 60',r=>r.p60,d2,'bar'],ixg60:['Own expected goals per 60',r=>r.ixg60,d2,'bar'],gsGp:['Game score per game',r=>r.gsGp,d2,'div'],toiGp:['Ice time per game',r=>r.toiGp,mmss,'bar']};
+const SITS=[['5on5','5 on 5'],['all','All situations'],['5on4','Power play'],['4on5','Penalty kill']];
+function aSkRows(){
+  const out=[]; for(const p of AN.d.players){ if(p.group==='G'||p.team!==AN.team) continue; const s=p.seasons[AN.season]?.[AN.sit]; if(s&&s.gp) out.push({...s,pl:p}); } return out;
+}
+function renderASkaters(){
+  $('#a-season').innerHTML=[...AN.d.years].reverse().map(y=>`<option value="${y}" ${y===AN.season?'selected':''}>${mpS(y)}</option>`).join('');
+  $('#a-sit').innerHTML=SITS.map(([v,t])=>`<option value="${v}" ${v===AN.sit?'selected':''}>${t}</option>`).join('');
+  $('#a-metric').innerHTML=Object.entries(A_SK).map(([k,[t]])=>`<option value="${k}" ${k===AN.metric?'selected':''}>${t}</option>`).join('');
+  document.querySelectorAll('#a-team button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===AN.team)));
+  const rows=aSkRows(), [mt,fn,fmt,kind]=A_SK[AN.metric], box=$('#a-skchart');
+  $('#a-skmeta').textContent=`${rows.length} ${AN.team==='NYR'?'Rangers':'Wolf Pack'} skaters with NHL ice time in ${mpS(AN.season)}, ${SITS.find(s=>s[0]===AN.sit)[1].toLowerCase()}${AN.team==='HFD'?' (Wolf Pack players appear only for their NHL games)':''}`;
+  if(!rows.length){ box.innerHTML='<p class="hint">No NHL ice time for this group in this season and situation.</p>'; $('#a-sktable').innerHTML=''; return; }
+  rows.sort((a,b)=>(fn(b)??-1e9)-(fn(a)??-1e9));
+  if(kind==='dumb'){
+    const mx=Math.max(1,...rows.map(r=>Math.max(r.g,r.ixg)));
+    box.innerHTML=`<div class="pc">${rows.map(r=>{ const a=r.ixg/mx*100, b=r.g/mx*100, d=r.g-r.ixg;
+      return `<button class="nm" data-ap="${r.pl.id}">${esc(r.pl.name)}<small>${esc(r.pl.pos||'')} · ${r.gp} GP · ${Math.round(r.toi)} min</small></button><span class="bw dmb"><span class="ln" style="left:${Math.min(a,b)}%;width:${Math.abs(b-a)}%;background:${d>=0?'var(--good)':'var(--bad)'}"></span><i class="x" style="left:${a}%"></i><i class="g" style="left:${b}%"></i></span><span class="r mono">${r.g} / ${d2(r.ixg)}</span>`; }).join('')}</div>
+      <div class="legend"><span><i style="background:var(--s4);border-radius:50%"></i>Expected goals from his shots</span><span><i style="background:var(--ink);border-radius:50%"></i>Actual goals</span><span><i style="background:var(--good)"></i>Scoring above expected</span><span><i style="background:var(--bad)"></i>Below</span></div>`;
+  } else {
+    const vals=rows.map(fn).filter(v=>v!=null), center=kind==='fifty'?.5:0;
+    let mn=Math.min(center,...vals), mx=Math.max(center,...vals); if(kind==='fifty'){ const e=Math.max(.5-mn,mx-.5,.05); mn=.5-e; mx=.5+e; } if(kind==='div'){ const e=Math.max(-mn,mx)||1; mn=-e; mx=e; }
+    const span=(mx-mn)||1, z=(center-mn)/span*100;
+    box.innerHTML=`<div class="pc">${rows.map(r=>{ const v=fn(r); let bar='';
+      if(v!=null){ const neg=v<center, col=kind==='bar'?'var(--blue)':neg?'var(--bad)':'var(--good)'; bar=`<span class="b" style="left:${neg?(v-mn)/span*100:z}%;width:${Math.abs(v-center)/span*100}%"><i style="flex:1;background:${col}"></i></span>`; }
+      const thin=r.toi<(['5on4','4on5'].includes(AN.sit)?10:40);
+      return `<button class="nm ${thin?'thin':''}" data-ap="${r.pl.id}">${esc(r.pl.name)}<small>${esc(r.pl.pos||'')} · ${r.gp} GP · ${Math.round(r.toi)} min${thin?' · small sample':''}</small></button><span class="bw ${thin?'thin':''}">${kind!=='bar'?`<span class="mid" style="left:${z}%"></span>`:''}${bar}</span><span class="r mono">${fmt(v)}</span>`; }).join('')}</div>
+      <div class="legend"><span>${esc(mt)}${kind==='fifty'?', centered on 50%':kind==='div'?', centered on zero':''}. Tap a name for his league percentile card.</span></div>`;
+  }
+  renderASkTable(rows);
+}
+function renderASkTable(rows){
+  const cols=[['name','Player'],['gp','GP'],['toiGp','TOI/GP'],['xgfPct','xGF%'],['relXgf','Rel xGF%'],['cfPct','CF%'],['xgf60','xGF/60'],['xga60','xGA/60'],['g','G'],['ixg','ixG'],['p','P'],['p60','P/60'],['ixg60','ixG/60'],['hd','HD shots'],['gsGp','GS/GP'],['oz','OZ start%']];
+  const k=AN.sort.k, dir=AN.sort.d, val=(r,c)=>c==='name'?r.pl.last:r[c];
+  rows=[...rows].sort((a,b)=>{ const x=val(a,k),y=val(b,k); if(typeof x==='string') return dir*String(x).localeCompare(String(y)); return dir*((x??-1e9)-(y??-1e9)); });
+  const fm=(r,c)=>{ const v=val(r,c); if(c==='name') return `<button class="lnk" data-ap="${r.pl.id}">${esc(r.pl.name)}</button>`; if(['xgfPct','cfPct','oz'].includes(c)) return pct1(v); if(c==='relXgf') return relp(v); if(c==='toiGp') return mmss(v); if(['xgf60','xga60','ixg','p60','ixg60','gsGp'].includes(c)) return d2(v); return esc(v??'–'); };
+  $('#a-sktable').innerHTML=`<thead><tr>${cols.map(([c,t])=>`<th data-ak="${c}" class="${c==='name'?'':'r'}" aria-sort="${c===k?(dir>0?'ascending':'descending'):'none'}">${t}${c===k?(dir>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${cols.map(([c])=>`<td class="${c==='name'?'':'r mono'}">${fm(r,c)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+/* analytics: goalies */
+function renderAGoalies(){
+  const rows=[]; for(const p of AN.d.players){ if(p.group!=='G') continue; const s=p.seasons[AN.season]?.all; if(s&&s.gp) rows.push({...s,pl:p}); }
+  rows.sort((a,b)=>b.gsax-a.gsax); const box=$('#a-gchart');
+  $('#a-gmeta').textContent=`${mpS(AN.season)}, all situations · organization goalies with NHL games`;
+  if(!rows.length){ box.innerHTML='<p class="hint">No NHL games for organization goalies this season.</p>'; $('#a-gtable').innerHTML=''; return; }
+  const e=Math.max(1,...rows.map(r=>Math.abs(r.gsax)));
+  box.innerHTML=`<div class="pc">${rows.map(r=>{ const neg=r.gsax<0; return `<button class="nm" data-ap="${r.pl.id}">${esc(r.pl.name)}<small>${esc(r.team)} · ${r.gp} GP · ${pct1(r.svPct).replace('%','')} sv vs ${pct1(r.xsvPct).replace('%','')} expected</small></button><span class="bw"><span class="mid" style="left:50%"></span><span class="b" style="left:${neg?50+r.gsax/e*50:50}%;width:${Math.abs(r.gsax)/e*50}%"><i style="flex:1;background:${neg?'var(--bad)':'var(--good)'}"></i></span></span><span class="r mono">${sg2(r.gsax)}</span>`; }).join('')}</div>
+    <div class="legend"><span>Goals saved above expected: expected goals faced minus goals allowed. Right of center is better than an average goalie would have done on the same shots.</span></div>`;
+  $('#a-gtable').innerHTML=`<thead><tr><th>Goalie</th><th>Team</th><th class="r">GP</th><th class="r">Shots</th><th class="r">GA</th><th class="r">xGA</th><th class="r">GSAx</th><th class="r">GSAx/60</th><th class="r">SV%</th><th class="r">xSV%</th><th class="r">HD SV%</th></tr></thead><tbody>${rows.map(r=>`<tr><td><button class="lnk" data-ap="${r.pl.id}">${esc(r.pl.name)}</button></td><td>${esc(r.team)}</td>${[r.gp,r.sog,r.ga,d2(r.xga),sg2(r.gsax),d2(r.gsax60),f3(r.svPct),f3(r.xsvPct),f3(r.hdsv)].map(v=>`<td class="r mono">${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+/* analytics: percentile card */
+const PCT_SK=[['xgfPct','On-ice xG share'],['relXgf','xG share vs teammates'],['cfPct','On-ice shot share'],['xga60','Suppressing chances'],['ixg60','Own chance creation'],['p60','Points per 60'],['gsGp','Game score per game'],['toiGp','Ice time per game']];
+const PCT_G=[['gsax60','Goals saved above expected / 60'],['svPct','Save %'],['hdsv','High-danger save %']];
+function openAProfile(id){
+  const p=AN.d.players.find(x=>x.id===id); if(!p) return; const g=p.group==='G', dlg=$('#prof');
+  const yrs=AN.d.years.filter(y=>p.pct[y]), y=p.pct[AN.season]?AN.season:yrs.at(-1), P=p.pct[y];
+  let h=`<div class="phd"><div><h2 id="prof-t">${esc(p.name)}</h2><div class="bio">${esc(p.pos||'')} · ${TEAMS[p.team]} · MoneyPuck, ${g?'all situations':'5 on 5'}</div></div><button class="x" data-act="prof-close" aria-label="Close">×</button></div>`;
+  if(P){ h+=`<h3>League percentiles, ${mpS(y)}</h3><div class="pcard2">${(g?PCT_G:PCT_SK).map(([k,l])=>{ const v=P[k]; if(v==null) return ''; return `<span class="l">${l}</span><span class="pbar"><i style="width:${Math.max(2,v)}%;background:${rankColor(100-v+1,101)}"></i></span><span class="r mono">${v}</span>`; }).join('')}</div>
+    <p class="hint">Percentile among ${P.n} league ${P.grp==='F'?'forwards':P.grp==='D'?'defensemen':'goalies'} with a real sample that season; 100 is best. ${yrs.length>1?'Other seasons: '+yrs.filter(x=>x!==y).map(x=>`<button class="lnk" data-apy="${x}" data-ap2="${p.id}">${mpS(x)}</button>`).join(' · '):''}</p>`; }
+  else h+=`<p class="hint">Not enough NHL ice time for league percentiles yet.</p>`;
+  const sit=g?'all':'5on5', S=AN.d.years.map(yy=>({y:yy,s:p.seasons[yy]?.[sit]})).filter(x=>x.s);
+  if(S.length) h+=`<h3>By season</h3><div class="tablewrap"><table class="ct">${g?`<thead><tr><th>Season</th><th>Team</th><th class="r">GP</th><th class="r">GSAx</th><th class="r">SV%</th><th class="r">xSV%</th><th class="r">HD SV%</th></tr></thead><tbody>${S.map(({y,s})=>`<tr><td>${mpS(y)}</td><td>${esc(s.team)}</td>${[s.gp,sg2(s.gsax),f3(s.svPct),f3(s.xsvPct),f3(s.hdsv)].map(v=>`<td class="r mono">${v}</td>`).join('')}</tr>`).join('')}`
+    :`<thead><tr><th>Season</th><th>Team</th><th class="r">GP</th><th class="r">TOI/GP</th><th class="r">xGF%</th><th class="r">Rel</th><th class="r">CF%</th><th class="r">G</th><th class="r">ixG</th><th class="r">P/60</th><th class="r">GS/GP</th></tr></thead><tbody>${S.map(({y,s})=>`<tr><td>${mpS(y)}</td><td>${esc(s.team)}</td>${[s.gp,mmss(s.toiGp),pct1(s.xgfPct),relp(s.relXgf),pct1(s.cfPct),s.g,d2(s.ixg),d2(s.p60),d2(s.gsGp)].map(v=>`<td class="r mono">${v}</td>`).join('')}</tr>`).join('')}`}</tbody></table></div>`;
+  dlg.innerHTML=h; if(!dlg.open) dlg.showModal(); dlg.querySelector('.x').focus();
+  dlg.querySelectorAll('[data-apy]').forEach(b=>b.onclick=()=>{ const keep=AN.season; AN.season=+b.dataset.apy; openAProfile(b.dataset.ap2); AN.season=keep; });
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-ap]'); if(b) openAProfile(b.dataset.ap); });
+$('#a-team').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; AN.team=b.dataset.v; renderASkaters(); });
+$('#a-season').onchange=e=>{ AN.season=+e.target.value; renderASkaters(); renderAGoalies(); };
+$('#a-sit').onchange=e=>{ AN.sit=e.target.value; renderASkaters(); };
+$('#a-metric').onchange=e=>{ AN.metric=e.target.value; AN.sort={k:['gax'].includes(AN.metric)?'g':AN.metric,d:-1}; renderASkaters(); };
+$('#a-tm').onchange=e=>{ AN.tm=e.target.value; renderATrend(); };
+['a-map-f','a-rank-f'].forEach(id=>$('#'+id).addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; AN.rank=b.dataset.s; renderMap(); renderARanks(); }));
+$('#a-sktable').addEventListener('click',e=>{ const th=e.target.closest('th[data-ak]'); if(!th) return; const k=th.dataset.ak; AN.sort={k,d:AN.sort.k===k?-AN.sort.d:(k==='name'?1:-1)}; renderASkTable(aSkRows()); });
+
+/* ---------- game advanced: shot flow, win probability, shot map (MoneyPuck) ---------- */
+const GF={d:null,loading:false,open:false,flow:'xg',map:'dots'};
+function advBlock(g){
+  if(!g.res||!g.id) return '';
+  return `<details class="adv" id="bx-adv" ${GF.open?'open':''}><summary>Advanced: shot flow and shot map</summary><div id="adv-body"><p class="hint">Loading…</p></div></details>`;
+}
+function wireAdv(g){
+  const d=$('#bx-adv'); if(!d) return;
+  d.addEventListener('toggle',()=>{ GF.open=d.open; if(d.open) loadFlow(g); });
+  if(GF.open) loadFlow(g);
+}
+function loadFlow(g){
+  if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
+  fetch('data/gameflow.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+    .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
+}
+function renderAdv(g){
+  const body=$('#adv-body'), F=GF.d.games[String(g.id)]; if(!body) return;
+  if(!F){ body.innerHTML='<p class="hint">MoneyPuck has not posted this game yet. It usually appears within a day.</p>'; return; }
+  const me=F.home==='NYR'?'h':'a', opp=me==='h'?F.away:F.home;
+  body.innerHTML=`<div class="adv-h"><b>Flow</b><div class="filters" id="gf-flow"><button data-v="xg" aria-pressed="${GF.flow==='xg'}">Expected goals</button><button data-v="att" aria-pressed="${GF.flow==='att'}">Shot attempts</button></div></div>
+    <div class="chartbox" id="gf-chart"></div>
+    <div class="adv-h"><b>Rangers win probability</b></div><div class="chartbox" id="gf-wp"></div>
+    <div class="adv-h"><b>Shot map</b><div class="filters" id="gf-map"><button data-v="dots" aria-pressed="${GF.map==='dots'}">Shots</button><button data-v="heat" aria-pressed="${GF.map==='heat'}">Heat map</button></div></div>
+    <div class="chartbox" id="gf-rink"></div><p class="hint" style="margin:0">Data from MoneyPuck.com. Expected goals (xG) is the chance each shot had of scoring.</p>`;
+  flowChart(F,me,opp); wpChart(F,me); rinkChart(F,me,opp);
+  $('#gf-flow').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; GF.flow=b.dataset.v; renderAdv(g); };
+  $('#gf-map').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; GF.map=b.dataset.v; renderAdv(g); };
+}
+const clock=t=>{ const p=Math.min(4,Math.floor(t/1200)+1), r=t-(p-1)*1200; return `${p>3?'OT':'P'+p} ${Math.floor(r/60)}:${String(r%60).padStart(2,'0')}`; };
+function flowChart(F,me,opp){
+  const box=$('#gf-chart'), W=Math.max(300,(box.clientWidth||600)-28), H=190, L=34, R=64, T=12, B=24, end=F.end;
+  const xg=GF.flow==='xg', val=s=>xg?s[5]:1, sides={[me]:[],[me==='h'?'a':'h']:[]};
+  const tot={h:0,a:0}; for(const s of F.shots){ if(xg&&(s[2]==='B'||s[10])) continue; tot[s[1]]+=val(s); sides[s[1]].push([s[0],tot[s[1]],s]); }
+  const mx=Math.max(xg?1:10,tot.h,tot.a)*1.08, x=t=>L+(W-L-R)*t/end, y=v=>T+(H-T-B)*(1-v/mx);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative ${xg?'expected goals':'shot attempts'} through the game">`;
+  const step=xg?(mx>4?1:.5):(mx>60?20:10); for(let v=0;v<=mx;v+=step) s+=`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${xg?v.toFixed(step<1?1:0):v}</text>`;
+  for(let p=1;p*1200<end;p++) s+=`<line x1="${x(p*1200)}" x2="${x(p*1200)}" y1="${T}" y2="${H-B}" style="stroke:var(--line);stroke-dasharray:3 3"/>`;
+  for(let p=0;p*1200<end;p++) s+=`<text x="${x(p*1200+Math.min(600,(end-p*1200)/2))}" y="${H-6}" text-anchor="middle">${p<3?'Period '+(p+1):'OT'}</text>`;
+  const line=(side,col,label)=>{ const pts=[[0,0],...sides[side].map(v=>[v[0],v[1]])]; let d=`M${x(0)},${y(0)}`; let prev=0; for(const [t,v] of pts.slice(1)){ d+=` H${x(t)} V${y(v)}`; prev=v; } d+=` H${x(end)}`;
+    let o=`<path d="${d}" style="fill:none;stroke:${col};stroke-width:2"/>`;
+    for(const [t,v,sh] of sides[side]) if(sh[2]==='G') o+=`<circle cx="${x(t)}" cy="${y(v)}" r="5" style="fill:${col};stroke:var(--board);stroke-width:2"/>`;
+    o+=`<text x="${W-R+6}" y="${y(prev)+4}" style="fill:var(--ink);font-weight:600">${esc(label)} ${xg?prev.toFixed(2):prev}</text>`; return o; };
+  s+=line(me==='h'?'a':'h','var(--s4)',opp)+line(me,'var(--blue)','NYR');
+  for(let t=0;t<end;t+=60) s+=`<rect class="hit" data-i="${t}" x="${x(t)}" y="${T}" width="${x(60)-x(0)}" height="${H-T-B}"/>`;
+  s+=`</svg><div class="legend"><span><i style="background:var(--blue)"></i>Rangers</span><span><i style="background:var(--s4)"></i>${esc(opp)}</span><span><i style="background:var(--ink);border-radius:50%"></i>Goal (dot on the scoring team's line)</span>${xg&&F.shots.some(z=>z[10])?'<span>Empty-net shots left out of xG</span>':''}</div><div class="tip" hidden></div>`;
+  box.innerHTML=s;
+  const at=(side,t)=>{ let v=0; for(const p of sides[side]) if(p[0]<=t) v=p[1]; return v; };
+  tipify(box,t=>{ const t2=Math.min(end,t+60), gs=F.shots.filter(z=>z[2]==='G'&&z[0]>t&&z[0]<=t2); return `Through ${clock(t2)}<br>NYR <b>${xg?at(me,t2).toFixed(2):at(me,t2)}</b> · ${esc(opp)} <b>${xg?at(me==='h'?'a':'h',t2).toFixed(2):at(me==='h'?'a':'h',t2)}</b>${gs.map(z=>`<br>Goal: ${esc(z[7])} (${z[1]===me?'NYR':esc(opp)}, ${z[5].toFixed(2)} xG)`).join('')}`; });
+}
+function wpChart(F,me){
+  const box=$('#gf-wp'), W=Math.max(300,(box.clientWidth||600)-28), H=96, L=34, R=64, T=8, B=8, end=F.end;
+  const x=t=>L+(W-L-R)*t/end, y=v=>T+(H-T-B)*(1-v), pr=p=>me==='h'?p:1-p;
+  const pts=F.wp.map(([t,p])=>[t,pr(p)]); if(!pts.length){ box.innerHTML=''; return; }
+  let d=`M${x(pts[0][0])},${y(pts[0][1])}`; for(const [t,p] of pts.slice(1)) d+=` H${x(t)} V${y(p)}`; d+=` H${x(end)}`;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rangers win probability through the game"><defs><clipPath id="wpa"><rect x="${L}" y="${T}" width="${W-L-R}" height="${y(.5)-T}"/></clipPath><clipPath id="wpb"><rect x="${L}" y="${y(.5)}" width="${W-L-R}" height="${H-B-y(.5)}"/></clipPath></defs>`;
+  s+=`<path d="${d} V${y(.5)} H${x(pts[0][0])} Z" clip-path="url(#wpa)" style="fill:var(--blue);opacity:.18"/><path d="${d} V${y(.5)} H${x(pts[0][0])} Z" clip-path="url(#wpb)" style="fill:var(--s4);opacity:.25"/>`;
+  s+=`<line x1="${L}" x2="${W-R}" y1="${y(.5)}" y2="${y(.5)}" style="stroke:var(--line);stroke-dasharray:3 3"/><path d="${d}" style="fill:none;stroke:var(--blue);stroke-width:2"/>`;
+  s+=`<text x="${L-6}" y="${y(1)+8}" text-anchor="end">100%</text><text x="${L-6}" y="${y(.5)+4}" text-anchor="end">50%</text><text x="${L-6}" y="${y(0)}" text-anchor="end">0%</text>`;
+  const fin=pts.at(-1)[1]; s+=`<text x="${W-R+6}" y="${y(fin)+4}" style="fill:var(--ink);font-weight:600">${Math.round(fin*100)}%</text>`;
+  for(let t=0;t<end;t+=60) s+=`<rect class="hit" data-i="${t}" x="${x(t)}" y="${T}" width="${x(60)-x(0)}" height="${H-T-B}"/>`;
+  s+=`</svg><div class="tip" hidden></div>`; box.innerHTML=s;
+  tipify(box,t=>{ let p=pts[0][1]; for(const q of pts) if(q[0]<=t+60) p=q[1]; return `${clock(Math.min(end,t+60))}<br>Rangers win chance <b>${Math.round(p*100)}%</b>`; });
+}
+function rinkSvg(W,H,sx,sy){
+  // NHL rink, 200 x 85 ft, centered at 0,0; sx/sy map feet to pixels
+  const X=v=>sx(v), Y=v=>sy(v), r=v=>Math.abs(sx(v)-sx(0));
+  let s=`<rect x="${X(-100)}" y="${Y(42.5)}" width="${r(200)}" height="${r(85)}" rx="${r(28)}" style="fill:var(--board-2);stroke:var(--ink-2);stroke-width:1.5"/>`;
+  s+=`<line x1="${X(0)}" x2="${X(0)}" y1="${Y(42.5)}" y2="${Y(-42.5)}" style="stroke:var(--red);stroke-width:2;opacity:.5"/>`;
+  for(const b of [-25,25]) s+=`<line x1="${X(b)}" x2="${X(b)}" y1="${Y(42.5)}" y2="${Y(-42.5)}" style="stroke:var(--blue);stroke-width:3;opacity:.35"/>`;
+  for(const gl of [-89,89]){ const yy=Math.sqrt(Math.max(0,42.5**2-(Math.max(0,11-(100-Math.abs(gl))))**2)); s+=`<line x1="${X(gl)}" x2="${X(gl)}" y1="${Y(41)}" y2="${Y(-41)}" style="stroke:var(--red);stroke-width:1;opacity:.5"/>`;
+    const dir=gl>0?-1:1; s+=`<path d="M${X(gl)},${Y(4)} A${r(6)},${r(6)} 0 0 ${gl>0?0:1} ${X(gl)},${Y(-4)}" style="fill:var(--blue-soft);stroke:var(--red);stroke-width:1;opacity:.8" transform=""/>`; }
+  s+=`<circle cx="${X(0)}" cy="${Y(0)}" r="${r(15)}" style="fill:none;stroke:var(--blue);stroke-width:1;opacity:.4"/>`;
+  for(const fx of [-69,69]) for(const fy of [-22,22]) s+=`<circle cx="${X(fx)}" cy="${Y(fy)}" r="${r(15)}" style="fill:none;stroke:var(--red);stroke-width:1;opacity:.4"/><circle cx="${X(fx)}" cy="${Y(fy)}" r="1.8" style="fill:var(--red);opacity:.5"/>`;
+  return s;
+}
+function rinkChart(F,me,opp){
+  const box=$('#gf-rink'), W=Math.max(300,Math.min(760,(box.clientWidth||600)-28)), H=Math.round(W*85/200)+4, pad=2;
+  const sc=(W-2*pad)/200, sx=v=>pad+(v+100)*sc, sy=v=>pad+(42.5-v)*sc;
+  const shots=F.shots.filter(z=>z[2]!=='B'&&(z[3]||z[4]));
+  const pos=z=>z[1]===me?[z[3],z[4]]:[-z[3],-z[4]]; // Rangers attack right, opponent attacks left
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Shot locations, Rangers attacking right"><defs><filter id="heatblur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${Math.max(3,sc*3.2)}"/></filter><clipPath id="rinkclip"><rect x="${sx(-100)}" y="${sy(42.5)}" width="${200*sc}" height="${85*sc}" rx="${28*sc}"/></clipPath></defs>`;
+  s+=rinkSvg(W,H,sx,sy);
+  if(GF.map==='heat'){
+    s+=`<g clip-path="url(#rinkclip)"><g filter="url(#heatblur)">${shots.map(z=>{ const [a,b]=pos(z); if(z[10]) return ''; return `<circle cx="${sx(a)}" cy="${sy(b)}" r="${sc*(5+z[5]*30)}" style="fill:${z[1]===me?'var(--blue)':'var(--ink-2)'};opacity:${Math.min(.7,.12+z[5]*2.5).toFixed(2)}"/>`; }).join('')}</g></g>`;
+  } else {
+    const sorted=[...shots].sort((p,q)=>(p[2]==='G')-(q[2]==='G'));
+    sorted.forEach(z=>{ const [a,b]=pos(z), col=z[1]===me?'var(--blue)':'var(--s4)', rr=Math.max(3,sc*(1.6+Math.sqrt(z[10]?.03:z[5])*7)), i=F.shots.indexOf(z);
+      s+=z[2]==='G'?`<circle cx="${sx(a)}" cy="${sy(b)}" r="${rr+2}" style="fill:${col};stroke:var(--ink);stroke-width:2.5"/>`
+        :z[2]==='M'?`<circle cx="${sx(a)}" cy="${sy(b)}" r="${rr}" style="fill:none;stroke:${col};stroke-width:1.6"/>`
+        :`<circle cx="${sx(a)}" cy="${sy(b)}" r="${rr}" style="fill:${col};opacity:.8;stroke:var(--board);stroke-width:1"/>`;
+      s+=`<circle class="hit" data-i="${i}" cx="${sx(a)}" cy="${sy(b)}" r="${rr+4}"/>`; });
+  }
+  const cnt=side=>{ const a=F.shots.filter(z=>z[1]===side); return `${a.filter(z=>z[2]!=='B').length} shots, ${a.filter(z=>z[2]==='G').length} goals, ${a.filter(z=>!z[10]).reduce((t,z)=>t+z[5],0).toFixed(2)} xG`; };
+  s+=`</svg><div class="rink-l"><span>← <b>${esc(opp)}</b> attacking · ${cnt(me==='h'?'a':'h')}</span><span><b>NYR</b> attacking → · ${cnt(me)}</span></div>`;
+  s+=GF.map==='heat'?`<div class="legend"><span><i style="background:var(--blue)"></i>Rangers</span><span><i style="background:var(--ink-2)"></i>${esc(opp)}</span><span>Brighter areas produced more expected goals</span></div>`
+    :`<div class="legend"><span><i style="background:var(--blue);border-radius:50%"></i>Rangers shot</span><span><i style="background:var(--s4);border-radius:50%"></i>${esc(opp)} shot</span><span><i style="border:1.6px solid var(--ink-2);border-radius:50%;background:none"></i>Missed the net</span><span><i style="background:var(--blue);border:2px solid var(--ink);border-radius:50%"></i>Goal</span><span>Bigger dot = better chance</span></div>`;
+  s+=`<div class="tip" hidden></div>`; box.innerHTML=s;
+  if(GF.map!=='heat') tipify(box,i=>{ const z=F.shots[i]; return `${clock(z[0])} · ${z[1]===me?'NYR':esc(opp)}${z[8]!==z[9]?` · ${z[1]==='h'?z[8]:z[9]}v${z[1]==='h'?z[9]:z[8]}`:''}<br><b>${esc(z[7]||'Shot')}</b> ${esc(z[6]||'')} · ${z[2]==='G'?'Goal':z[2]==='M'?'Missed':'On goal'}<br>${z[10]?'Empty net':`xG <b>${z[5].toFixed(3)}</b>`}`; });
+}
+
 /* ---------- boot ---------- */
 function boot(){ BASE=initState(); BT=totals(BASE); load(); recompute(); renderAll(); }
-boot(); setView(location.hash==='#house'?'house':'ops');
+boot(); setView(viewFromHash());
 fetch('data/league.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 fetch('data/org.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
