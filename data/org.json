@@ -7,8 +7,8 @@
   "maxRoster": 23,
   "maxContracts": 50,
   "buriedRelief": 1225000,
-  "ageAsOf": "2026-10-09",
-  "updated": "2026-10-09",
+  "ageAsOf": "2026-10-10",
+  "updated": "2026-10-10",
   "minSalary": 850000,
   "source": "PuckPedia and NHL.com (live); lineups from NYR Org 9.29.xlsx",
   "reference": {
@@ -46,6 +46,14 @@
    "Callum Tung placed in Hartford Goalies G1 (open slot)"
   ],
   "updates": [
+   {
+    "date": "2026-10-09",
+    "kind": "Injury",
+    "pp": "spencer-martin",
+    "name": "Spencer Martin",
+    "text": "Martin is dealing with a lower-body injury for AHL Hartford, Peter Baugh of The Athletic reports Friday.",
+    "team": "NYR"
+   },
    {
     "date": "2026-10-06",
     "kind": "Roster Move",
@@ -149,14 +157,14 @@
    "pp": "pavel-dorofeyev",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 1,
-     "a": 1,
-     "p": 2,
-     "pm": -1,
+     "a": 2,
+     "p": 3,
+     "pm": -3,
      "pim": 0,
-     "sog": 15,
-     "toi": 16.3,
+     "sog": 19,
+     "toi": 16.8,
      "team": "NYR"
     },
     "20252026": {
@@ -224,14 +232,14 @@
    "pp": "mika-zibanejad",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 1,
      "a": 4,
      "p": 5,
-     "pm": 4,
+     "pm": 3,
      "pim": 0,
-     "sog": 9,
-     "toi": 20.7,
+     "sog": 11,
+     "toi": 20.4,
      "team": "NYR"
     },
     "20252026": {
@@ -299,14 +307,14 @@
    "pp": "jt-miller",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 1,
-     "a": 1,
-     "p": 2,
-     "pm": 3,
-     "pim": 9,
+     "a": 2,
+     "p": 3,
+     "pm": 1,
+     "pim": 11,
      "sog": 9,
-     "toi": 17.2,
+     "toi": 17.8,
      "team": "NYR"
     },
     "20252026": {
@@ -374,13 +382,13 @@
    "pp": "alexis-lafreniere",
    "liveStats": {
     "20262027": {
-     "gp": 5,
-     "g": 3,
+     "gp": 6,
+     "g": 4,
      "a": 2,
-     "p": 5,
-     "pm": 5,
+     "p": 6,
+     "pm": 4,
      "pim": 2,
-     "sog": 11,
+     "sog": 12,
      "toi": 19.1,
      "team": "NYR"
     },
@@ -449,14 +457,14 @@
    "pp": "oliver-bjorkstrand",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 2,
      "a": 1,
      "p": 3,
-     "pm": 2,
+     "pm": 1,
      "pim": 5,
-     "sog": 8,
-     "toi": 11.4,
+     "sog": 9,
+     "toi": 11.1,
      "team": "NYR"
     },
     "20252026": {
@@ -524,14 +532,14 @@
    "pp": "william-cuylle",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 3,
      "p": 3,
      "pm": -1,
      "pim": 13,
-     "sog": 14,
-     "toi": 15.2,
+     "sog": 15,
+     "toi": 15.4,
      "team": "NYR"
     },
     "20252026": {
@@ -599,14 +607,14 @@
    "pp": "eeli-tolvanen",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 3,
      "a": 0,
      "p": 3,
      "pm": 3,
      "pim": 2,
-     "sog": 6,
-     "toi": 13.6,
+     "sog": 8,
+     "toi": 13.3,
      "team": "NYR"
     },
     "20252026": {
@@ -683,14 +691,14 @@
    "pp": "tye-kartye",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 2,
      "p": 2,
-     "pm": 1,
+     "pm": 0,
      "pim": 2,
-     "sog": 4,
-     "toi": 14.8,
+     "sog": 5,
+     "toi": 14.9,
      "team": "NYR"
     },
     "20252026": {
@@ -908,14 +916,14 @@
    "pp": "noah-laba",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 1,
      "p": 1,
      "pm": 0,
      "pim": 4,
-     "sog": 3,
-     "toi": 14.7,
+     "sog": 4,
+     "toi": 14.6,
      "team": "NYR"
     },
     "20252026": {
@@ -992,14 +1000,14 @@
    "pp": "jaroslav-chmelar",
    "liveStats": {
     "20262027": {
-     "gp": 4,
+     "gp": 5,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 0,
+     "pm": -1,
      "pim": 0,
      "sog": 2,
-     "toi": 7.5,
+     "toi": 7.9,
      "team": "NYR"
     },
     "20252026": {
@@ -1076,14 +1084,14 @@
    "pp": "gabe-perreault",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 2,
      "a": 2,
      "p": 4,
-     "pm": 2,
+     "pm": 1,
      "pim": 0,
-     "sog": 5,
-     "toi": 14.9,
+     "sog": 8,
+     "toi": 15.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1151,14 +1159,14 @@
    "pp": "cole-beaudoin",
    "liveStats": {
     "20262027": {
-     "gp": 1,
+     "gp": 2,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 1,
-     "pim": 2,
-     "sog": 0,
-     "toi": 9.9,
+     "pm": 0,
+     "pim": 4,
+     "sog": 1,
+     "toi": 10.4,
      "team": "NYR"
     }
    }
@@ -1215,14 +1223,14 @@
    "pp": "adam-fox",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 5,
      "p": 5,
-     "pm": 5,
-     "pim": 2,
+     "pm": 3,
+     "pim": 4,
      "sog": 3,
-     "toi": 21.1,
+     "toi": 21.5,
      "team": "NYR"
     },
     "20252026": {
@@ -1290,14 +1298,14 @@
    "pp": "vladislav-gavrikov",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 1,
      "a": 3,
      "p": 4,
-     "pm": 4,
+     "pm": 2,
      "pim": 0,
-     "sog": 7,
-     "toi": 21.5,
+     "sog": 10,
+     "toi": 21.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1365,14 +1373,14 @@
    "pp": "sean-durzi",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 1,
      "a": 1,
      "p": 2,
      "pm": 0,
      "pim": 9,
      "sog": 3,
-     "toi": 20.8,
+     "toi": 20.5,
      "team": "NYR"
     },
     "20252026": {
@@ -1440,14 +1448,14 @@
    "pp": "marcus-pettersson",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 0,
      "p": 0,
      "pm": 2,
      "pim": 2,
-     "sog": 4,
-     "toi": 20.4,
+     "sog": 5,
+     "toi": 20.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1515,7 +1523,7 @@
    "pp": "braden-schneider",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 0,
      "p": 0,
@@ -1599,13 +1607,13 @@
    "pp": "alberts-smits",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 2,
+     "pm": 1,
      "pim": 4,
-     "sog": 1,
+     "sog": 2,
      "toi": 14.8,
      "team": "NYR"
     }
@@ -1736,17 +1744,17 @@
    "pp": "igor-shesterkin",
    "liveStats": {
     "20262027": {
-     "gp": 4,
+     "gp": 5,
      "w": 3,
      "l": 1,
      "otl": 0,
-     "sa": 95,
-     "sv": 88,
-     "ga": 7,
+     "sa": 109,
+     "sv": 101,
+     "ga": 8,
      "so": 0,
      "team": "NYR",
-     "svPct": 0.926,
-     "gaa": 1.75
+     "svPct": 0.927,
+     "gaa": 1.79
     },
     "20252026": {
      "gp": 51,
@@ -1890,17 +1898,17 @@
    "pp": "dylan-garand",
    "liveStats": {
     "20262027": {
-     "gp": 1,
+     "gp": 2,
      "w": 1,
-     "l": 0,
+     "l": 1,
      "otl": 0,
-     "sa": 22,
-     "sv": 22,
-     "ga": 0,
+     "sa": 34,
+     "sv": 33,
+     "ga": 1,
      "so": 1,
      "team": "NYR",
-     "svPct": 1.0,
-     "gaa": 0.0
+     "svPct": 0.971,
+     "gaa": 0.67
     },
     "20252026": {
      "gp": 3,
