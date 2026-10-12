@@ -7,15 +7,15 @@
   "maxRoster": 23,
   "maxContracts": 50,
   "buriedRelief": 1225000,
-  "ageAsOf": "2026-10-11",
-  "updated": "2026-10-11",
+  "ageAsOf": "2026-10-12",
+  "updated": "2026-10-12",
   "minSalary": 850000,
   "source": "PuckPedia and NHL.com (live); lineups from NYR Org 9.29.xlsx",
   "reference": {
-   "totalCapCharge": 103908220,
-   "capSpace": 91780,
+   "totalCapCharge": 104439835,
+   "capSpace": -439835,
    "spcUsed": 47,
-   "activeRoster": 21,
+   "activeRoster": 22,
    "source": "PuckPedia"
   },
   "sheetUpdated": "2026-09-29",
@@ -32,21 +32,40 @@
    }
   ],
   "changes": [
-   "Juuso Parssinen: recalled to the Rangers",
    "Joe Veleno: Active to IR",
+   "Cole Beaudoin: recalled to the Rangers",
    "Igor Shesterkin: Active to IR",
    "Joonas Korpisalo: Active to IR",
    "Dylan Garand: recalled to the Rangers",
+   "Spencer Martin: recalled to the Rangers",
    "Adam Sykora: IR to Active",
    "Matthew Robertson: assigned to Hartford",
    "Vincent Iorio: assigned to Hartford",
    "Vincent Iorio: IR to Active",
-   "Juuso Parssinen placed in Line 4 C (open slot)",
+   "Cole Beaudoin placed in Line 4 C (open slot)",
    "Dylan Garand placed in Goalies G1 (open slot)",
-   "Bryce McConnell-Barker placed in Hartford Line 1 C (open slot)",
-   "Callum Tung placed in Hartford Goalies G1 (open slot)"
+   "Spencer Martin placed in Goalies G2 (open slot)",
+   "Bryce McConnell-Barker placed in Hartford Line 2 C (open slot)",
+   "Callum Tung placed in Hartford Goalies G1 (open slot)",
+   "Gabriel Carriere placed in Hartford Goalies G2 (open slot)"
   ],
   "updates": [
+   {
+    "date": "2026-10-11",
+    "kind": "Injury",
+    "pp": "igor-shesterkin",
+    "name": "Igor Shesterkin",
+    "text": "Shesterkin (lower body) was placed on long-term injured reserve by the New York Rangers on Sunday, per Mollie Walker of the New York Post.",
+    "team": "NYR"
+   },
+   {
+    "date": "2026-10-11",
+    "kind": "Roster Move",
+    "pp": "cole-beaudoin",
+    "name": "Cole Beaudoin",
+    "text": "Beaudoin was recalled from AHL Hartford on Sunday, according to Peter Baugh of The Athletic.",
+    "team": "NYR"
+   },
    {
     "date": "2026-10-10",
     "kind": "Roster Move",
@@ -198,14 +217,14 @@
    "pp": "pavel-dorofeyev",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 1,
      "a": 2,
      "p": 3,
      "pm": -3,
      "pim": 0,
-     "sog": 19,
-     "toi": 16.8,
+     "sog": 21,
+     "toi": 17.0,
      "team": "NYR"
     },
     "20252026": {
@@ -273,14 +292,14 @@
    "pp": "mika-zibanejad",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 1,
-     "a": 4,
-     "p": 5,
+     "a": 6,
+     "p": 7,
      "pm": 3,
-     "pim": 0,
-     "sog": 11,
-     "toi": 20.4,
+     "pim": 2,
+     "sog": 14,
+     "toi": 20.3,
      "team": "NYR"
     },
     "20252026": {
@@ -348,14 +367,14 @@
    "pp": "jt-miller",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 1,
-     "a": 2,
-     "p": 3,
-     "pm": 1,
+     "a": 4,
+     "p": 5,
+     "pm": 3,
      "pim": 11,
-     "sog": 9,
-     "toi": 17.8,
+     "sog": 10,
+     "toi": 17.9,
      "team": "NYR"
     },
     "20252026": {
@@ -423,13 +442,13 @@
    "pp": "alexis-lafreniere",
    "liveStats": {
     "20262027": {
-     "gp": 6,
-     "g": 4,
-     "a": 2,
-     "p": 6,
+     "gp": 7,
+     "g": 5,
+     "a": 3,
+     "p": 8,
      "pm": 4,
      "pim": 2,
-     "sog": 12,
+     "sog": 14,
      "toi": 19.1,
      "team": "NYR"
     },
@@ -498,14 +517,14 @@
    "pp": "oliver-bjorkstrand",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 2,
      "a": 1,
      "p": 3,
-     "pm": 1,
+     "pm": 0,
      "pim": 5,
-     "sog": 9,
-     "toi": 11.1,
+     "sog": 10,
+     "toi": 11.0,
      "team": "NYR"
     },
     "20252026": {
@@ -573,13 +592,13 @@
    "pp": "william-cuylle",
    "liveStats": {
     "20262027": {
-     "gp": 6,
-     "g": 0,
+     "gp": 7,
+     "g": 2,
      "a": 3,
-     "p": 3,
-     "pm": -1,
+     "p": 5,
+     "pm": 0,
      "pim": 13,
-     "sog": 15,
+     "sog": 18,
      "toi": 15.4,
      "team": "NYR"
     },
@@ -648,14 +667,14 @@
    "pp": "eeli-tolvanen",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 3,
-     "a": 0,
-     "p": 3,
-     "pm": 3,
+     "a": 1,
+     "p": 4,
+     "pm": 5,
      "pim": 2,
-     "sog": 8,
-     "toi": 13.3,
+     "sog": 10,
+     "toi": 13.1,
      "team": "NYR"
     },
     "20252026": {
@@ -668,79 +687,6 @@
      "sog": 141,
      "toi": 16.0,
      "team": "SEA"
-    }
-   }
-  },
-  {
-   "id": "PARS",
-   "first": "Juuso",
-   "last": "Parssinen",
-   "name": "Juuso Parssinen",
-   "posGroup": "F",
-   "pos": "C",
-   "num": 71,
-   "ht": "6-3",
-   "htIn": 75,
-   "wt": 207,
-   "shoots": "L",
-   "birthplace": "Hameenlinna, FIN",
-   "country": "FIN",
-   "dob": "2001-02-01",
-   "lastTeam": "Rangers",
-   "lastLeague": "NHL",
-   "level": "NHL",
-   "team": "NYR",
-   "unit": "Line 4",
-   "slot": "C",
-   "status": "Active",
-   "capHit": 1250000,
-   "aav": 1250000,
-   "retainedPct": 0,
-   "perfBonus": 0,
-   "expiry": 2027,
-   "expiryStatus": "RFA",
-   "contractType": "SPC",
-   "signed": "2025-05-02",
-   "nmc": false,
-   "ntc": null,
-   "waiverExempt": false,
-   "ltir": false,
-   "notes": null,
-   "capCharge": 1250000,
-   "stats2526": [
-    {
-     "Team": "Rangers",
-     "League": "NHL",
-     "GP": 20,
-     "G": 2,
-     "A": 1,
-     "PTS": 3,
-     "PIM": 10
-    },
-    {
-     "Team": "Hartford",
-     "League": "AHL",
-     "GP": 15,
-     "G": 5,
-     "A": 2,
-     "PTS": 7,
-     "PIM": 4
-    }
-   ],
-   "twoWay": false,
-   "nhlId": 8481704,
-   "pp": "juuso-parssinen",
-   "liveStats": {
-    "20252026": {
-     "gp": 20,
-     "g": 2,
-     "a": 1,
-     "p": 3,
-     "pm": 4,
-     "pim": 10,
-     "sog": 16,
-     "toi": 8.8,
-     "team": "NYR"
     }
    }
   },
@@ -805,14 +751,14 @@
    "pp": "tye-kartye",
    "liveStats": {
     "20262027": {
-     "gp": 6,
-     "g": 0,
+     "gp": 7,
+     "g": 2,
      "a": 2,
-     "p": 2,
-     "pm": 0,
+     "p": 4,
+     "pm": 2,
      "pim": 2,
-     "sog": 5,
-     "toi": 14.9,
+     "sog": 8,
+     "toi": 15.0,
      "team": "NYR"
     },
     "20252026": {
@@ -1030,14 +976,14 @@
    "pp": "noah-laba",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
-     "a": 1,
-     "p": 1,
-     "pm": 0,
+     "a": 2,
+     "p": 2,
+     "pm": 1,
      "pim": 4,
-     "sog": 4,
-     "toi": 14.6,
+     "sog": 5,
+     "toi": 14.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1114,14 +1060,14 @@
    "pp": "jaroslav-chmelar",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "g": 0,
      "a": 0,
      "p": 0,
      "pm": -1,
      "pim": 0,
-     "sog": 2,
-     "toi": 7.9,
+     "sog": 3,
+     "toi": 8.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1198,14 +1144,14 @@
    "pp": "gabe-perreault",
    "liveStats": {
     "20262027": {
-     "gp": 6,
-     "g": 2,
-     "a": 2,
-     "p": 4,
-     "pm": 1,
+     "gp": 7,
+     "g": 3,
+     "a": 3,
+     "p": 6,
+     "pm": 2,
      "pim": 0,
-     "sog": 8,
-     "toi": 15.2,
+     "sog": 10,
+     "toi": 15.7,
      "team": "NYR"
     },
     "20252026": {
@@ -1217,6 +1163,70 @@
      "pim": 10,
      "sog": 73,
      "toi": 16.0,
+     "team": "NYR"
+    }
+   }
+  },
+  {
+   "id": "BEAU",
+   "first": "Cole",
+   "last": "Beaudoin",
+   "name": "Cole Beaudoin",
+   "posGroup": "F",
+   "pos": "C",
+   "num": 53,
+   "ht": "6-2",
+   "htIn": 74,
+   "wt": 209,
+   "shoots": "L",
+   "birthplace": "Ottawa, ON",
+   "country": "CAN",
+   "dob": "2006-04-24",
+   "lastTeam": "Barrie",
+   "lastLeague": "OHL",
+   "level": "NHL",
+   "team": "NYR",
+   "unit": "Line 4",
+   "slot": "C",
+   "status": "Active",
+   "capHit": 941667,
+   "aav": 941667,
+   "retainedPct": 0,
+   "perfBonus": 0,
+   "expiry": 2029,
+   "expiryStatus": "RFA",
+   "contractType": "ELC",
+   "signed": "2024-06-21",
+   "nmc": false,
+   "ntc": null,
+   "waiverExempt": true,
+   "ltir": false,
+   "notes": null,
+   "capCharge": 941667,
+   "stats2526": [
+    {
+     "Team": "Barrie",
+     "League": "OHL",
+     "GP": 54,
+     "G": 33,
+     "A": 55,
+     "PTS": 88,
+     "PIM": 29
+    }
+   ],
+   "twoWay": true,
+   "nhlId": 8484786,
+   "pp": "cole-beaudoin",
+   "liveStats": {
+    "20262027": {
+     "gp": 3,
+     "g": 0,
+     "a": 0,
+     "p": 0,
+     "pm": 0,
+     "pim": 4,
+     "sog": 1,
+     "toi": 10.5,
      "team": "NYR"
     }
    }
@@ -1273,14 +1283,14 @@
    "pp": "adam-fox",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
-     "a": 5,
-     "p": 5,
+     "a": 6,
+     "p": 6,
      "pm": 3,
      "pim": 4,
-     "sog": 3,
-     "toi": 21.5,
+     "sog": 5,
+     "toi": 21.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1348,14 +1358,14 @@
    "pp": "vladislav-gavrikov",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 1,
-     "a": 3,
-     "p": 4,
-     "pm": 2,
+     "a": 4,
+     "p": 5,
+     "pm": 5,
      "pim": 0,
-     "sog": 10,
-     "toi": 21.4,
+     "sog": 11,
+     "toi": 21.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1423,14 +1433,14 @@
    "pp": "sean-durzi",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 1,
      "a": 1,
      "p": 2,
      "pm": 0,
      "pim": 9,
-     "sog": 3,
-     "toi": 20.5,
+     "sog": 4,
+     "toi": 20.3,
      "team": "NYR"
     },
     "20252026": {
@@ -1498,14 +1508,14 @@
    "pp": "marcus-pettersson",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
      "a": 0,
      "p": 0,
      "pm": 2,
      "pim": 2,
      "sog": 5,
-     "toi": 20.2,
+     "toi": 20.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1573,14 +1583,14 @@
    "pp": "braden-schneider",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
-     "a": 0,
-     "p": 0,
-     "pm": 2,
+     "a": 1,
+     "p": 1,
+     "pm": 5,
      "pim": 4,
      "sog": 8,
-     "toi": 17.4,
+     "toi": 17.3,
      "team": "NYR"
     },
     "20252026": {
@@ -1657,14 +1667,14 @@
    "pp": "alberts-smits",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 1,
+     "pm": 2,
      "pim": 4,
      "sog": 2,
-     "toi": 14.8,
+     "toi": 15.2,
      "team": "NYR"
     }
    }
@@ -1948,17 +1958,17 @@
    "pp": "dylan-garand",
    "liveStats": {
     "20262027": {
-     "gp": 2,
-     "w": 1,
+     "gp": 3,
+     "w": 2,
      "l": 1,
      "otl": 0,
-     "sa": 34,
-     "sv": 33,
-     "ga": 1,
+     "sa": 55,
+     "sv": 52,
+     "ga": 3,
      "so": 1,
      "team": "NYR",
-     "svPct": 0.971,
-     "gaa": 0.67
+     "svPct": 0.945,
+     "gaa": 1.2
     },
     "20252026": {
      "gp": 3,
@@ -1972,6 +1982,90 @@
      "team": "NYR",
      "svPct": 0.948,
      "gaa": 1.62
+    }
+   }
+  },
+  {
+   "id": "MART",
+   "first": "Spencer",
+   "last": "Martin",
+   "name": "Spencer Martin",
+   "posGroup": "G",
+   "pos": "G",
+   "num": 41,
+   "ht": "6-3",
+   "htIn": 75,
+   "wt": 191,
+   "shoots": "L",
+   "birthplace": "Oakville, ON",
+   "country": "CAN",
+   "dob": "1995-06-08",
+   "lastTeam": "Rangers",
+   "lastLeague": "NHL",
+   "level": "NHL",
+   "team": "NYR",
+   "unit": "Goalies",
+   "slot": "G2",
+   "status": "Active",
+   "capHit": 850000,
+   "aav": 850000,
+   "retainedPct": 0,
+   "perfBonus": 0,
+   "expiry": 2027,
+   "expiryStatus": "UFA",
+   "contractType": "SPC",
+   "signed": "2025-11-12",
+   "nmc": false,
+   "ntc": null,
+   "waiverExempt": false,
+   "ltir": false,
+   "notes": null,
+   "capCharge": 850000,
+   "stats2526": [
+    {
+     "Team": "Rangers",
+     "League": "NHL",
+     "GP": 6,
+     "W": 1,
+     "L": 3,
+     "OT": 0,
+     "GAA": 4.13
+    },
+    {
+     "Team": "Hartford",
+     "League": "AHL",
+     "GP": 22,
+     "W": 3,
+     "L": 13,
+     "OT": 3,
+     "GAA": 3.51
+    },
+    {
+     "Team": "CSKA Moskva",
+     "League": "KHL",
+     "GP": 14,
+     "W": 5,
+     "L": 6,
+     "OT": 2,
+     "GAA": 2.69
+    }
+   ],
+   "twoWay": false,
+   "nhlId": 8477484,
+   "pp": "spencer-martin",
+   "liveStats": {
+    "20252026": {
+     "gp": 6,
+     "w": 1,
+     "l": 3,
+     "otl": 0,
+     "sa": 147,
+     "sv": 127,
+     "ga": 20,
+     "so": 0,
+     "team": "NYR",
+     "svPct": 0.864,
+     "gaa": 4.13
     }
    }
   },
@@ -2035,6 +2129,79 @@
      "pim": 12,
      "sog": 53,
      "toi": 11.8,
+     "team": "NYR"
+    }
+   }
+  },
+  {
+   "id": "PARS",
+   "first": "Juuso",
+   "last": "Parssinen",
+   "name": "Juuso Parssinen",
+   "posGroup": "F",
+   "pos": "C",
+   "num": 71,
+   "ht": "6-3",
+   "htIn": 75,
+   "wt": 207,
+   "shoots": "L",
+   "birthplace": "Hameenlinna, FIN",
+   "country": "FIN",
+   "dob": "2001-02-01",
+   "lastTeam": "Rangers",
+   "lastLeague": "NHL",
+   "level": "AHL",
+   "team": "HFD",
+   "unit": "Line 1",
+   "slot": "C",
+   "status": "Active",
+   "capHit": 1250000,
+   "aav": 1250000,
+   "retainedPct": 0,
+   "perfBonus": 0,
+   "expiry": 2027,
+   "expiryStatus": "RFA",
+   "contractType": "SPC",
+   "signed": "2025-05-02",
+   "nmc": false,
+   "ntc": null,
+   "waiverExempt": false,
+   "ltir": false,
+   "notes": null,
+   "capCharge": 25000,
+   "stats2526": [
+    {
+     "Team": "Rangers",
+     "League": "NHL",
+     "GP": 20,
+     "G": 2,
+     "A": 1,
+     "PTS": 3,
+     "PIM": 10
+    },
+    {
+     "Team": "Hartford",
+     "League": "AHL",
+     "GP": 15,
+     "G": 5,
+     "A": 2,
+     "PTS": 7,
+     "PIM": 4
+    }
+   ],
+   "twoWay": false,
+   "nhlId": 8481704,
+   "pp": "juuso-parssinen",
+   "liveStats": {
+    "20252026": {
+     "gp": 20,
+     "g": 2,
+     "a": 1,
+     "p": 3,
+     "pm": 4,
+     "pim": 10,
+     "sog": 16,
+     "toi": 8.8,
      "team": "NYR"
     }
    }
@@ -2318,70 +2485,6 @@
    "liveStats": null
   },
   {
-   "id": "BEAU",
-   "first": "Cole",
-   "last": "Beaudoin",
-   "name": "Cole Beaudoin",
-   "posGroup": "F",
-   "pos": "C",
-   "num": 53,
-   "ht": "6-2",
-   "htIn": 74,
-   "wt": 209,
-   "shoots": "L",
-   "birthplace": "Ottawa, ON",
-   "country": "CAN",
-   "dob": "2006-04-24",
-   "lastTeam": "Barrie",
-   "lastLeague": "OHL",
-   "level": "AHL",
-   "team": "HFD",
-   "unit": "Line 2",
-   "slot": "C",
-   "status": "Active",
-   "capHit": 941667,
-   "aav": 941667,
-   "retainedPct": 0,
-   "perfBonus": 0,
-   "expiry": 2029,
-   "expiryStatus": "RFA",
-   "contractType": "ELC",
-   "signed": "2024-06-21",
-   "nmc": false,
-   "ntc": null,
-   "waiverExempt": true,
-   "ltir": false,
-   "notes": null,
-   "capCharge": 0,
-   "stats2526": [
-    {
-     "Team": "Barrie",
-     "League": "OHL",
-     "GP": 54,
-     "G": 33,
-     "A": 55,
-     "PTS": 88,
-     "PIM": 29
-    }
-   ],
-   "twoWay": true,
-   "nhlId": 8484786,
-   "pp": "cole-beaudoin",
-   "liveStats": {
-    "20262027": {
-     "gp": 2,
-     "g": 0,
-     "a": 0,
-     "p": 0,
-     "pm": 0,
-     "pim": 4,
-     "sog": 1,
-     "toi": 10.4,
-     "team": "NYR"
-    }
-   }
-  },
-  {
    "id": "ROOB",
    "first": "Dylan",
    "last": "Roobroeck",
@@ -2513,7 +2616,7 @@
    "lastLeague": "AHL",
    "level": "AHL",
    "team": "HFD",
-   "unit": "Line 1",
+   "unit": "Line 2",
    "slot": "C",
    "status": "Active",
    "capHit": 913333,
@@ -3339,90 +3442,6 @@
    "liveStats": null
   },
   {
-   "id": "MART",
-   "first": "Spencer",
-   "last": "Martin",
-   "name": "Spencer Martin",
-   "posGroup": "G",
-   "pos": "G",
-   "num": 41,
-   "ht": "6-3",
-   "htIn": 75,
-   "wt": 191,
-   "shoots": "L",
-   "birthplace": "Oakville, ON",
-   "country": "CAN",
-   "dob": "1995-06-08",
-   "lastTeam": "Rangers",
-   "lastLeague": "NHL",
-   "level": "AHL",
-   "team": "HFD",
-   "unit": "Goalies",
-   "slot": "G2",
-   "status": "Active",
-   "capHit": 850000,
-   "aav": 850000,
-   "retainedPct": 0,
-   "perfBonus": 0,
-   "expiry": 2027,
-   "expiryStatus": "UFA",
-   "contractType": "SPC",
-   "signed": "2025-11-12",
-   "nmc": false,
-   "ntc": null,
-   "waiverExempt": false,
-   "ltir": false,
-   "notes": null,
-   "capCharge": 0,
-   "stats2526": [
-    {
-     "Team": "Rangers",
-     "League": "NHL",
-     "GP": 6,
-     "W": 1,
-     "L": 3,
-     "OT": 0,
-     "GAA": 4.13
-    },
-    {
-     "Team": "Hartford",
-     "League": "AHL",
-     "GP": 22,
-     "W": 3,
-     "L": 13,
-     "OT": 3,
-     "GAA": 3.51
-    },
-    {
-     "Team": "CSKA Moskva",
-     "League": "KHL",
-     "GP": 14,
-     "W": 5,
-     "L": 6,
-     "OT": 2,
-     "GAA": 2.69
-    }
-   ],
-   "twoWay": false,
-   "nhlId": 8477484,
-   "pp": "spencer-martin",
-   "liveStats": {
-    "20252026": {
-     "gp": 6,
-     "w": 1,
-     "l": 3,
-     "otl": 0,
-     "sa": 147,
-     "sv": 127,
-     "ga": 20,
-     "so": 0,
-     "team": "NYR",
-     "svPct": 0.864,
-     "gaa": 4.13
-    }
-   }
-  },
-  {
    "id": "KARP",
    "first": "Zakary",
    "last": "Karpa",
@@ -3765,8 +3784,8 @@
    "lastLeague": "AHL",
    "level": "AHL",
    "team": "HFD",
-   "unit": null,
-   "slot": null,
+   "unit": "Goalies",
+   "slot": "G2",
    "status": "Active",
    "capHit": 0,
    "aav": 0,
