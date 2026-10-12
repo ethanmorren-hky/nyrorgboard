@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#0038a8">
+<title>The Iceberg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* The Iceberg: a win at the tip, the causes of it in widening levels below. For (offense) reads left, Against (defense) reads right. */
+:root{
+  --ice:#eef2f7; --board:#ffffff; --board-2:#f6f8fb; --ink:#0d1a2d; --ink-2:#44546c; --muted:#6d7b90; --line:#d6dee9; --line-2:#e6ebf2;
+  --blue:#0038a8; --blue-soft:#e3ebfb; --red:#c8102e;
+  --good:#18794e; --bad:#c62828; --mid:#c3ccd8; --warn:#9a6200; --warn-soft:#fbf0d9;
+  --sea:#d7e6f5; --sea-2:#bcd3ec; --berg:#ffffff; --berg-edge:#9fb6d1;
+  /* depth scale for level headers: ice at the tip, deeper water below */
+  --dep0:#f3f7fc; --dep1:#dceaf7; --dep2:#c2d9f0; --dep3:#9cc0e5; --dep4:#6f9fd3; --dep5:#4a7bba; --dep6:#2c5a97; --dep7:#5a6b82;
+  --dk0:#0d1a2d; --dk1:#0d1a2d; --dk2:#0d1a2d; --dk3:#0d1a2d; --dk4:#ffffff; --dk5:#ffffff; --dk6:#ffffff; --dk7:#ffffff;
+  --shadow:0 1px 0 rgba(13,26,45,.06),0 1px 3px rgba(13,26,45,.08);
+  --f-display:"Saira Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ice:#08111f; --board:#0f1b2e; --board-2:#13213a; --ink:#e7edf6; --ink-2:#a7b4c8; --muted:#7f8da3; --line:#233451; --line-2:#1a2a44;
+  --blue:#7aa2ff; --blue-soft:#17295a; --red:#ff6b7f; --good:#4fc98a; --bad:#ff7070; --mid:#3a4a63; --warn:#f0b54a; --warn-soft:#3a2c10;
+  --sea:#0d2440; --sea-2:#123058; --berg:#1b2c47; --berg-edge:#3b5577;
+  --dep0:#4a6a92; --dep1:#3d5c84; --dep2:#324f76; --dep3:#284368; --dep4:#1f3859; --dep5:#182e4b; --dep6:#11233c; --dep7:#2e3746;
+  --dk0:#e7edf6; --dk1:#e7edf6; --dk2:#e7edf6; --dk3:#e7edf6; --dk4:#e7edf6; --dk5:#e7edf6; --dk6:#e7edf6; --dk7:#e7edf6; --shadow:0 1px 0 rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ice:#08111f; --board:#0f1b2e; --board-2:#13213a; --ink:#e7edf6; --ink-2:#a7b4c8; --muted:#7f8da3; --line:#233451; --line-2:#1a2a44;
+  --blue:#7aa2ff; --blue-soft:#17295a; --red:#ff6b7f; --good:#4fc98a; --bad:#ff7070; --mid:#3a4a63; --warn:#f0b54a; --warn-soft:#3a2c10;
+  --sea:#0d2440; --sea-2:#123058; --berg:#1b2c47; --berg-edge:#3b5577;
+  --dep0:#4a6a92; --dep1:#3d5c84; --dep2:#324f76; --dep3:#284368; --dep4:#1f3859; --dep5:#182e4b; --dep6:#11233c; --dep7:#2e3746;
+  --dk0:#e7edf6; --dk1:#e7edf6; --dk2:#e7edf6; --dk3:#e7edf6; --dk4:#e7edf6; --dk5:#e7edf6; --dk6:#e7edf6; --dk7:#e7edf6; --shadow:0 1px 0 rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ice);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.4}
+.wrap{max-width:1360px;margin:0 auto;padding:14px 20px 56px}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:6px 12px}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand h1{font-size:30px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.brand h1 b{color:var(--blue)}
+.stamp{font-size:12px;color:var(--muted)}
+.vsw{position:relative}
+.vbtn{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;background:var(--board);cursor:pointer;color:var(--ink-2)}
+.vbtn:hover,.vbtn[aria-expanded="true"]{border-color:var(--blue);color:var(--blue)}
+.vmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:40;background:var(--board);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(13,26,45,.18);min-width:250px;padding:6px}
+.vmenu a{display:grid;gap:1px;padding:8px 10px;border-radius:7px;color:inherit;text-decoration:none}
+.vmenu a:hover,.vmenu a:focus-visible{background:var(--board-2)}
+.vmenu b{font-family:var(--f-display);font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.vmenu span{font-size:12px;color:var(--ink-2)}
+.vmenu a.sub{padding-left:28px}
+.vmenu a.sub b{font-size:16px}
+.vmenu a[aria-current="page"]{background:var(--blue-soft)} .vmenu a[aria-current="page"] b{color:var(--blue)}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end;background:var(--board);border:1px solid var(--line);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow)}
+.ctl{display:grid;gap:3px}
+.ctl label,.ctl .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+select{border:1px solid var(--line);background:var(--board);border-radius:6px;padding:6px 8px;min-width:0;max-width:100%}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;background:var(--board);padding:6px 10px;cursor:pointer;font-weight:600;font-size:13px;color:var(--ink-2)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--board)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;margin-top:14px}
+.card{background:var(--board);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.berg{padding:10px 8px 6px}
+.berg svg{display:block;width:100%;height:auto}
+.berg .band{cursor:pointer}
+.berg .band:hover .bandEdge,.berg .band:focus-visible .bandEdge{stroke:var(--blue);stroke-width:2.5}
+.berg text{font-family:var(--f-body);fill:var(--ink)}
+.berg .lv{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.03em;text-transform:uppercase}
+.berg .pc{font-family:var(--f-mono);font-size:14px;font-weight:600}
+.berg .side{font-size:11px;fill:var(--ink-2);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12px;color:var(--ink-2);padding:2px 12px 10px}
+.ramp{width:120px;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--bad),var(--mid),var(--good))}
+.read{padding:14px 16px;display:grid;gap:12px;align-content:start}
+.read h2{font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;background:var(--board-2);min-width:0}
+.tile .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .v{font-family:var(--f-mono);font-size:20px;font-weight:600}
+.tile .s{font-size:12px;color:var(--ink-2)}
+.notes{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--ink)}
+.notes li::marker{color:var(--muted)}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--ink-2);background:var(--board-2);vertical-align:1px;white-space:nowrap}
+.tag.a3z{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+
+.level{margin-top:0;scroll-margin-top:64px;border-left:6px solid var(--dc);overflow:hidden}
+.level .lhead{background:var(--dc);color:var(--dk);border-bottom:0;align-items:center;padding:12px 16px}
+.level .lhead .n,.level .lhead .q{color:color-mix(in oklab, var(--dk) 78%, var(--dc))}
+.level .lhead .dg{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in oklab, var(--dk) 70%, var(--dc))}
+.mb{flex:none;color:var(--dk)}
+.feeds{display:flex;align-items:center;justify-content:center;gap:8px;height:34px;font-size:12px;color:var(--muted)}
+.feeds::before,.feeds::after{content:"";height:1px;flex:1;max-width:160px;background:var(--line)}
+.feeds span{white-space:nowrap}
+.water{position:relative;margin:4px 0 0;height:40px;display:flex;align-items:center;justify-content:center}
+.water svg{position:absolute;inset:0;width:100%;height:100%}
+.water span{position:relative;background:var(--ice);padding:0 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.dnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:none;background:color-mix(in oklab, var(--ice) 92%, transparent);backdrop-filter:blur(6px);padding:8px 0;margin-top:16px}
+.dnav::-webkit-scrollbar{display:none}
+.dnav button{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--board);border-radius:999px;padding:4px 10px 4px 5px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.dnav button i{width:14px;height:14px;border-radius:50%;background:var(--dc);box-shadow:inset 0 0 0 1px color-mix(in oklab, var(--ink) 18%, transparent)}
+.dnav button[aria-current="true"]{border-color:var(--blue);color:var(--blue)}
+.dnav .sp{flex:1}
+.dnav .tog{flex:none}
+.lhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:12px 16px 8px;border-bottom:1px solid var(--line-2)}
+.lhead .n{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.lhead h2{font-size:24px;text-transform:uppercase;letter-spacing:.02em}
+.lhead .q{color:var(--ink-2)}
+.lhead .wt{margin-left:auto;font-size:12px;color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.cols>div{padding:6px 16px 12px;min-width:0}
+.cols>div+div{border-left:1px solid var(--line-2)}
+.colh{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:8px 0 4px;display:flex;justify-content:space-between}
+.net{padding:4px 16px 4px;border-bottom:1px solid var(--line-2)}
+.net .rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 24px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 0;border-top:1px solid var(--line-2);cursor:pointer}
+.mrow:first-child{border-top:0}
+.mrow:hover .ml{color:var(--blue)}
+.ml{font-weight:600;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:baseline}
+.mv{font-family:var(--f-mono);font-size:16px;font-weight:600;text-align:right;white-space:nowrap}
+.mv small{display:block;font-size:11px;color:var(--muted);font-weight:500;white-space:nowrap}
+.md{grid-column:1/-1;font-size:12.5px;color:var(--ink-2)}
+body:not(.learn) .md{display:none}
+.track{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:10px;align-items:center}
+.pt{position:relative;height:16px}
+.pt .bar{position:absolute;left:0;right:0;top:7px;height:2px;background:var(--line);border-radius:1px}
+.pt .mid{position:absolute;left:50%;top:2px;width:1px;height:12px;background:var(--muted)}
+.pt .dot{position:absolute;top:2px;width:12px;height:12px;margin-left:-6px;border-radius:50%;border:2px solid var(--board);box-shadow:0 0 0 1px var(--ink-2)}
+.pt .cmp{position:absolute;top:1px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--ink);background:transparent}
+.rk{font-size:12px;color:var(--ink-2);text-align:right;white-space:nowrap}
+.wbar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:11.5px;color:var(--muted)}
+.wbar>span:first-child{white-space:nowrap}
+.wbar .gdesc{flex-basis:100%}
+.wbar i{display:inline-block;height:6px;border-radius:3px;background:var(--blue);min-width:2px}
+.mrow.small .mv,.mrow.small .dot{opacity:.45}
+.verdict{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 6px;border-radius:4px;white-space:nowrap}
+.grade{font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.grade.g4{background:var(--blue);border-color:var(--blue);color:var(--board)} .grade.g3{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+.grade.g2{border-color:var(--blue);color:var(--blue)} .grade.g1,.grade.g0{color:var(--muted)}
+.gdesc{color:var(--muted)}
+body.analyst .gdesc,body.analyst .why,body.analyst .verdict,body.analyst .intro{display:none}
+body.learn .fx,body.learn .zs,body.learn .rs{display:none}
+.why{grid-column:1/-1;font-size:12.5px;color:var(--ink)}
+.why b{font-weight:600}
+.fx{grid-column:1/-1;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.zs{font-family:var(--f-mono)}
+body.analyst .mrow{padding:6px 0}
+body.analyst .ml{font-family:var(--f-mono);font-size:13px}
+.intro{margin:10px 16px 2px;padding:10px 12px;border-radius:8px;background:var(--board-2);border:1px solid var(--line-2);font-size:13px;color:var(--ink)}
+.intro b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.04em;font-size:14px}
+.lsum{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line-2);font-size:13px}
+.lsum .pc{display:inline-flex;align-items:center;gap:6px}
+.lsum .sq{display:inline-block;width:12px;height:12px;border-radius:3px}
+.lsum .lk{color:var(--ink-2)}
+.lhead{cursor:pointer}
+.lhead .tog{margin-left:auto;border:1px solid color-mix(in oklab, var(--dk) 30%, transparent);background:var(--board);border-radius:6px;padding:4px 10px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--blue);white-space:nowrap}
+.lhead .wt{margin-left:0}
+.dnav .tog{border:1px solid var(--line);background:var(--board);border-radius:6px;padding:5px 12px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--blue)}
+.gl{display:grid;grid-template-columns:auto auto 1fr;gap:4px 10px;align-items:baseline}
+.more{display:block;width:calc(100% - 32px);margin:2px 16px 12px;border:1px dashed var(--line);background:transparent;border-radius:7px;padding:7px;font-weight:600;color:var(--blue);cursor:pointer}
+.funnel .fl{font-size:12px;fill:var(--ink-2)}
+
+.drawer{grid-column:1/-1;padding:8px 0 2px}
+.drawer svg{width:100%;height:auto;display:block}
+.drawer .dl{font-size:12px;color:var(--ink-2);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.sw{display:inline-block;width:14px;height:3px;vertical-align:3px;margin-right:4px;border-radius:2px}
+.funnel{padding:4px 16px 12px}
+.tmap{padding:4px 16px 14px}.tmap svg{display:block;width:100%;max-width:760px;margin-inline:auto;height:auto}.tmap .cap{font-size:13px;color:var(--ink-2);text-align:center;margin:6px 0}
+.trend{margin-top:14px;padding-top:10px;border-top:1px solid var(--line-2)}.trend .th{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}.trend svg{width:100%;max-width:760px;height:auto;display:block;margin-inline:auto}
+.fun{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr) minmax(0,1fr);gap:6px 6px;align-items:center;max-width:760px;margin-inline:auto;font-size:13px}
+.fun .h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.fun .h.f{text-align:right}
+.fun .lb{color:var(--ink-2);white-space:nowrap}
+.fun .sd{display:flex;align-items:center;gap:6px;min-width:0}
+.fun .sd.f{justify-content:flex-end}
+.fun .b{height:20px;border-radius:4px;flex:none}
+.fun .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:12.5px;white-space:nowrap}
+.empty{padding:14px 16px;color:var(--muted)}
+
+.players .lhead .tabs{margin-left:auto}
+.ptable{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-top:1px solid var(--line-2)}
+th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;cursor:pointer;position:sticky;top:0;background:var(--board)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--board)}
+td.c{font-family:var(--f-mono)}
+td .cell{display:inline-block;min-width:54px;padding:2px 6px;border-radius:4px}
+th[aria-sort] {color:var(--blue)}
+.foot{margin-top:16px;padding:14px 16px;display:grid;gap:8px;font-size:13px;color:var(--ink-2)}
+.foot h3{font-size:18px;text-transform:uppercase;color:var(--ink)}
+.foot a{color:var(--blue)}
+@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}.cols{grid-template-columns:minmax(0,1fr)}.cols>div+div{border-left:0;border-top:1px solid var(--line-2)}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.wrap{padding-inline:16px}.brand h1{font-size:24px}.controls{gap:8px 10px}.lhead .wt{margin-left:0}.track{grid-template-columns:minmax(0,1fr) 80px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body class="learn">
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="vsw">
+        <button class="vbtn" id="b-view" aria-haspopup="true" aria-expanded="false" aria-controls="vmenu" aria-label="Switch page"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.6 1.8h7.4A1.5 1.5 0 0 1 18 7.3v7.2A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></button>
+        <nav class="vmenu" id="vmenu" hidden>
+          <a href="index.html"><b>NYR Ops Board</b><span>Cap, rosters, lines and moves</span></a>
+          <a href="index.html#house"><b>The House</b><span>Team and player stats</span></a>
+          <a href="index.html#analytics" class="sub"><b>Analytics</b><span>Advanced stats from MoneyPuck</span></a>
+          <a href="iceberg.html" aria-current="page"><b>The Iceberg</b><span>What wins games, level by level</span></a>
+        </nav>
+      </div>
+      <h1>The <b>Iceberg</b></h1>
+      <span class="stamp" id="stamp">Loading data…</span>
+    </div>
+  </header>
+
+  <section class="controls" aria-label="View settings">
+    <div class="ctl"><label for="c-team">Team</label><select id="c-team"></select></div>
+    <div class="ctl"><label for="c-season">Season</label><select id="c-season"></select></div>
+    <div class="ctl"><span class="lbl" id="l-win">Games</span><div class="seg" role="group" aria-labelledby="l-win" id="c-win">
+      <button data-w="0" aria-pressed="true">Season</button><button data-w="20" aria-pressed="false">Last 20</button><button data-w="10" aria-pressed="false">Last 10</button></div></div>
+    <div class="ctl"><label for="c-cmp">Compare with</label><select id="c-cmp"></select></div>
+    <div class="ctl"><span class="lbl" id="l-depth">Depth</span><div class="seg" role="group" aria-labelledby="l-depth" id="c-depth">
+      <button data-d="learn" aria-pressed="true">Learn</button><button data-d="analyst" aria-pressed="false">Analyst</button></div></div>
+  </section>
+
+  <section class="hero">
+    <div class="card berg">
+      <div id="berg" role="img" aria-label="Iceberg of team strengths by level"></div>
+      <div class="legend"><span>Percentile vs the league</span><span class="ramp" aria-hidden="true"></span><span>0 · 50 · 100</span><span>Left half: For (offense) · Right half: Against (defense) · Tap a level to jump to it</span></div>
+    </div>
+    <div class="card read" id="read"></div>
+  </section>
+
+  <div id="levels"></div>
+
+  <section class="card level players" id="players"></section>
+
+  <footer class="card foot" id="foot"></footer>
+</div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST={d:null,team:'NYR',season:null,win:0,cmp:'league',depth:'learn',open:null,psort:null,pgrp:'On-ice',lv:{}};
+try{ const s=JSON.parse(localStorage.getItem('iceberg')||'{}'); Object.assign(ST,{team:s.team||ST.team,cmp:s.cmp||ST.cmp,depth:s.depth||ST.depth}); }catch(e){}
+const save=()=>{ try{ localStorage.setItem('iceberg',JSON.stringify({team:ST.team,cmp:ST.cmp,depth:ST.depth})); }catch(e){} };
+const SRC={MP:'MoneyPuck',NHL:'NHL',A3Z:'All Three Zones',EDGE:'NHL EDGE'};
+const sName=s=>`${s}-${String((s+1)%100).padStart(2,'0')}`;
+const ord=n=>{ const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+const MIN_TRK=5;
+/* Analyst labels (terms of art) and Learn explanations (why the stat matters for the level above) */
+const SHORT={ptsPct:'P%',xPtsPct:'xP%',gdpg:'GD/GP',gfPct:'GF% 5v5',gf60:'GF/60',ga60:'GA/60',gax60:'GAx/60',gsax60:'GSAx/60',shPct:'Sh% 5v5',svPct:'Sv% 5v5',pdo:'PDO',
+ xgfPct:'xGF% (sva)',xgf60:'xGF/60',xga60:'xGA/60',hdf60:'HDSF/60',hda60:'HDSA/60',xgShot:'xG/FF',xgShotA:'xGA/FA',rbf60:'RebF/60',rba60:'RebA/60',ch60:'SCF/60 (A3Z)',ch60a:'SCA/60 (A3Z)',
+ cfPct:'CF% (sa)',cf60:'CF/60',ca60:'CA/60',sf60:'SF/60',sa60:'SA/60',rush60:'Rush SF/60',rush60a:'Rush SA/60',fc60:'FC/Cycle SF/60',fc60a:'FC/Cycle SA/60',
+ ozPct:'OZ time% (ES)',dzPct:'DZ time% (ES)',foPct:'FO% 5v5',tk60:'TK/60',gv60:'GV/60',nzt60:'NZ TO shots/60',dzr60:'DZ ret. shots/60',
+ ent60:'Entries/60',carryPct:'Carry-in%',carCh:'Carry→chance%',failEnt:'Failed entry%',ent60a:'Entries against/60',carryPctA:'Carry-in% against',denRate:'Denial%',exPoss:'Possession exit%',failEx:'Failed exit%',retEx:'Retrieval→exit%',exPossA:'Opp. possession exit%',
+ psa60:'SA1/60',psa60a:'SA1 against/60',hdp60:'HD-pass shots/60',hdp60a:'HD-pass shots against/60',cla60:'Center-lane A/60',lth60:'Low-to-high A/60',bn60:'Behind-net A/60',fcp60:'FC pressures/60',fcp60a:'FC pressures faced/60',rec60:'OZ recoveries/60',ot60:'One-timers/60',ot60a:'One-timers against/60',
+ ppXgf60:'PP xGF/60',ppGf60:'PP GF/60',ppCf60:'PP CF/60',ppCarry:'PP carry-in%',pkXga60:'PK xGA/60',pkGa60:'PK GA/60',pkCa60:'PK CA/60',pend:'PEN drawn/GP',pent:'PEN taken/GP'};
+const WHY={ptsPct:'This is the result everything below is trying to explain.',xPtsPct:'Shows whether the record is backed by the chances a team created and allowed. A big gap usually closes over time.',gdpg:'Outscoring opponents is how points are won; about six goals of differential is worth one win.',
+ gfPct:'The cleanest link between play and results: the share of even-strength goals a team scores.',gf60:'How much offense actually reaches the scoresheet.',ga60:'How much offense the team gives up on the scoresheet.',
+ gax60:'Separates shooting talent and hot streaks from chance creation. Finishing tends not to carry over from one half of a season to the next.',gsax60:'Isolates the goalie: saves beyond what the shots faced would predict.',
+ shPct:'How often shots go in. High numbers often fall back toward average.',svPct:'How often the goalie stops shots. Very goalie-driven.',pdo:'If this is far from 1.000, results are probably running ahead of or behind the team\'s real level.',
+ xgfPct:'The best single measure of who controls play at 5v5. It counts every shot weighted by how likely it was to score.',xgf60:'How much dangerous offense the team creates.',xga60:'How much dangerous offense the team allows.',
+ hdf60:'Shots from the slot and crease, where most goals come from.',hda60:'Slot and crease shots the defense allows.',xgShot:'Whether the team gets to good ice or settles for outside shots.',xgShotA:'Whether the defense keeps opponents to the outside.',
+ rbf60:'Second chances are some of the most dangerous shots in hockey.',rba60:'Second chances the defense gives up.',ch60:'Tracked scoring chances from the home-plate area in front of the net.',ch60a:'Tracked home-plate chances the defense allows.',
+ cfPct:'Having the puck more means shooting more. Shot attempt share is the classic possession measure.',cf60:'Raw volume of offense.',ca60:'Raw volume of offense allowed.',sf60:'Volume that reaches the goalie.',sa60:'Volume that reaches your own goalie.',
+ rush60:'Rush chances catch defenses out of position.',rush60a:'Rush chances allowed usually come from turnovers and bad changes.',fc60:'Sustained pressure from forechecking and cycling.',fc60a:'Time spent pinned in your own zone.',
+ ozPct:'You can only score from the offensive zone. More time there means more chances.',dzPct:'Time in your own zone is time spent defending.',foPct:'Faceoffs decide who starts with the puck, a small but real edge.',tk60:'Winning the puck back starts new possessions.',gv60:'Giving the puck away hands opponents possessions.',
+ nzt60:'Neutral-zone steals turn into fast, dangerous attacks.',dzr60:'Recovering the puck in your own end is the first step of every breakout.',
+ ent60:'Every shot starts with getting into the zone. More entries, more chances.',carryPct:'Carrying the puck in produces about twice the shots of dumping it in.',carCh:'Turns clean entries into real chances.',failEnt:'Failed entries often become the other team\'s rush.',
+ ent60a:'How often opponents get into your zone.',carryPctA:'Forcing dump-ins instead of carries kills opponent offense early.',denRate:'Stopping entries at the blue line prevents chances before they start.',
+ exPoss:'Clean exits start your own attack; clears give the puck back.',failEx:'A failed exit means more time defending and chances against. Among the strongest tracked links to winning.',retEx:'Turning a retrieval into an exit ends the opponent\'s pressure.',exPossA:'A good forecheck stops opponents from breaking out cleanly.',
+ psa60:'Passes that set up shots. Passing into shots creates better chances than shooting off the rush alone.',psa60a:'Shot-setting passes the defense allows.',hdp60:'Passes into the slot that create the most dangerous shots.',hdp60a:'Dangerous passes the defense allows.',
+ cla60:'Passes across the middle move the goalie and open the net.',lth60:'Moves the puck to the point to reset the attack.',bn60:'Passes from behind the net are hard for defenders to track.',fcp60:'Pressure on puck carriers forces turnovers.',fcp60a:'How much pressure the team faces when breaking out.',
+ rec60:'Winning loose pucks keeps offensive possessions alive.',ot60:'One-timers beat goalies before they can set.',ot60a:'One-timers the defense allows.',
+ ppXgf60:'Power-play chance creation. More stable than PP goals.',ppGf60:'Power-play goals that count in the standings.',ppCf60:'Power-play shot volume.',ppCarry:'Clean power-play entries set up the formation.',
+ pkXga60:'Danger allowed on the penalty kill.',pkGa60:'Penalty-kill goals allowed.',pkCa60:'Shot volume allowed shorthanded.',pend:'Drawing penalties creates power plays.',pent:'Taking penalties gives opponents power plays.'};
+/* how each level feeds the one above (Learn view) */
+const LINK={0:'The tip of the iceberg. Everything below explains how a team got here.',1:'Wins come from outscoring opponents. This level splits goals into what the process earned and what finishing, goaltending and luck added.',
+ 2:'Goals come from chances. Expected goals weigh every shot by how likely it was to score, so this level shows whether goals were earned.',3:'Chances come from shots. Volume and how shots were generated (rush, forecheck, cycle) set the ceiling for chance quality.',
+ 4:'Shots come from having the puck in the right place. Zone time and puck wins show who controlled territory.',5:'Territory comes from moving the puck between zones: getting in cleanly, keeping opponents out, and getting out of your own end.',
+ 6:'The individual plays underneath it all: the passes, forecheck pressure and shot types that make transition and chances happen.',7:'A side branch. Power plays and penalty kills add or cost goals outside 5v5, which feeds straight into Level 1.'};
+const GRADES=[[.8,'Very strong','The dots on a graph form a tight line. If you know the first number, you can guess the second one very accurately.'],[.6,'Strong','A clear trend is visible, though the points bounce around the line a bit.'],
+ [.4,'Moderate','There is a general trend, but plenty of exceptions exist.'],[.2,'Weak','The data looks mostly like a fuzzy cloud, with only a slight hint of an upward or downward tilt.'],[0,'Very weak / none','No real pattern; the points look completely random.']];
+function grade(r){ if(r==null) return null; const a=Math.abs(r); const i=GRADES.findIndex(g=>a>=g[0]); return {i:4-i,name:GRADES[i][1],desc:GRADES[i][2]}; }
+function linkOf(k){ const w=ST.d.weights[k]||{}; return w.rp??w.r; }
+function verdict(p){ if(p==null) return ''; const v=p>=80?['Elite','var(--good)']:p>=60?['Above average','var(--good)']:p>=40?['Average','var(--ink-2)']:p>=20?['Below average','var(--bad)']:['Poor','var(--bad)'];
+  return `<span class="verdict" style="color:${v[1]};background:color-mix(in oklab, ${v[1]} 12%, transparent)">${v[0]}</span>`; }
+/* formula in words, built from the metric's own spec (Analyst view) */
+const RAWN={e:'5v5',pp:'5v4',pk:'4v5',all:'all',zf:'tracked',za:'tracked opp.'};
+const RAWK={toi:'TOI',xgf:'xGF',xga:'xGA',sxgf:'adj. xGF',sxga:'adj. xGA',gf:'GF',ga:'GA',cf:'CF',ca:'CA',scf:'adj. CF',sca:'adj. CA',ff:'FF',fa:'FA',sf:'SF',sa:'SA',hdf:'HDSF',hda:'HDSA',rbf:'rebounds F',rba:'rebounds A',fow:'FO won',fol:'FO lost',tk:'takeaways',gv:'giveaways',gd:'GD',pend:'penalties drawn',pent:'penalties taken',ent:'entries',car:'carry-ins',carch:'carry-ins with chance',fent:'failed entries',den:'denials',tgt:'times targeted',exp:'possession exits',ex:'exits',fex:'failed exits',retex:'retrievals to exits',ret:'DZ retrievals',ch:'scoring chances',srush:'rush shots',sfc:'forecheck/cycle shots',psa:'primary shot assists',shd:'shots off HD passes',cla:'center-lane assists',lth:'low-to-high assists',bn:'behind-net assists',fcp:'forecheck pressures',rec:'recoveries',ot:'one-timers',o_nzt:'NZ-turnover shot sequences',o_dzr:'DZ-retrieval shot sequences',pp_car:'5v4 carry-ins',pp_ent:'5v4 entries'};
+function rawName(k){ if(k==='t_toi') return 'tracked 5v5 TOI'; if(k==='pts') return 'points'; if(k==='gp2') return '2 × GP'; if(k==='gp') return 'GP'; if(k==='xpts') return 'expected points';
+  const i=k.indexOf('_'), p=k.slice(0,i), r=k.slice(i+1); return `${RAWN[p]||p} ${RAWK[r]||r.replace(/_/g,' ')}`; }
+function formula(m){ const s=m.spec, n=rawName;
+  switch(s[0]){ case 'r60': return `${n(s[1])} ÷ ${n(s[2])} × 60`; case 'r60d': return `(${n(s[1])} − ${n(s[2])}) ÷ ${n(s[3])} × 60`; case 'shr': return `${n(s[1])} ÷ (${n(s[1])} + ${n(s[2])})`;
+    case 'rat': return `${n(s[1])} ÷ ${n(s[2])}`; case 'mix': return `1 − ${n(s[1])} ÷ ${n(s[2])}`; case 'pdo': return '5v5 GF ÷ SF + (1 − GA ÷ SA)'; case 'edge': return `NHL EDGE even-strength ${s[1].toUpperCase()} time share`; } return ''; }
+
+function fmt(v,f){ if(v==null||!isFinite(v)) return '–';
+  switch(f){ case 'pct': return (v*100).toFixed(1)+'%'; case 'pct3': return v.toFixed(3).replace(/^0/,''); case 'pdo': return v.toFixed(3);
+    case 'r0': return Math.round(v).toLocaleString(); case 'r1': return v.toFixed(1); case 'r2': return v.toFixed(2); case 'r3': return v.toFixed(3);
+    case 'pm1': return (v>0?'+':'')+v.toFixed(1); case 'pm2': return (v>0?'+':'')+v.toFixed(2); case 'pp': return (v>0?'+':'')+(v*100).toFixed(1); default: return String(v); } }
+function evalm(spec,S,edge){ const g=k=>S[k]||0, k=spec[0];
+  if(k==='r60') return g(spec[2])?g(spec[1])/g(spec[2])*3600:null;
+  if(k==='r60d') return g(spec[3])?(g(spec[1])-g(spec[2]))/g(spec[3])*3600:null;
+  if(k==='shr') return g(spec[1])+g(spec[2])?g(spec[1])/(g(spec[1])+g(spec[2])):null;
+  if(k==='rat') return g(spec[2])?g(spec[1])/g(spec[2]):null;
+  if(k==='mix') return g(spec[2])?1-g(spec[1])/g(spec[2]):null;
+  if(k==='pdo') return g('e_sf')&&g('e_sa')?g('e_gf')/g('e_sf')+1-g('e_ga')/g('e_sa'):null;
+  if(k==='edge') return edge?edge[spec[1]]??null:null; return null; }
+
+/* raw totals for a team under the current season/window */
+function rawFor(t){ const d=ST.d, s=ST.season, base=d.season[s]?.[t]; if(!base) return null;
+  if(!ST.win||!d.games[s]?.[t]) return {S:base.raw,edge:base.edge,trk:base.trk,gp:base.raw.gp||0,rec:base.rec};
+  const rows=d.games[s][t].slice(-ST.win), K=d.gameKeys, S={}; let rec=[0,0,0];
+  rows.forEach(r=>{ K.forEach((k,i)=>{ S[k]=(S[k]||0)+(r[5+i]||0); }); rec['WLO'.indexOf(r[4])]++; });
+  return {S,edge:base.edge,trk:S.t_gp||0,gp:rows.length,rec}; }
+
+let CACHE=null;
+function compute(){ const d=ST.d, teams=Object.keys(d.season[ST.season]||{}); const vals={};
+  teams.forEach(t=>{ const R=rawFor(t); if(!R) return; vals[t]={R,v:{}}; d.metrics.forEach(m=>{ let x=evalm(m.spec,R.S,R.edge); if(m.src==='A3Z'&&R.trk<1) x=null; vals[t].v[m.k]=x; }); });
+  const pct={}; d.metrics.forEach(m=>{ const arr=teams.map(t=>vals[t]?.v[m.k]).filter(x=>x!=null);
+    teams.forEach(t=>{ const x=vals[t]?.v[m.k]; if(x==null||arr.length<4) return; const below=arr.filter(a=>a<x).length, eq=arr.filter(a=>a===x).length;
+      let p=(below+(eq-1)/2)/(arr.length-1)*100; if(m.better===-1) p=100-p; const rank=m.better===-1?1+arr.filter(a=>a<x).length:1+arr.filter(a=>a>x).length;
+      (pct[t]=pct[t]||{})[m.k]={p,rank,n:arr.length}; }); });
+  const avg={}; d.metrics.forEach(m=>{ const arr=teams.map(t=>vals[t]?.v[m.k]).filter(x=>x!=null); avg[m.k]=arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:null; });
+  const sd={}; d.metrics.forEach(m=>{ const arr=teams.map(t=>vals[t]?.v[m.k]).filter(x=>x!=null); if(arr.length<4||avg[m.k]==null) return; sd[m.k]=Math.sqrt(arr.reduce((a,b)=>a+(b-avg[m.k])**2,0)/(arr.length-1)); });
+  CACHE={teams,vals,pct,avg,sd}; return CACHE; }
+
+/* percentile color: red (0) through neutral (50) to green (100) */
+function pcol(p){ if(p==null) return 'var(--line)'; const x=Math.round(Math.abs(p-50)*2); return `color-mix(in oklab, ${p>=50?'var(--good)':'var(--bad)'} ${x}%, var(--mid))`; }
+function weightOf(k){ const w=ST.d.weights[k]; if(!w) return 0; const v=w.rp??w.r; return v==null?0:Math.max(v,0); }
+/* level composite for one side: weighted mean percentile (weights = out-of-sample link to winning, floor .05) */
+function composite(t,lvl,sides){ const P=CACHE.pct[t]||{}; let s=0,w=0;
+  ST.d.metrics.filter(m=>m.lvl===lvl&&sides.includes(m.side)&&m.better!==0).forEach(m=>{ const p=P[m.k]; if(!p) return; if(m.src==='A3Z'&&CACHE.vals[t].R.trk<MIN_TRK) return; const ww=Math.max(weightOf(m.k),.05); s+=p.p*ww; w+=ww; });
+  return w?s/w:null; }
+
+function renderStamp(){ const d=ST.d; $('#stamp').textContent=`${sName(ST.season)} · data as of ${d.updated}`; }
+
+function renderBerg(){ const d=ST.d, t=ST.team, W=600, top=18, bh=50, gap=4, L=d.levels; const n=L.length;
+  const wl=top+bh+gap/2+4; // waterline under the tip
+  let svg=`<svg viewBox="0 0 ${W} ${top+n*(bh+gap)+30}" aria-hidden="true">`;
+  svg+=`<defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sea)"/><stop offset="1" stop-color="var(--sea-2)"/></linearGradient></defs>`;
+  svg+=`<rect x="0" y="${wl}" width="${W}" height="${top+n*(bh+gap)+30-wl}" fill="url(#sea)" rx="8"/>`;
+  svg+=`<path d="M0 ${wl} q 30 -5 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0 t 60 0" fill="none" stroke="var(--berg-edge)" stroke-width="1.5"/>`;
+  L.forEach((lv,i)=>{ const y=top+i*(bh+gap)+(lv.id===7?14:0), w0=i===0?70:110+i*62, w1=110+(i+1)*62, cx=W/2, jag=i%2?6:-5;
+    const isTip=i===0, isST=lv.id===7;
+    const pts=isTip?`${cx},${y-8} ${cx+w1/2},${y+bh} ${cx-w1/2},${y+bh}`:`${cx-w0/2},${y} ${cx+w0/2},${y} ${cx+w1/2+jag},${y+bh} ${cx-w1/2-jag},${y+bh}`;
+    const fP=isTip?composite(t,lv.id,['n']):composite(t,lv.id,['f']), aP=isTip?null:composite(t,lv.id,['a']);
+    svg+=`<g class="band" tabindex="0" role="link" data-lvl="${lv.id}" aria-label="${esc(lv.name)}"><title>${esc(lv.name)}: ${esc(lv.q)}</title>`;
+    svg+=`<clipPath id="cp${i}"><polygon points="${pts}"/></clipPath>`;
+    if(isTip) svg+=`<rect x="0" y="${y-10}" width="${W}" height="${bh+12}" fill="${pcol(fP)}" clip-path="url(#cp${i})"/>`;
+    else { svg+=`<rect x="0" y="${y}" width="${cx}" height="${bh}" fill="${pcol(fP)}" clip-path="url(#cp${i})"/><rect x="${cx}" y="${y}" width="${cx}" height="${bh}" fill="${pcol(aP)}" clip-path="url(#cp${i})"/>`;
+      svg+=`<line x1="${cx}" y1="${y}" x2="${cx}" y2="${y+bh}" stroke="var(--board)" stroke-width="2"/>`; }
+    svg+=`<polygon class="bandEdge" points="${pts}" fill="none" stroke="var(--berg-edge)" stroke-width="1.2" ${isST?'stroke-dasharray="5 4"':''}/>`;
+    if(isTip){ const rec=CACHE.vals[t]?.R.rec||[0,0,0]; svg+=`<text class="lv" x="${cx}" y="${y+bh-22}" text-anchor="middle">Win</text><text class="pc" x="${cx}" y="${y+bh-6}" text-anchor="middle">${rec.join('-')}</text>`; }
+    else { svg+=`<text class="lv" x="${cx}" y="${y+bh/2+6}" text-anchor="middle">${esc(lv.name)}</text>`;
+      const lx=cx-w0/2+10, rx=cx+w0/2-10;
+      svg+=`<text class="pc" x="${Math.min(cx-80,lx+24)}" y="${y+bh/2+5}" text-anchor="middle">${fP==null?'–':Math.round(fP)}</text><text class="pc" x="${Math.max(cx+80,rx-24)}" y="${y+bh/2+5}" text-anchor="middle">${aP==null?'–':Math.round(aP)}</text>`; }
+    svg+=`</g>`; });
+  svg+=`<text class="side" x="10" y="${wl+16}">For</text><text class="side" x="${W-10}" y="${wl+16}" text-anchor="end">Against</text>`;
+  svg+=`</svg>`; $('#berg').innerHTML=svg;
+  $$('#berg .band').forEach(b=>{ const go=()=>{ ST.lv[b.dataset.lvl]=true; renderLevels(); document.getElementById('lvl'+b.dataset.lvl)?.scrollIntoView({behavior:'smooth'}); }; b.onclick=go; b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }); }
+
+function cmpTeam(){ return ST.cmp==='league'?null:ST.cmp; }
+function renderRead(){ const d=ST.d, t=ST.team, V=CACHE.vals[t], P=CACHE.pct[t]||{}; if(!V){ $('#read').innerHTML='<div class="empty">No games yet for this team and season.</div>'; return; }
+  const v=k=>V.v[k], rec=V.R.rec, tm=d.teams[t]||t;
+  const tile=(l,val,s)=>`<div class="tile"><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`;
+  const rk=k=>P[k]?`${ord(P[k].rank)} of ${P[k].n}`:'';
+  let h=`<h2>${esc(tm)}</h2><div class="tiles">`+
+    tile('Record',rec.join('-'),`${fmt(v('ptsPct'),'pct')} of points · ${rk('ptsPct')}`)+
+    tile('Deserved',fmt(v('xPtsPct'),'pct'),`expected points % · ${rk('xPtsPct')}`)+
+    tile('5v5 xG share',fmt(v('xgfPct'),'pct'),rk('xgfPct'))+'</div>';
+  // plain-language observations, each tied to a level
+  const notes=[]; const gap=(v('ptsPct')??0)-(v('xPtsPct')??0);
+  if(v('ptsPct')!=null&&v('xPtsPct')!=null) notes.push(Math.abs(gap)<.03?`Results match the process: points % (${fmt(v('ptsPct'),'pct')}) is close to what their chances earned (${fmt(v('xPtsPct'),'pct')}).`:
+    gap>0?`They have earned more than their chances deserved (${fmt(v('ptsPct'),'pct')} of points vs ${fmt(v('xPtsPct'),'pct')} expected). Level 1 shows where the extra came from.`:`They have earned less than their chances deserved (${fmt(v('ptsPct'),'pct')} of points vs ${fmt(v('xPtsPct'),'pct')} expected).`);
+  const fin=v('gax60'), gk=v('gsax60');
+  if(fin!=null&&gk!=null){ const parts=[]; parts.push(fin>=0?`shooters are beating expected goals by ${fmt(fin,'r2')} per 60`:`shooters are ${fmt(-fin,'r2')} goals per 60 below expected`);
+    parts.push(gk>=0?`goalies are saving ${fmt(gk,'r2')} per 60 above expected`:`goalies are allowing ${fmt(-gk,'r2')} per 60 more than expected`); notes.push(`At 5v5, ${parts.join(' and ')}.`); }
+  if(v('pdo')!=null&&Math.abs(v('pdo')-1)>.015) notes.push(`PDO is ${fmt(v('pdo'),'pdo')}, ${v('pdo')>1?'high':'low'} enough that results may drift back toward their chances.`);
+  const lv=d.levels.filter(l=>l.id>=1).map(l=>({l,f:composite(t,l.id,['f']),a:composite(t,l.id,['a'])}));
+  const all=[]; lv.forEach(x=>{ if(x.f!=null) all.push({n:`${x.l.name} (for)`,p:x.f}); if(x.a!=null) all.push({n:`${x.l.name} (against)`,p:x.a}); });
+  all.sort((a,b)=>b.p-a.p);
+  if(all.length>2) notes.push(`Strongest: ${all.slice(0,2).map(x=>`${x.n.toLowerCase()} at the ${ord(Math.round(x.p))} percentile`).join(', ')}. Weakest: ${all.slice(-2).reverse().map(x=>`${x.n.toLowerCase()} at the ${ord(Math.round(x.p))}`).join(', ')}.`);
+  notes.push(V.R.trk?`All Three Zones tracked ${V.R.trk} of these ${V.R.gp} games; transition and process numbers come from those games only.`:'No All Three Zones tracked games in this window, so transition and process levels are empty.');
+  h+=`<ul class="notes">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`;
+  $('#read').innerHTML=h; }
+
+function rowHTML(m){ const t=ST.team, V=CACHE.vals[t], P=(CACHE.pct[t]||{})[m.k], x=V?.v[m.k], c=cmpTeam(), w=ST.d.weights[m.k]||{};
+  const small=m.src==='A3Z'&&V&&V.R.trk<MIN_TRK; const cx=c?CACHE.vals[c]?.v[m.k]:CACHE.avg[m.k], cp=c?(CACHE.pct[c]||{})[m.k]:null;
+  const tagc=m.src==='A3Z'?'tag a3z':'tag';
+  const dot=P?`<span class="dot" style="left:${P.p}%;background:${m.better===0?'var(--ink-2)':pcol(P.p)}"></span>`:'';
+  const cm=c&&cp?`<span class="cmp" style="left:${cp.p}%" title="${esc(c)}"></span>`:'';
+  const wv=linkOf(m.k), g=grade(wv), an=ST.depth==='analyst';
+  const sd=CACHE.sd[m.k], z=x!=null&&sd?(x-CACHE.avg[m.k])/sd*(m.better===-1?-1:1):null;
+  return `<div class="mrow${small?' small':''}" data-k="${m.k}" tabindex="0" role="button" aria-expanded="${ST.open===m.k}">
+    <div class="ml">${esc(an?SHORT[m.k]||m.lab:m.lab)} <span class="${tagc}">${SRC[m.src]}</span>${m.src==='EDGE'&&ST.win?'<span class="tag">season</span>':''}${m.better!==0?verdict(P&&!small?P.p:null):''}</div>
+    <div class="mv">${fmt(x,m.fmt)}<small>${c?esc(c)+' '+fmt(cx,m.fmt):'avg '+fmt(cx,m.fmt)}${an&&z!=null?` · <span class="zs">z ${z>0?'+':''}${z.toFixed(1)}</span>`:''}</small></div>
+    <div class="why">${esc(WHY[m.k]||'')}</div>
+    <div class="md">${esc(m.d)}${small?` Only ${V.R.trk} tracked games, so treat as a small sample.`:''}</div>
+    <div class="fx">${esc(formula(m))} · ${SRC[m.src]}</div>
+    <div class="track"><div class="pt" aria-hidden="true"><span class="bar"></span><span class="mid"></span>${cm}${dot}</div><div class="rk">${P?`${ord(P.rank)} of ${P.n}`:'no data'}</div></div>
+    <div class="wbar" title="Out-of-sample correlation with points %, ${sName(ST.d.weightSeasons[0])} to ${sName(ST.d.weightSeasons[1])}"><span>Link to winning</span> <i style="width:${Math.max(0,Math.min(1,Math.abs(wv||0)))*100}px"></i> ${wv==null?'–':(wv>=0?'':'−')+Math.abs(wv).toFixed(2)}
+      ${g?`<span class="grade g${g.i}">${g.name}</span>`:''}${w.rp==null&&w.r!=null?' <span>(same season only)</span>':''}<span class="rs">${w.rp!=null&&w.r!=null?` · same-season r ${w.r.toFixed(2)} · n ${w.n}`:''}</span>${g?`<span class="gdesc">${esc(g.desc)}</span>`:''}</div>
+    ${ST.open===m.k?`<div class="drawer">${drawer(m)}</div>`:''}</div>`; }
+
+/* game-by-game trend for one metric: per-game dots, rolling 10, season-to-date */
+/* season-by-season trend for one metric: team line vs league average (and the comparison team) */
+function trend(m){ const d=ST.d, ss=d.seasons.filter(s=>d.season[s]); if(ss.length<2||m.spec[0]==='edge') return '';
+  const val=(s,t)=>{ const x=d.season[s]?.[t]; if(!x) return null; if(m.src==='A3Z'&&(x.trk||0)<MIN_TRK) return null; return evalm(m.spec,x.raw,x.edge); };
+  const P=ss.map(s=>{ const vs=Object.keys(d.season[s]).map(t=>val(s,t)).filter(v=>v!=null);
+    return {s,me:val(s,ST.team),op:ST.cmp!=='league'?val(s,ST.cmp):null,avg:vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null}; });
+  const ys=P.flatMap(p=>[p.me,p.op,p.avg]).filter(v=>v!=null); if(ys.length<2) return '';
+  let lo=Math.min(...ys), hi=Math.max(...ys); if(hi===lo){ hi+=1; lo-=1; } const pad=(hi-lo)*.12; lo-=pad; hi+=pad;
+  const nar=innerWidth<560, W=nar?Math.max(300,innerWidth-64):640,H=nar?170:150,l=44,r=24,tp=12,b=24, X=i=>l+12+i*(W-l-r-12)/(P.length-1), Y=v=>tp+(hi-v)/(hi-lo)*(H-tp-b);
+  const line=(k,col,wd,dash)=>{ let dd='',on=false; P.forEach((p,i)=>{ if(p[k]==null){ on=false; return; } dd+=(on?'L':'M')+X(i).toFixed(1)+' '+Y(p[k]).toFixed(1); on=true; }); return dd?`<path d="${dd}" fill="none" stroke="${col}" stroke-width="${wd}" ${dash?'stroke-dasharray="4 4"':''}/>`:''; };
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.lab)} by season">`;
+  [lo+pad,hi-pad].forEach(v=>{ g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line-2)"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${fmt(v,m.fmt)}</text>`; });
+  g+=line('avg','var(--muted)',1.5,1)+(ST.cmp!=='league'?line('op','var(--ink-2)',2):'')+line('me','var(--blue)',2.5);
+  P.forEach((p,i)=>{ if(p.me!=null) g+=`<circle cx="${X(i)}" cy="${Y(p.me)}" r="4" fill="var(--blue)"><title>${sName(p.s)}: ${fmt(p.me,m.fmt)} (league avg ${fmt(p.avg,m.fmt)})</title></circle>`;
+    g+=`<text x="${X(i)}" y="${H-6}" font-size="11" fill="${p.s==ST.season?'var(--ink)':'var(--muted)'}" font-weight="${p.s==ST.season?700:400}" text-anchor="middle">${nar?"'"+String(p.s+1).slice(2):sName(p.s)}</text>`; });
+  g+=`</svg>`;
+  return `<div class="trend"><div class="th">Season by season</div>${g}<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${esc(ST.team)}</span>${ST.cmp!=='league'?`<span><span class="sw" style="background:var(--ink-2)"></span>${esc(ST.cmp)}</span>`:''}<span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span>${m.src==='A3Z'?`<span>Seasons with fewer than ${MIN_TRK} tracked games are left out</span>`:''}</div></div>`; }
+function drawer(m){ const d=ST.d, s=ST.season, rows=d.games[s]?.[ST.team]; if(!rows) return `<div class="md" style="display:block">Game-by-game data is kept for the last two seasons.</div>`+trend(m);
+  if(m.spec[0]==='edge') return `<div class="md" style="display:block">NHL EDGE publishes zone time as a season total only.</div>`;
+  const K=d.gameKeys, idx={}; K.forEach((k,i)=>idx[k]=5+i);
+  const toS=rs=>{ const S={}; rs.forEach(r=>K.forEach((k,i)=>S[k]=(S[k]||0)+(r[5+i]||0))); return S; };
+  const pts=[]; rows.forEach((r,i)=>{ const one=evalm(m.spec,toS([r])), ok=m.src!=='A3Z'||r[idx.t_gp]; const win=m.src==='A3Z'?rows.slice(0,i+1).filter(x=>x[idx.t_gp]).slice(-5):rows.slice(Math.max(0,i-9),i+1);
+    pts.push({i,r,one:ok?one:null,roll:(m.src==='A3Z'?ok&&win.length>=3:win.length>=5)?evalm(m.spec,toS(win)):null,cum:evalm(m.spec,toS(rows.slice(0,i+1).filter(x=>m.src!=='A3Z'||x[idx.t_gp])))}); });
+  const ys=pts.flatMap(p=>[p.one,p.roll,p.cum]).filter(v=>v!=null); if(!ys.length) return `<div class="md" style="display:block">No games with this stat yet.</div>`;
+  const avg=CACHE.avg[m.k]; if(avg!=null) ys.push(avg);
+  let lo=Math.min(...ys), hi=Math.max(...ys); if(hi===lo){ hi+=1; lo-=1; } const pad=(hi-lo)*.08; lo-=pad; hi+=pad;
+  const W=640,H=180,l=44,r=10,tp=10,b=24, X=i=>l+(rows.length<2?0:i*(W-l-r)/(rows.length-1)), Y=v=>tp+(hi-v)/(hi-lo)*(H-tp-b);
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(m.lab)} by game">`;
+  [lo+pad,(lo+hi)/2,hi-pad].forEach(v=>{ g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line-2)"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${fmt(v,m.fmt)}</text>`; });
+  if(avg!=null) g+=`<line x1="${l}" x2="${W-r}" y1="${Y(avg)}" y2="${Y(avg)}" stroke="var(--muted)" stroke-dasharray="4 4"/>`;
+  pts.forEach(p=>{ if(p.one!=null) g+=`<circle cx="${X(p.i)}" cy="${Y(Math.max(lo,Math.min(hi,p.one)))}" r="3.5" fill="${p.r[4]==='W'?'var(--blue)':'var(--muted)'}" opacity=".55"><title>${esc(p.r[1])} ${p.r[3]?'vs':'at'} ${esc(p.r[2])} (${p.r[4]==='O'?'OTL':p.r[4]}): ${fmt(p.one,m.fmt)}</title></circle>`; });
+  const line=(key,col,wd)=>{ let dd='',on=false; pts.forEach(p=>{ const v=p[key]; if(v==null){ on=false; return; } dd+=(on?'L':'M')+X(p.i).toFixed(1)+' '+Y(v).toFixed(1); on=true; }); return dd?`<path d="${dd}" fill="none" stroke="${col}" stroke-width="${wd}" stroke-linejoin="round"/>`:''; };
+  g+=line('cum','var(--ink-2)',1.5)+line('roll','var(--blue)',2.5);
+  g+=`<text x="${l}" y="${H-6}" font-size="11" fill="var(--muted)">Game 1</text><text x="${W-r}" y="${H-6}" font-size="11" fill="var(--muted)" text-anchor="end">Game ${rows.length}</text></svg>`;
+  return g+`<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${m.src==='A3Z'?'Rolling 5 tracked games':'Rolling 10 games'}</span><span><span class="sw" style="background:var(--ink-2)"></span>Season to date</span><span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span><span>Dots: single games (blue = win)</span></div>`+trend(m); }
+
+/* shot funnel: attempts -> unblocked -> on goal -> expected goals -> goals, per 60, for vs against (HTML so text stays at reading size) */
+function funnel(){ const V=CACHE.vals[ST.team]; if(!V) return ''; const S=V.R.S, t=S.e_toi||0; if(!t) return '';
+  const r=k=>(S[k]||0)/t*3600, F=[['Shot attempts',r('e_cf'),r('e_ca')],['Unblocked',r('e_ff'),r('e_fa')],['On goal',r('e_sf'),r('e_sa')],['Expected goals',r('e_xgf'),r('e_xga')],['Goals',r('e_gf'),r('e_ga')]];
+  const max=Math.max(F[0][1],F[0][2]), w=v=>Math.max(2,Math.sqrt(v/max)*78).toFixed(1)+'%', n=v=>v.toFixed(v<10?2:1);
+  let h=`<div class="fun" role="table" aria-label="Shot funnel per 60 minutes at 5v5"><span></span><span class="h f">For / 60</span><span class="h">Against / 60</span>`;
+  F.forEach((f,i)=>{ const op=(1-i*.13).toFixed(2);
+    h+=`<span class="lb">${f[0]}</span><span class="sd f"><span class="v">${n(f[1])}</span><span class="b" style="width:${w(f[1])};background:var(--blue);opacity:${op}"></span></span><span class="sd"><span class="b" style="width:${w(f[2])};background:var(--red);opacity:${op}"></span><span class="v">${n(f[2])}</span></span>`; });
+  return `<div class="funnel"><div class="colh"><span>From attempts to goals at 5v5. Bar length uses a square-root scale so the small goal numbers stay visible.</span></div>${h}</div></div>`; }
+
+/* every team's 5v5 chances created vs allowed per 60 (moved from the old House Analytics tab) */
+function teamMap(){ const d=ST.d, S=d.season[ST.season]; if(!S) return '';
+  const rows=Object.entries(S).map(([t,x])=>{ const r=x.raw, tt=r.e_toi||0; return tt?{t,x:r.e_xgf/tt*3600,y:r.e_xga/tt*3600,gp:x.rec.reduce((a,b)=>a+b,0)}:null; }).filter(Boolean); if(rows.length<4) return '';
+  const nar=innerWidth<560, W=nar?Math.max(320,innerWidth-36):640, H=Math.round(W*(nar?.8:.62)),L=nar?40:48,R=12,T=16,B=40, xs=rows.map(r=>r.x), ys=rows.map(r=>r.y), pd=a=>{ const lo=Math.min(...a),hi=Math.max(...a),p=(hi-lo)*.08||.1; return [lo-p,hi+p]; };
+  const [x0,x1]=pd(xs),[y0,y1]=pd(ys), X=v=>L+(W-L-R)*(v-x0)/(x1-x0), Y=v=>T+(H-T-B)*(v-y0)/(y1-y0);
+  const ax=xs.reduce((a,b)=>a+b,0)/xs.length, ay=ys.reduce((a,b)=>a+b,0)/ys.length, hl=[ST.team,ST.cmp!=='league'?ST.cmp:null];
+  let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Expected goals created against allowed per 60 at 5v5, every team">`;
+  g+=`<rect x="${X(ax)}" y="${T}" width="${W-R-X(ax)}" height="${Y(ay)-T}" fill="var(--good)" opacity=".08"/><rect x="${L}" y="${Y(ay)}" width="${X(ax)-L}" height="${H-B-Y(ay)}" fill="var(--bad)" opacity=".08"/>`;
+  g+=`<line x1="${X(ax)}" x2="${X(ax)}" y1="${T}" y2="${H-B}" stroke="var(--line)" stroke-dasharray="4 4"/><line x1="${L}" x2="${W-R}" y1="${Y(ay)}" y2="${Y(ay)}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
+  g+=`<text x="${W-R-6}" y="${T+16}" text-anchor="end" font-size="12" fill="var(--good)">Create more, allow less</text><text x="${L+6}" y="${H-B-8}" font-size="12" fill="var(--bad)">Create less, allow more</text>`;
+  g+=`<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--ink-2)">${nar?'Created (xGF/60) →':'Expected goals created per 60 (xGF/60) →'}</text><text transform="translate(14 ${(T+H-B)/2}) rotate(-90)" text-anchor="middle" font-size="12" fill="var(--ink-2)">${nar?'← Allowed (xGA/60), fewer is up':'← Allowed per 60 (xGA/60), fewer is higher'}</text>`;
+  g+=`<text x="${X(ax)}" y="${H-B+14}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">avg ${ax.toFixed(2)}</text><text x="${L-4}" y="${Y(ay)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="var(--f-mono)">${ay.toFixed(2)}</text>`;
+  rows.sort((a,b)=>hl.includes(a.t)-hl.includes(b.t)).forEach(r=>{ const me=r.t===ST.team, op=r.t===hl[1];
+    g+=`<circle cx="${X(r.x)}" cy="${Y(r.y)}" r="${me||op?8:5}" fill="${me?'var(--blue)':op?'var(--ink-2)':'var(--muted)'}" opacity="${me||op?1:.45}" stroke="var(--board)" stroke-width="2"><title>${esc(d.teams[r.t]||r.t)} · ${r.gp} GP · xGF/60 ${r.x.toFixed(2)} · xGA/60 ${r.y.toFixed(2)}</title></circle>`;
+    if(me||op) g+=`<text x="${X(r.x)+11}" y="${Y(r.y)+4}" font-size="13" font-weight="700" fill="var(--ink)">${esc(r.t)}</text>`; });
+  return `<div class="tmap"><div class="cap"><span>Where every team sits at 5v5: chances created (right is better) against chances allowed (up is better). The selected team (and comparison team) are labeled; hover any dot on desktop for its name.</span></div>${g}</svg></div>`; }
+
+/* small iceberg glyph with the current level's slice filled */
+function miniBerg(i,n){ const W=44,H=34,bh=(H-4)/n; let g=`<svg class="mb" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  for(let k=0;k<n;k++){ const y=2+k*bh, w0=k===0?2:8+k*4.6, w1=8+(k+1)*4.6, cx=W/2, pts=k===0?`${cx},${y} ${cx+w1/2},${y+bh-1} ${cx-w1/2},${y+bh-1}`:`${cx-w0/2},${y} ${cx+w0/2},${y} ${cx+w1/2},${y+bh-1} ${cx-w1/2},${y+bh-1}`;
+    g+=`<polygon points="${pts}" fill="${k===i?'currentColor':'none'}" stroke="currentColor" stroke-width="1" opacity="${k===i?1:.45}"/>`; }
+  return g+`</svg>`; }
+function lvOpen(id){ return ST.lv[id]??(ST.depth==='analyst'); }
+/* key stats shown while a level is collapsed: every net stat plus the strongest-linked For and Against stat */
+function keyStats(ms){ const top=side=>ms.filter(m=>m.side===side).sort((a,b)=>Math.abs(linkOf(b.k)||0)-Math.abs(linkOf(a.k)||0))[0];
+  return [...ms.filter(m=>m.side==='n').slice(0,2),top('f'),top('a')].filter(Boolean); }
+function renderLevels(){ const d=ST.d, t=ST.team; let h='';
+  h+=`<nav class="dnav" aria-label="Levels">${d.levels.map(l=>`<button data-go="${l.id}" style="--dc:var(--dep${l.id})"><i></i>${esc(l.name)}</button>`).join('')}<span class="sp"></span><button class="tog" id="lv-all">${d.levels.every(l=>lvOpen(l.id))?'Collapse all':'Expand all'}</button></nav>`;
+  d.levels.forEach(lv=>{ const ms=d.metrics.filter(m=>m.lvl===lv.id); if(!ms.length) return;
+    const open=lvOpen(lv.id), best=ms.slice().sort((a,b)=>Math.abs(linkOf(b.k)||0)-Math.abs(linkOf(a.k)||0))[0], bl=linkOf(best.k), bg=grade(bl);
+    const fP=lv.id===0?composite(t,0,['n']):composite(t,lv.id,['f']), aP=lv.id===0?null:composite(t,lv.id,['a']);
+    if(lv.id===1) h+=`<div class="water" aria-hidden="true"><svg viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20 q 25 -7 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0 t 50 0" fill="none" stroke="var(--berg-edge)" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg><span>Waterline · results above, causes below</span></div>`;
+    else if(lv.id>1) h+=`<div class="feeds"><span>${lv.id===7?`Branch · feeds ${esc(d.levels[1].name)} (Level 1)`:`↑ Feeds ${esc(d.levels[lv.id-1].name)}`}</span></div>`;
+    h+=`<section class="card level" id="lvl${lv.id}" style="--dc:var(--dep${lv.id});--dk:var(--dk${lv.id})"><div class="lhead" data-lv="${lv.id}">${miniBerg(lv.id,d.levels.length)}<span class="n">${lv.id===7?'Branch':lv.id===0?'The tip':'Level '+lv.id}</span><h2>${esc(lv.name)}</h2><span class="q">${esc(lv.q)}</span>
+      <button class="tog" data-lv="${lv.id}" aria-expanded="${open}">${open?'Show key stats':`Show all ${ms.length} stats`}</button></div>`;
+    h+=`<div class="lsum">${lv.id===0?`<span class="pc"><span class="sq" style="background:${pcol(fP)}"></span>Overall ${fP==null?'–':ord(Math.round(fP))+' percentile'}</span>`:
+      `<span class="pc"><span class="sq" style="background:${pcol(fP)}"></span>For ${fP==null?'–':ord(Math.round(fP))+' percentile'}</span><span class="pc"><span class="sq" style="background:${pcol(aP)}"></span>Against ${aP==null?'–':ord(Math.round(aP))+' percentile'}</span>`}
+      ${bl!=null?`<span class="lk">Strongest link to winning: <b>${esc(ST.depth==='analyst'?SHORT[best.k]||best.lab:best.lab)}</b> (r ${bl.toFixed(2)}) <span class="grade g${bg.i}">${bg.name}</span></span>`:''}</div>`;
+    h+=`<div class="intro"><b>How this level works.</b> ${esc(LINK[lv.id]||'')}</div>`;
+    const show=open?ms:keyStats(ms);
+    const net=show.filter(m=>m.side==='n'), F=show.filter(m=>m.side==='f'), A=show.filter(m=>m.side==='a');
+    if(net.length) h+=`<div class="net"><div class="rows">${net.map(rowHTML).join('')}</div></div>`;
+    if(lv.id===3&&open) h+=funnel();
+    if(lv.id===2&&open) h+=teamMap();
+    if(F.length||A.length) h+=`<div class="cols"><div><div class="colh"><span>For · offense</span><span>vs league</span></div>${F.map(rowHTML).join('')||'<div class="empty">–</div>'}</div><div><div class="colh"><span>Against · defense</span><span>vs league</span></div>${A.map(rowHTML).join('')||'<div class="empty">–</div>'}</div></div>`;
+    if(!open) h+=`<button class="more" data-lv="${lv.id}">Show all ${ms.length} stats${lv.id===3?' and the shot funnel':''}</button>`;
+    h+=`</section>`; });
+  $('#levels').innerHTML=h;
+  const flip=id=>{ ST.lv[id]=!lvOpen(+id); renderLevels(); };
+  $$('#levels .tog[data-lv], #levels .more').forEach(b=>b.onclick=e=>{ e.stopPropagation(); flip(b.dataset.lv); });
+  $$('#levels .lhead').forEach(el=>el.onclick=()=>flip(el.dataset.lv));
+  $$('.dnav [data-go]').forEach(b=>b.onclick=()=>document.getElementById('lvl'+b.dataset.go)?.scrollIntoView({behavior:'smooth'}));
+  if(window.IntersectionObserver){ const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ const id=e.target.id.slice(3); $$('.dnav [data-go]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.go===id))); } }); },{rootMargin:'-45% 0px -50% 0px'});
+    $$('#levels .level').forEach(sec=>io.observe(sec)); }
+  $('#lv-all').onclick=()=>{ const all=d.levels.every(l=>lvOpen(l.id)); d.levels.forEach(l=>ST.lv[l.id]=!all); renderLevels(); };
+  $$('.mrow').forEach(el=>{ const tg=()=>{ ST.open=ST.open===el.dataset.k?null:el.dataset.k; renderLevels(); document.querySelector(`.mrow[data-k="${el.dataset.k}"]`)?.focus({preventScroll:true}); };
+    el.onclick=tg; el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tg(); } }; }); }
+
+function renderPlayers(){ const d=ST.d, isG=ST.pgrp==='Goalies', P=(isG?d.goalies:d.players)?.[ST.season]; const box=$('#players');
+  if(!P){ box.innerHTML=`<div class="lhead"><span class="n">Players</span><h2>Players</h2><span class="q">Player data is kept for the last three seasons.</span></div>`; return; }
+  const rows=(P[ST.team]||[]).slice(); const all=Object.values(P).flat();
+  const groups=[...new Set(d.pmetrics.map(m=>m.grp))].filter(g=>g!=='Usage').concat(d.gmetrics?['Goalies']:[]);
+  const minToi=Math.min(isG?300:200,Math.max(...all.map(x=>x.toi||0))*.25);
+  const cols=isG?d.gmetrics:[...d.pmetrics.filter(m=>m.grp==='Usage'),...d.pmetrics.filter(m=>m.grp===ST.pgrp)];
+  const pctOf=(m,p)=>{ if(m.better===0||(isG&&p.toi<minToi)) return null; const v=p[m.k]; if(v==null) return null; const pool=all.filter(x=>x.pos===p.pos&&x[m.k]!=null&&(m.src!=='A3Z'||(x.zgp||0)>=MIN_TRK)&&x.toi>=minToi).map(x=>x[m.k]); if(pool.length<10) return null;
+    let q=pool.filter(x=>x<v).length/(pool.length-1)*100; return m.better===-1?100-q:q; };
+  const sk=ST.psort&&cols.find(c=>c.k===ST.psort.k)?ST.psort:{k:cols[isG?1:2].k,dir:-1};
+  rows.sort((a,b)=>((b[sk.k]??-1e9)-(a[sk.k]??-1e9))*(-sk.dir));
+  let h=`<div class="lhead"><span class="n">Players</span><h2>${esc(d.teams[ST.team]||ST.team)} players</h2><span class="q">${isG?`All situations unless noted, colored by percentile among league goalies (${Math.round(minToi)}+ minutes).`:`5v5, colored by percentile among league forwards or defensemen (${Math.round(minToi)}+ minutes${ST.pgrp.startsWith('Tracked')?`, ${MIN_TRK}+ tracked games`:''}). Game score is all situations.`}</span>
+    <div class="seg tabs" role="group" aria-label="Stat group">${groups.map(g=>`<button data-g="${esc(g)}" aria-pressed="${g===ST.pgrp}">${esc(g)}</button>`).join('')}</div></div>`;
+  h+=`<div class="ptable"><table><thead><tr><th scope="col">Player</th><th scope="col">Pos</th>${cols.map(c=>`<th scope="col" data-k="${c.k}" title="${esc(c.d)} (${SRC[c.src]})" ${sk.k===c.k?`aria-sort="${sk.dir<0?'descending':'ascending'}"`:''}>${esc(c.lab)}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(p=>{ h+=`<tr><td>${esc(p.name)}</td><td>${p.pos}</td>${cols.map(c=>{ const v=p[c.k], q=pctOf(c,p), small=c.src==='A3Z'&&(p.zgp||0)<MIN_TRK;
+    return `<td class="c"><span class="cell" style="${q!=null&&!small?`background:color-mix(in oklab, ${pcol(q)} 38%, transparent)`:''};${small?'opacity:.45':''}" title="${q!=null?ord(Math.round(q))+' percentile':''}${small&&v!=null?' · small tracked sample':''}">${c.k==='relXgf'?fmt(v,'pp'):fmt(v,c.fmt)}</span></td>`; }).join('')}</tr>`; });
+  h+=`</tbody></table></div>`;
+  if(!rows.length) h+=`<div class="empty">${isG?'No goalies with 30+ minutes yet.':'No players with 30+ minutes at 5v5 yet.'}</div>`;
+  box.innerHTML=h;
+  box.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ ST.pgrp=b.dataset.g; ST.psort=null; renderPlayers(); });
+  box.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ST.psort={k,dir:sk.k===k?-sk.dir:-1}; renderPlayers(); }); }
+
+function renderFoot(){ const d=ST.d, ws=d.weightSeasons;
+  $('#foot').innerHTML=`<h3>How to read this</h3>
+  <div>Each level explains the one above it. The tip is the result (winning); each level down is a cause of the level above: goals come from chances, chances from shots, shots from territory and possession, and those from how a team moves the puck through the three zones. Every level is split into <b>For</b> (what the team creates) and <b>Against</b> (what it allows).</div>
+  <div><b>Percentiles</b> compare the team to every other team over the same games window; 50 is league average and green is better, whichever direction "better" runs for that stat. The iceberg bands average each side's percentiles, weighted by how strongly each stat has tracked with winning.</div>
+  <div><b>Link to winning</b> is the correlation between the stat and points % across ${sName(ws[0])} to ${sName(ws[1])} team-seasons, measured out of sample: the stat from one half of a team's games against points % in the other half. It shows which numbers carry signal about winning, not proof that one causes another.</div>
+  <div><b>Grades</b> for the link to winning (by size of r, either direction):</div><div class="gl">${GRADES.map((g,i)=>`<span class="grade g${4-i}">${g[1]}</span><span class="mono">${i===0?'0.80 to 1.00':i===1?'0.60 to 0.79':i===2?'0.40 to 0.59':i===3?'0.20 to 0.39':'0.00 to 0.19'}</span><span>${g[2]}</span>`).join('')}</div>
+  <div><b>Learn and Analyst.</b> Learn uses plain names, says why each stat matters and how each level feeds the one above, rates every stat from Poor to Elite, and opens each level on its key stats. Analyst switches to standard abbreviations, shows each stat's formula, its z-score (standard deviations from the league average), the same-season and out-of-sample r with sample size, and opens every level in full.</div>
+  <div><b>Tracked stats</b> (marked All Three Zones) come only from games All Three Zones has hand-tracked, roughly a quarter to a third of the schedule. Faded values have fewer than ${MIN_TRK} tracked games.</div>
+  <div>Data: <a href="https://moneypuck.com" rel="noopener">MoneyPuck.com</a> (expected goals, shot and team data; used with credit), NHL.com and NHL EDGE (results, zone time), and All Three Zones by Corey Sznajder (zone entries, exits, passing and forechecking microstats; subscription data shown only as derived rates). Full methodology lives in the project's Iceberg methodology document.</div>`; }
+
+function renderAll(){ compute(); renderStamp(); renderBerg(); renderRead(); renderLevels(); renderPlayers(); renderFoot(); }
+
+function setupControls(){ const d=ST.d, teams=Object.keys(d.teams).filter(t=>d.season[ST.season]?.[t]).sort((a,b)=>(d.teams[a]||a).localeCompare(d.teams[b]||b));
+  if(!teams.includes(ST.team)) ST.team=teams.includes('NYR')?'NYR':teams[0];
+  $('#c-team').innerHTML=teams.map(t=>`<option value="${t}" ${t===ST.team?'selected':''}>${esc(d.teams[t]||t)}</option>`).join('');
+  $('#c-season').innerHTML=d.seasons.slice().reverse().map(s=>`<option value="${s}" ${s===ST.season?'selected':''}>${sName(s)}</option>`).join('');
+  if(ST.cmp!=='league'&&!teams.includes(ST.cmp)) ST.cmp='league';
+  $('#c-cmp').innerHTML=`<option value="league">League average</option>`+teams.filter(t=>t!==ST.team).map(t=>`<option value="${t}" ${t===ST.cmp?'selected':''}>${esc(d.teams[t]||t)}</option>`).join('');
+  const hasGames=!!d.games[ST.season]; if(!hasGames) ST.win=0;
+  $$('#c-win button').forEach(b=>{ b.disabled=!hasGames&&b.dataset.w!=='0'; b.setAttribute('aria-pressed',String(+b.dataset.w===ST.win)); });
+  $$('#c-depth button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.d===ST.depth)));
+  document.body.classList.toggle('learn',ST.depth==='learn'); document.body.classList.toggle('analyst',ST.depth==='analyst'); }
+
+$('#c-team').onchange=e=>{ ST.team=e.target.value; if(ST.cmp===ST.team) ST.cmp='league'; ST.open=null; save(); setupControls(); renderAll(); };
+$('#c-season').onchange=e=>{ ST.season=+e.target.value; ST.open=null; setupControls(); renderAll(); };
+$('#c-cmp').onchange=e=>{ ST.cmp=e.target.value; save(); renderAll(); };
+$('#c-win').onclick=e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; ST.win=+b.dataset.w; setupControls(); renderAll(); };
+$('#c-depth').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; ST.depth=b.dataset.d; ST.lv={}; save(); setupControls(); renderAll(); };
+function menuOpen(on){ $('#vmenu').hidden=!on; $('#b-view').setAttribute('aria-expanded',String(on)); if(on) $('#vmenu [aria-current="page"]')?.focus(); }
+$('#b-view').onclick=e=>{ e.stopPropagation(); menuOpen($('#vmenu').hidden); };
+document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest('.vsw')) menuOpen(false); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
+let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
+
+fetch('data/iceberg.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+  ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
+  setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
+</script>
+</body>
+</html>
