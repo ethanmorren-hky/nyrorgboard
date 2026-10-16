@@ -7,8 +7,8 @@
   "maxRoster": 23,
   "maxContracts": 50,
   "buriedRelief": 1225000,
-  "ageAsOf": "2026-10-15",
-  "updated": "2026-10-15",
+  "ageAsOf": "2026-10-16",
+  "updated": "2026-10-16",
   "minSalary": 850000,
   "source": "PuckPedia and NHL.com (live); lineups from NYR Org 9.29.xlsx",
   "reference": {
@@ -233,14 +233,14 @@
    "pp": "pavel-dorofeyev",
    "liveStats": {
     "20262027": {
-     "gp": 8,
-     "g": 1,
+     "gp": 9,
+     "g": 2,
      "a": 2,
-     "p": 3,
-     "pm": -4,
+     "p": 4,
+     "pm": -7,
      "pim": 0,
-     "sog": 23,
-     "toi": 16.9,
+     "sog": 28,
+     "toi": 17.1,
      "team": "NYR"
     },
     "20252026": {
@@ -308,11 +308,11 @@
    "pp": "mika-zibanejad",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 2,
      "a": 6,
      "p": 8,
-     "pm": 3,
+     "pm": 0,
      "pim": 2,
      "sog": 17,
      "toi": 20.6,
@@ -383,14 +383,14 @@
    "pp": "jt-miller",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 1,
      "a": 5,
      "p": 6,
-     "pm": 6,
+     "pm": 2,
      "pim": 11,
      "sog": 11,
-     "toi": 18.2,
+     "toi": 18.1,
      "team": "NYR"
     },
     "20252026": {
@@ -458,14 +458,14 @@
    "pp": "alexis-lafreniere",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 7,
-     "a": 3,
-     "p": 10,
-     "pm": 6,
-     "pim": 2,
-     "sog": 18,
-     "toi": 19.1,
+     "a": 4,
+     "p": 11,
+     "pm": 2,
+     "pim": 12,
+     "sog": 19,
+     "toi": 18.8,
      "team": "NYR"
     },
     "20252026": {
@@ -533,14 +533,14 @@
    "pp": "oliver-bjorkstrand",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 2,
      "a": 1,
      "p": 3,
-     "pm": 0,
+     "pm": -1,
      "pim": 5,
-     "sog": 10,
-     "toi": 10.5,
+     "sog": 13,
+     "toi": 10.7,
      "team": "NYR"
     },
     "20252026": {
@@ -608,14 +608,14 @@
    "pp": "william-cuylle",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 3,
      "a": 3,
      "p": 6,
-     "pm": 1,
-     "pim": 13,
+     "pm": 0,
+     "pim": 18,
      "sog": 22,
-     "toi": 15.6,
+     "toi": 15.7,
      "team": "NYR"
     },
     "20252026": {
@@ -683,14 +683,14 @@
    "pp": "eeli-tolvanen",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 3,
      "a": 1,
      "p": 4,
      "pm": 6,
      "pim": 2,
      "sog": 11,
-     "toi": 13.3,
+     "toi": 13.2,
      "team": "NYR"
     },
     "20252026": {
@@ -767,13 +767,13 @@
    "pp": "tye-kartye",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 2,
      "a": 4,
      "p": 6,
-     "pm": 4,
+     "pm": 1,
      "pim": 4,
-     "sog": 9,
+     "sog": 10,
      "toi": 15.2,
      "team": "NYR"
     },
@@ -992,14 +992,14 @@
    "pp": "noah-laba",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 0,
      "a": 2,
      "p": 2,
      "pm": 2,
-     "pim": 4,
+     "pim": 6,
      "sog": 7,
-     "toi": 14.8,
+     "toi": 15.0,
      "team": "NYR"
     },
     "20252026": {
@@ -1076,11 +1076,11 @@
    "pp": "jaroslav-chmelar",
    "liveStats": {
     "20262027": {
-     "gp": 6,
+     "gp": 7,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": -1,
+     "pm": -2,
      "pim": 0,
      "sog": 3,
      "toi": 8.2,
@@ -1160,13 +1160,13 @@
    "pp": "gabe-perreault",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 3,
      "a": 3,
      "p": 6,
-     "pm": 1,
+     "pm": 0,
      "pim": 0,
-     "sog": 12,
+     "sog": 13,
      "toi": 16.2,
      "team": "NYR"
     },
@@ -1243,6 +1243,17 @@
    "nhlId": 8475413,
    "pp": "justin-dowling",
    "liveStats": {
+    "20262027": {
+     "gp": 1,
+     "g": 0,
+     "a": 0,
+     "p": 0,
+     "pm": -1,
+     "pim": 0,
+     "sog": 0,
+     "toi": 7.7,
+     "team": "NYR"
+    },
     "20252026": {
      "gp": 2,
      "g": 0,
@@ -1308,14 +1319,14 @@
    "pp": "adam-fox",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 0,
-     "a": 8,
-     "p": 8,
-     "pm": 5,
+     "a": 9,
+     "p": 9,
+     "pm": 1,
      "pim": 6,
-     "sog": 6,
-     "toi": 21.6,
+     "sog": 10,
+     "toi": 21.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1383,14 +1394,14 @@
    "pp": "vladislav-gavrikov",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 1,
      "a": 4,
      "p": 5,
-     "pm": 6,
+     "pm": 3,
      "pim": 0,
      "sog": 11,
-     "toi": 21.1,
+     "toi": 20.9,
      "team": "NYR"
     },
     "20252026": {
@@ -1458,14 +1469,14 @@
    "pp": "sean-durzi",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 1,
      "a": 2,
      "p": 3,
-     "pm": 2,
+     "pm": 0,
      "pim": 11,
      "sog": 4,
-     "toi": 20.4,
+     "toi": 20.7,
      "team": "NYR"
     },
     "20252026": {
@@ -1533,14 +1544,14 @@
    "pp": "marcus-pettersson",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 0,
      "a": 2,
      "p": 2,
-     "pm": 5,
-     "pim": 2,
+     "pm": 3,
+     "pim": 8,
      "sog": 6,
-     "toi": 20.6,
+     "toi": 20.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1608,14 +1619,14 @@
    "pp": "braden-schneider",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 0,
      "a": 1,
      "p": 1,
-     "pm": 4,
+     "pm": 3,
      "pim": 6,
-     "sog": 9,
-     "toi": 17.1,
+     "sog": 11,
+     "toi": 17.2,
      "team": "NYR"
     },
     "20252026": {
@@ -1692,14 +1703,14 @@
    "pp": "alberts-smits",
    "liveStats": {
     "20262027": {
-     "gp": 8,
+     "gp": 9,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 1,
+     "pm": 0,
      "pim": 4,
-     "sog": 2,
-     "toi": 14.7,
+     "sog": 4,
+     "toi": 15.0,
      "team": "NYR"
     }
    }
@@ -1983,17 +1994,17 @@
    "pp": "dylan-garand",
    "liveStats": {
     "20262027": {
-     "gp": 4,
+     "gp": 5,
      "w": 3,
-     "l": 1,
+     "l": 2,
      "otl": 0,
-     "sa": 81,
-     "sv": 77,
-     "ga": 4,
+     "sa": 94,
+     "sv": 86,
+     "ga": 8,
      "so": 1,
      "team": "NYR",
-     "svPct": 0.951,
-     "gaa": 1.15
+     "svPct": 0.915,
+     "gaa": 2.05
     },
     "20252026": {
      "gp": 3,
@@ -2079,6 +2090,19 @@
    "nhlId": 8477484,
    "pp": "spencer-martin",
    "liveStats": {
+    "20262027": {
+     "gp": 1,
+     "w": 0,
+     "l": 0,
+     "otl": 0,
+     "sa": 18,
+     "sv": 15,
+     "ga": 3,
+     "so": 0,
+     "team": "NYR",
+     "svPct": 0.833,
+     "gaa": 5.09
+    },
     "20252026": {
      "gp": 6,
      "w": 1,
