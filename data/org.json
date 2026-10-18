@@ -7,8 +7,8 @@
   "maxRoster": 23,
   "maxContracts": 50,
   "buriedRelief": 1225000,
-  "ageAsOf": "2026-10-17",
-  "updated": "2026-10-17",
+  "ageAsOf": "2026-10-18",
+  "updated": "2026-10-18",
   "minSalary": 850000,
   "source": "PuckPedia and NHL.com (live); lineups from NYR Org 9.29.xlsx",
   "reference": {
@@ -252,14 +252,14 @@
    "pp": "pavel-dorofeyev",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 2,
      "a": 2,
      "p": 4,
      "pm": -7,
      "pim": 0,
-     "sog": 28,
-     "toi": 17.1,
+     "sog": 30,
+     "toi": 17.4,
      "team": "NYR"
     },
     "20252026": {
@@ -327,14 +327,14 @@
    "pp": "mika-zibanejad",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 2,
      "a": 6,
      "p": 8,
      "pm": 0,
      "pim": 2,
-     "sog": 17,
-     "toi": 20.6,
+     "sog": 18,
+     "toi": 21.0,
      "team": "NYR"
     },
     "20252026": {
@@ -402,14 +402,14 @@
    "pp": "jt-miller",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 1,
      "a": 5,
      "p": 6,
      "pm": 2,
      "pim": 11,
-     "sog": 11,
-     "toi": 18.1,
+     "sog": 12,
+     "toi": 18.5,
      "team": "NYR"
     },
     "20252026": {
@@ -477,14 +477,14 @@
    "pp": "alexis-lafreniere",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 7,
      "a": 4,
      "p": 11,
      "pm": 2,
      "pim": 12,
      "sog": 19,
-     "toi": 18.8,
+     "toi": 19.2,
      "team": "NYR"
     },
     "20252026": {
@@ -552,14 +552,14 @@
    "pp": "oliver-bjorkstrand",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 2,
      "a": 1,
      "p": 3,
      "pm": -1,
      "pim": 5,
-     "sog": 13,
-     "toi": 10.7,
+     "sog": 14,
+     "toi": 10.5,
      "team": "NYR"
     },
     "20252026": {
@@ -627,14 +627,14 @@
    "pp": "william-cuylle",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 3,
      "a": 3,
      "p": 6,
      "pm": 0,
-     "pim": 18,
-     "sog": 22,
-     "toi": 15.7,
+     "pim": 20,
+     "sog": 24,
+     "toi": 15.6,
      "team": "NYR"
     },
     "20252026": {
@@ -701,6 +701,17 @@
    "nhlId": 8479390,
    "pp": "taylor-raddysh",
    "liveStats": {
+    "20262027": {
+     "gp": 1,
+     "g": 0,
+     "a": 0,
+     "p": 0,
+     "pm": 0,
+     "pim": 0,
+     "sog": 0,
+     "toi": 7.4,
+     "team": "NYR"
+    },
     "20252026": {
      "gp": 68,
      "g": 9,
@@ -766,14 +777,14 @@
    "pp": "eeli-tolvanen",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 3,
      "a": 1,
      "p": 4,
      "pm": 6,
      "pim": 2,
-     "sog": 11,
-     "toi": 13.2,
+     "sog": 13,
+     "toi": 13.0,
      "team": "NYR"
     },
     "20252026": {
@@ -850,14 +861,14 @@
    "pp": "tye-kartye",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 2,
      "a": 4,
      "p": 6,
      "pm": 1,
      "pim": 4,
-     "sog": 10,
-     "toi": 15.2,
+     "sog": 12,
+     "toi": 15.3,
      "team": "NYR"
     },
     "20252026": {
@@ -1075,14 +1086,14 @@
    "pp": "noah-laba",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 0,
      "a": 2,
      "p": 2,
-     "pm": 2,
+     "pm": 1,
      "pim": 6,
-     "sog": 7,
-     "toi": 15.0,
+     "sog": 8,
+     "toi": 14.9,
      "team": "NYR"
     },
     "20252026": {
@@ -1159,14 +1170,14 @@
    "pp": "gabe-perreault",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 3,
      "a": 3,
      "p": 6,
-     "pm": 0,
+     "pm": -1,
      "pim": 0,
-     "sog": 13,
-     "toi": 16.2,
+     "sog": 19,
+     "toi": 16.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1243,14 +1254,14 @@
    "pp": "justin-dowling",
    "liveStats": {
     "20262027": {
-     "gp": 1,
+     "gp": 2,
      "g": 0,
      "a": 0,
      "p": 0,
      "pm": -1,
      "pim": 0,
      "sog": 0,
-     "toi": 7.7,
+     "toi": 7.1,
      "team": "NYR"
     },
     "20252026": {
@@ -1318,14 +1329,14 @@
    "pp": "adam-fox",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 0,
      "a": 9,
      "p": 9,
      "pm": 1,
      "pim": 6,
-     "sog": 10,
-     "toi": 21.2,
+     "sog": 12,
+     "toi": 21.5,
      "team": "NYR"
     },
     "20252026": {
@@ -1393,14 +1404,14 @@
    "pp": "vladislav-gavrikov",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 1,
      "a": 4,
      "p": 5,
      "pm": 3,
-     "pim": 0,
-     "sog": 11,
-     "toi": 20.9,
+     "pim": 2,
+     "sog": 14,
+     "toi": 21.0,
      "team": "NYR"
     },
     "20252026": {
@@ -1468,13 +1479,13 @@
    "pp": "sean-durzi",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 1,
      "a": 2,
      "p": 3,
-     "pm": 0,
-     "pim": 11,
-     "sog": 4,
+     "pm": -1,
+     "pim": 13,
+     "sog": 5,
      "toi": 20.7,
      "team": "NYR"
     },
@@ -1543,13 +1554,13 @@
    "pp": "marcus-pettersson",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 0,
      "a": 2,
      "p": 2,
      "pm": 3,
      "pim": 8,
-     "sog": 6,
+     "sog": 7,
      "toi": 20.4,
      "team": "NYR"
     },
@@ -1618,14 +1629,14 @@
    "pp": "braden-schneider",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 0,
      "a": 1,
      "p": 1,
      "pm": 3,
      "pim": 6,
-     "sog": 11,
-     "toi": 17.2,
+     "sog": 14,
+     "toi": 17.4,
      "team": "NYR"
     },
     "20252026": {
@@ -1702,13 +1713,13 @@
    "pp": "alberts-smits",
    "liveStats": {
     "20262027": {
-     "gp": 9,
+     "gp": 10,
      "g": 0,
      "a": 0,
      "p": 0,
-     "pm": 0,
+     "pm": -1,
      "pim": 4,
-     "sog": 4,
+     "sog": 5,
      "toi": 15.0,
      "team": "NYR"
     }
@@ -1993,17 +2004,17 @@
    "pp": "dylan-garand",
    "liveStats": {
     "20262027": {
-     "gp": 5,
+     "gp": 6,
      "w": 3,
      "l": 2,
-     "otl": 0,
-     "sa": 94,
-     "sv": 86,
-     "ga": 8,
+     "otl": 1,
+     "sa": 123,
+     "sv": 114,
+     "ga": 9,
      "so": 1,
      "team": "NYR",
-     "svPct": 0.915,
-     "gaa": 2.05
+     "svPct": 0.927,
+     "gaa": 1.82
     },
     "20252026": {
      "gp": 3,
