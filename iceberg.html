@@ -202,7 +202,7 @@ th[aria-sort] {color:var(--blue)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
-<body class="learn">
+<body class="learn" data-depthsync="own">
 <div class="wrap">
   <header class="top">
     <div class="brand">
@@ -213,6 +213,7 @@ th[aria-sort] {color:var(--blue)}
           <a href="index.html#house"><b>The House</b><span>Team and player stats</span></a>
           <a href="iceberg.html" aria-current="page"><b>The Iceberg</b><span>What wins games, level by level</span></a>
           <a href="market.html"><b>The Market</b><span>Player value vs contract, like stocks</span></a>
+          <a href="glossary.html"><b>Glossary</b><span>What every stat means</span></a>
         </nav>
       </div>
       <h1>The <b>Iceberg</b></h1>
@@ -248,7 +249,7 @@ th[aria-sort] {color:var(--blue)}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ST={d:null,team:'NYR',season:null,win:0,cmp:'league',depth:'learn',open:null,psort:null,pgrp:'On-ice',lv:{}};
-try{ const s=JSON.parse(localStorage.getItem('iceberg')||'{}'); Object.assign(ST,{team:s.team||ST.team,cmp:s.cmp||ST.cmp,depth:s.depth||ST.depth}); }catch(e){}
+try{ const s=JSON.parse(localStorage.getItem('iceberg')||'{}'); Object.assign(ST,{team:s.team||ST.team,cmp:s.cmp||ST.cmp,depth:localStorage.getItem('nyr-depth')||s.depth||ST.depth}); }catch(e){}  // nyr-depth: Learn/Analyst shared by every page
 const save=()=>{ try{ localStorage.setItem('iceberg',JSON.stringify({team:ST.team,cmp:ST.cmp,depth:ST.depth})); }catch(e){} };
 const SRC={MP:'MoneyPuck',NHL:'NHL',A3Z:'All Three Zones',EDGE:'NHL EDGE'};
 const sName=s=>`${s}-${String((s+1)%100).padStart(2,'0')}`;
@@ -568,9 +569,10 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202610260301').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg.json?v=202610260310').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
+<script src="glossary.js?v=202610260310" defer></script>
 </body>
 </html>

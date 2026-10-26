@@ -182,6 +182,7 @@ h3:first-child{margin-top:0}
           <a href="index.html#house"><b>The House</b><span>Team and player stats</span></a>
           <a href="iceberg.html"><b>The Iceberg</b><span>What wins games, level by level</span></a>
           <a href="market.html" aria-current="page"><b>The Market</b><span>Player value vs contract, like stocks</span></a>
+          <a href="glossary.html"><b>Glossary</b><span>What every stat means</span></a>
         </nav>
       </div>
       <h1>The <b>Market</b></h1>
@@ -266,8 +267,8 @@ const cls=v=>v==null||Math.abs(v)<0.05?'flat':v>0?'up':'dn';
 const posAvg={};
 
 function load(){
-  Promise.all([fetch('data/market.json?v=202610260301').then(r=>r.ok?r.json():null),
-               fetch('data/market-history.json?v=202610260301').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+  Promise.all([fetch('data/market.json?v=202610260310').then(r=>r.ok?r.json():null),
+               fetch('data/market-history.json?v=202610260310').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
@@ -548,5 +549,6 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
+<script src="glossary.js?v=202610260310" defer></script>
 </body>
 </html>
