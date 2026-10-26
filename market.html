@@ -253,6 +253,17 @@ h3:first-child{margin-top:0}
   <footer class="foot" id="foot"></footer>
 </div>
 <script>
+/* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
+   _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
+const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610260314');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260314`).then(d=>{ if(!d||!d.joinFields) return d;
+  return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260314`);
+      F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
+    delete d.joinFields; return d; }); }); }
+</script>
+<script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const POS={C:'Centers',W:'Wingers',D:'Defense',G:'Goalies'}, PCOL={C:'var(--s1)',W:'var(--s2)',D:'var(--s3)',G:'var(--s4)'};
@@ -267,8 +278,8 @@ const cls=v=>v==null||Math.abs(v)<0.05?'flat':v>0?'up':'dn';
 const posAvg={};
 
 function load(){
-  Promise.all([fetch('data/market.json?v=202610260310').then(r=>r.ok?r.json():null),
-               fetch('data/market-history.json?v=202610260310').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+  Promise.all([nyrLoad('market'),
+               fetch('data/market-history.json?v=202610260314').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
@@ -549,6 +560,6 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
-<script src="glossary.js?v=202610260310" defer></script>
+<script src="glossary.js?v=202610260314" defer></script>
 </body>
 </html>
