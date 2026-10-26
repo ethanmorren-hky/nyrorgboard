@@ -1247,7 +1247,7 @@ window.addEventListener('hashchange',()=>setView(viewFromHash()));
 
 function loadHouse(){
   if(HS.d||HS.loading) return; HS.loading=true;
-  fetch('data/house.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ HS.loading=false; if(!d){ $('#h-msg').textContent='Stats are not available right now.'; return; }
+  fetch('data/house.json?v=202610260301').then(r=>r.ok?r.json():null).then(d=>{ HS.loading=false; if(!d){ $('#h-msg').textContent='Stats are not available right now.'; return; }
     HS.d=d; HS.season=d.season; renderHouse(); renderStamp(); }).catch(()=>{ HS.loading=false; $('#h-msg').textContent='Stats are not available right now.'; });
 }
 
@@ -1486,7 +1486,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202610260301').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1577,9 +1577,9 @@ function rinkChart(F,me,opp){
 /* ---------- boot ---------- */
 function boot(){ BASE=initState(); BT=totals(BASE); load(); recompute(); renderAll(); }
 boot(); setView(viewFromHash());
-fetch('data/league.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
+fetch('data/league.json?v=202610260301').then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
-fetch('data/org.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
+fetch('data/org.json?v=202610260301').then(r=>r.ok?r.json():null).then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
 
 </body>

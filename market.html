@@ -266,8 +266,8 @@ const cls=v=>v==null||Math.abs(v)<0.05?'flat':v>0?'up':'dn';
 const posAvg={};
 
 function load(){
-  Promise.all([fetch('data/market.json',{cache:'no-store'}).then(r=>r.ok?r.json():null),
-               fetch('data/market-history.json',{cache:'no-store'}).then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+  Promise.all([fetch('data/market.json?v=202610260301').then(r=>r.ok?r.json():null),
+               fetch('data/market-history.json?v=202610260301').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
