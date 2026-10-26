@@ -88,10 +88,11 @@ function render(){
     <div class="pc-bars">${bars}</div><div class="pc-note">${note}</div>
     <div class="pc-tabs" role="tablist">${[['contract','Contract'],['stats','Stats'],['impact','Impact'],['value','Value']].map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${tab===k}">${l}</button>`).join('')}</div>
     <div class="pc-body">${body(p,mq,g)}</div>
-    <div class="pc-ft">${p.team!=='NYR'&&p.team!=='HFD'?`<button class="pri" data-a="trade">Trade for</button>`:''}<button data-a="compare">Compare</button></div>`;
+    <div class="pc-ft">${p.team!=='NYR'&&p.team!=='HFD'?`<button class="pri" data-a="trade">Trade for</button>`:''}<button data-a="compare">Compare</button>${full(p)}</div>`;
   dlg.querySelector('.pc-x').onclick=()=>dlg.close();
   dlg.querySelectorAll('.pc-tabs button').forEach(b=>b.onclick=()=>{ tab=b.dataset.t; render(); });
   dlg.querySelector('[data-a="compare"]').onclick=()=>{ tab='compare'; render(); };
+  dlg.querySelectorAll('[data-full]').forEach(b=>b.onclick=()=>goFull(b.dataset.full,p));
   const tb=dlg.querySelector('[data-a="trade"]'); if(tb) tb.onclick=()=>tradeFor(p.pp);
   const inp=dlg.querySelector('.pc-cmp input'); if(inp){ inp.focus(); inp.oninput=()=>listCmp(inp.value); }
 }
@@ -150,6 +151,18 @@ function listCmp(v){
   ul.querySelectorAll('li').forEach(li=>li.onclick=()=>{ const p=L.players.find(x=>x.pp===li.dataset.pp); cmp={p,m:M&&M.players.find(x=>x.pp===p.pp)}; render(); });
 }
 dlg.addEventListener('click',e=>{ const a=e.target.closest('[data-a="cmp-clear"]'); if(a){ e.preventDefault(); cmp=null; render(); } });
+/* "Full view": the page's own detailed panel for this player (Ops side panel, House profile, Market quote) */
+function full(p){
+  const org=p.team==='NYR'||p.team==='HFD';
+  const b=[org?['ops','Ops Board']:null,org&&p.nhlId?['house','The House']:null,cur.m?['market','The Market']:null].filter(Boolean);
+  return b.length?`<span class="pc-bio" style="align-self:center;margin-left:auto">Full view:</span>`+b.map(([k,l])=>`<button data-full="${k}">${l}</button>`).join(''):'';
+}
+function goFull(k,p){
+  const here=location.pathname.split('/').pop()||'index.html';
+  if(k==='market'){ if(here==='market.html'&&typeof window.select==='function'){ dlg.close(); window.select(p.pp); } else location.href='market.html#'+encodeURIComponent(p.pp); return; }
+  if(window.nyrFull){ dlg.close(); window.nyrFull[k](k==='ops'?p.pp:p.nhlId); return; }
+  location.href='index.html#'+(k==='ops'?'player='+encodeURIComponent(p.pp):'house-player='+p.nhlId);
+}
 function tradeFor(pp){
   if(typeof window.tradeForPP==='function'){ dlg.close(); window.tradeForPP(pp); return; }
   location.href='index.html#trade='+encodeURIComponent(pp);

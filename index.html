@@ -568,10 +568,10 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202610261005');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610261005`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610261659');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610261659`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
-    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610261005`);
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610261659`);
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
     delete d.joinFields; return d; }); }); }
 </script>
@@ -1262,7 +1262,7 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _hrs; window.addEventListener('resize',()=>{ clearTimeout(_hrs); _hrs=setTimeout(()=>{ if(HS.d&&document.body.dataset.view==='house') renderTrend(); },200); });
 // #analytics was the retired House Analytics tab (replaced by The Iceberg); old links land on The House
-const viewFromHash=()=>{ if(location.hash==='#analytics') history.replaceState(null,'','#house'); return location.hash==='#house'?'house':'ops'; };
+const viewFromHash=()=>{ if(location.hash==='#analytics') history.replaceState(null,'','#house'); return location.hash.startsWith('#house')?'house':'ops'; };
 window.addEventListener('hashchange',()=>setView(viewFromHash()));
 
 function loadHouse(){
@@ -1506,7 +1506,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202610261005').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202610261659').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1597,6 +1597,17 @@ function rinkChart(F,me,opp){
 /* ---------- boot ---------- */
 function boot(){ BASE=initState(); BT=totals(BASE); load(); recompute(); renderAll(); }
 boot(); setView(viewFromHash());
+/* "Full view" links from the shared player card (RD-005): the Ops side panel or The House profile, on this page or via
+   index.html#player=<pp> / index.html#house-player=<NHL id> from other pages */
+window.nyrFull={
+  ops(pp){ const p=[...CUR.players.values()].find(x=>x.pp===pp); if(!p) return false; if(location.hash) history.replaceState(null,'',location.pathname); setView('ops');
+    UI.sel=p.id; UI.form=null; renderAll(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); return true; },
+  house(id){ if(!location.hash.startsWith('#house')) history.replaceState(null,'','#house'); setView('house'); let n=0;
+    const t=setInterval(()=>{ if(HS.d||++n>50){ clearInterval(t); const hp=HS.d&&HS.d.players.find(x=>String(x.nhlId)===String(id)); if(hp) openProfile(hp.id); } },200); return true; }
+};
+{ const h=decodeURIComponent(location.hash);
+  if(h.startsWith('#player=')) nyrFull.ops(h.slice(8));
+  else if(h.startsWith('#house-player=')) nyrFull.house(h.slice(14)); }
 /* "Trade for": League contracts table and the shared player card (RD-005; index.html#trade=<pp> from other pages) */
 function tradeForPP(pp){ const r=LEAGUE&&LEAGUE.players.find(x=>x.pp===pp); if(!r) return; if(!(UI.form&&UI.form.type==='trade')) openForm('trade',null,{partner:teamName(r.team)}); else if(!UI.form.partner) UI.form.partner=teamName(r.team); if(!UI.form.inc.some(x=>x.pp===r.pp)) UI.form.inc.push(incFromLeague(r)); renderRail(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); }
 window.tradeForPP=tradeForPP;
@@ -1604,9 +1615,9 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); i
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202610261005" defer></script>
-<script src="tables.js?v=202610261005" defer></script>
-<script src="player-card.js?v=202610261005" defer></script>
+<script src="glossary.js?v=202610261659" defer></script>
+<script src="tables.js?v=202610261659" defer></script>
+<script src="player-card.js?v=202610261659" defer></script>
 
 </body>
 </html>
