@@ -249,8 +249,8 @@ th[aria-sort] {color:var(--blue)}
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ST={d:null,team:'NYR',season:null,win:0,cmp:'league',depth:'learn',open:null,psort:null,pgrp:'On-ice',lv:{}};
-try{ const s=JSON.parse(localStorage.getItem('iceberg')||'{}'); Object.assign(ST,{team:s.team||ST.team,cmp:s.cmp||ST.cmp,depth:localStorage.getItem('nyr-depth')||s.depth||ST.depth}); }catch(e){}  // nyr-depth: Learn/Analyst shared by every page
-const save=()=>{ try{ localStorage.setItem('iceberg',JSON.stringify({team:ST.team,cmp:ST.cmp,depth:ST.depth})); }catch(e){} };
+try{ const s=JSON.parse(localStorage.getItem('iceberg')||'{}'); Object.assign(ST,{team:s.team||ST.team,cmp:s.cmp||ST.cmp,depth:localStorage.getItem('nyr-depth')||s.depth||ST.depth,psort:s.psort||ST.psort}); }catch(e){}  // nyr-depth: Learn/Analyst shared by every page
+const save=()=>{ try{ localStorage.setItem('iceberg',JSON.stringify({team:ST.team,cmp:ST.cmp,depth:ST.depth,psort:ST.psort})); }catch(e){} };
 const SRC={MP:'MoneyPuck',NHL:'NHL',A3Z:'All Three Zones',EDGE:'NHL EDGE'};
 const sName=s=>`${s}-${String((s+1)%100).padStart(2,'0')}`;
 const ord=n=>{ const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
@@ -533,7 +533,7 @@ function renderPlayers(){ const d=ST.d, isG=ST.pgrp==='Goalies', P=(isG?d.goalie
   if(!rows.length) h+=`<div class="empty">${isG?'No goalies with 30+ minutes yet.':'No players with 30+ minutes at 5v5 yet.'}</div>`;
   box.innerHTML=h;
   box.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ ST.pgrp=b.dataset.g; ST.psort=null; renderPlayers(); });
-  box.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ST.psort={k,dir:sk.k===k?-sk.dir:-1}; renderPlayers(); }); }
+  box.querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; ST.psort={k,dir:sk.k===k?-sk.dir:-1}; save(); renderPlayers(); }); }
 
 function renderFoot(){ const d=ST.d, ws=d.weightSeasons;
   $('#foot').innerHTML=`<h3>How to read this</h3>
@@ -569,10 +569,11 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202610260314').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg.json?v=202610260318').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202610260314" defer></script>
+<script src="glossary.js?v=202610260318" defer></script>
+<script src="tables.js?v=202610260318" defer></script>
 </body>
 </html>

@@ -564,10 +564,10 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202610260314');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260314`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610260318');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260318`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
-    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260314`);
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260318`);
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
     delete d.joinFields; return d; }); }); }
 </script>
@@ -995,7 +995,7 @@ function initLeague(){
   const ys=[...new Set(LEAGUE.players.map(r=>r.expiry).filter(Boolean))].sort();
   $('#lg-exp').innerHTML='<option value="">Any expiry</option>'+ys.map(y=>`<option value="${y}">Expires ${y}</option>`).join('');
   ['#lg-q','#lg-team','#lg-pos','#lg-where','#lg-exp'].forEach(id=>$(id).addEventListener('input',renderLeague));
-  $('#lg').addEventListener('click',e=>{ const th=e.target.closest('th[data-lk]'); if(!th||th.dataset.lk==='act') return; const k=th.dataset.lk; UI.lsort={k,d:UI.lsort.k===k?-UI.lsort.d:(['name','team','pos','expiryStatus'].includes(k)?1:-1)}; renderLeague(); });
+  $('#lg').addEventListener('click',e=>{ const th=e.target.closest('th[data-lk]'); if(!th||th.dataset.lk==='act') return; const k=th.dataset.lk; UI.lsort={k,d:UI.lsort.k===k?-UI.lsort.d:(['name','team','pos','expiryStatus'].includes(k)?1:-1)}; saveView(); renderLeague(); });
   renderLeague(); if(UI.form?.type==='trade') renderRail();
 }
 function renderForm(){
@@ -1110,7 +1110,7 @@ document.addEventListener('click',e=>{
   if(!t) return;
   if(t.matches('.seg button')){ setPath(UI.form,t.dataset.k,t.dataset.v); renderRail(); return; }
   if(t.matches('#ct-filters button')){ UI.ctf=t.dataset.f; renderTable(); return; }
-  if(t.matches('th[data-k]')){ const k=t.dataset.k; UI.sort={k,d:UI.sort.k===k?-UI.sort.d:(['name','pos','team'].includes(k)?1:-1)}; renderTable(); return; }
+  if(t.matches('th[data-k]')){ const k=t.dataset.k; UI.sort={k,d:UI.sort.k===k?-UI.sort.d:(['name','pos','team'].includes(k)?1:-1)}; saveView(); renderTable(); return; }
   const act=t.dataset.act;
   if(act==='close'){ UI.sel=null; renderAll(); return; }
   if(act==='close-rail'){ UI.rail=false; UI.sel=null; UI.form=null; renderAll(); return; }
@@ -1225,6 +1225,9 @@ try{ if(localStorage.getItem(HELPKEY)!=='1') setTimeout(openHelp,300); }catch(e)
 
 /* ---------- The House: team and player stats ---------- */
 const HS={d:null,loading:false,team:'NYR',grp:'S',season:null,lg:null,metric:'p',sort:{k:'p',d:-1},rank:'cur'};
+/* RD-009: remember each table's sort on this device (saved view) */
+const VIEWK='nyr-view-ops'; try{ const v=JSON.parse(localStorage.getItem(VIEWK)||'{}'); if(v.sort) UI.sort=v.sort; if(v.lsort) UI.lsort=v.lsort; if(v.hsort) HS.sort=v.hsort; }catch(e){}
+const saveView=()=>{ try{ localStorage.setItem(VIEWK,JSON.stringify({sort:UI.sort,lsort:UI.lsort,hsort:HS.sort})); }catch(e){} };
 const TOURN=/^(WJC|WC$|OG|4 Nations|Hlinka|WHC|International|EHT|Champions HL|Continental Cup|OHL Cup|TCQ)/;
 const sName=id=>`${String(id).slice(0,4)}-${String(id).slice(6)}`;
 const f3=v=>v==null||isNaN(v)?'–':(+v).toFixed(3).replace(/^0/,'');
@@ -1427,7 +1430,7 @@ $('#h-lg').onchange=e=>{ HS.lg=e.target.value; renderPlayers(); };
 $('#h-metric').onchange=e=>{ HS.metric=e.target.value; renderPlayers(); };
 $('#h-tm').onchange=e=>{ HS.tm=e.target.value; renderTrend(); };
 $('#h-rank-f').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; HS.rank=b.dataset.s; renderRanks(); });
-$('#h-ptable').addEventListener('click',e=>{ const th=e.target.closest('th[data-hk]'); if(!th) return; const k=th.dataset.hk; HS.sort={k,d:HS.sort.k===k?-HS.sort.d:(['name','pos','teams'].includes(k)?1:-1)}; renderPTable(houseRows().rows); });
+$('#h-ptable').addEventListener('click',e=>{ const th=e.target.closest('th[data-hk]'); if(!th) return; const k=th.dataset.hk; HS.sort={k,d:HS.sort.k===k?-HS.sort.d:(['name','pos','teams'].includes(k)?1:-1)}; saveView(); renderPTable(houseRows().rows); });
 
 /* player profile */
 document.addEventListener('click',e=>{ const b=e.target.closest('[data-hp]'); if(b) openProfile(b.dataset.hp); });
@@ -1498,7 +1501,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202610260314').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202610260318').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1593,7 +1596,8 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); }
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202610260314" defer></script>
+<script src="glossary.js?v=202610260318" defer></script>
+<script src="tables.js?v=202610260318" defer></script>
 
 </body>
 </html>

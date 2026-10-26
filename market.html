@@ -256,10 +256,10 @@ h3:first-child{margin-top:0}
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202610260314');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260314`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610260318');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260318`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
-    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260314`);
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260318`);
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
     delete d.joinFields; return d; }); }); }
 </script>
@@ -270,6 +270,9 @@ const POS={C:'Centers',W:'Wingers',D:'Defense',G:'Goalies'}, PCOL={C:'var(--s1)'
 const COMPN={cf:'Shot-attempt share vs teammates',fo:'Faceoffs',ps:'Point shares (Hockey-Reference)',evo:'EV offense',evd:'EV defense',pp:'Power play',pk:'Penalty kill',pen:'Penalties',mpg:'Ice time / game',share:'Workload (share of starts)',gar:'Goals saved vs replacement'};
 const STN={UFA:'UFA',RFA:'RFA',EXT:'RFA extension',VET:'Age 34+',ELC:'Entry-level'};
 const ST={depth:'learn',team:'ALL',pos:'ALL',grade:'',max:'',q:'',nhl:'roster',sort:'price',dir:-1,n:60,sel:null,range:'all'};
+/* RD-009: remember the screener's sort and filters on this device (saved view) */
+try{ const v=JSON.parse(localStorage.getItem('nyr-view-market')||'{}'); for(const k of ['team','pos','grade','max','nhl','sort','dir']) if(v[k]!==undefined) ST[k]=v[k]; }catch(e){}
+const saveView=()=>{ try{ const v={}; for(const k of ['team','pos','grade','max','nhl','sort','dir']) v[k]=ST[k]; localStorage.setItem('nyr-view-market',JSON.stringify(v)); }catch(e){} };
 let M=null,H=null,BYID={},BYPP={};
 const money=(v,d=2)=>v==null?'–':Math.abs(v)>=1e9?`$${(v/1e9).toFixed(2)}B`:(Math.abs(v)>=1e6?`$${(v/1e6).toFixed(d)}M`:`$${Math.round(v/1e3)}K`);
 const smoney=v=>v==null?'–':(v>=0?'+':'−')+money(Math.abs(v));
@@ -279,7 +282,7 @@ const posAvg={};
 
 function load(){
   Promise.all([nyrLoad('market'),
-               fetch('data/market-history.json?v=202610260314').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+               fetch('data/market-history.json?v=202610260318').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
@@ -288,6 +291,8 @@ function load(){
     $('#stamp').textContent=`Prices as of ${M.updated} · ${M.players.filter(p=>p.sample!=='none').length} players priced`;
     const teams=[...new Set(M.players.map(p=>p.team))].sort();
     $('#f-team').innerHTML=`<option value="ALL">All teams</option>`+teams.map(t=>`<option ${t==='NYR'?'':''}>${esc(t)}</option>`).join('');
+    if(!teams.includes(ST.team)) ST.team='ALL';
+    $('#f-team').value=ST.team; $('#f-grade').value=ST.grade; $('#f-max').value=ST.max; $('#f-nhl').value=ST.nhl;  // restored view
     const hash=decodeURIComponent(location.hash.slice(1));
     const pick=BYPP[hash]||M.players.filter(p=>p.team==='NYR'&&p.where==='roster').sort((a,b)=>b.price-a.price)[0];
     ST.sel=pick?.pp; render();
@@ -513,6 +518,7 @@ function val(p,k){ return k==='win'?p.win?.value:k==='gap'?p.price-(p.capHit||0)
 function screener(){
   $('#f-pos').innerHTML=['ALL','C','W','D','G'].map(g=>`<button data-p="${g}" aria-pressed="${ST.pos===g}">${g==='ALL'?'All':g}</button>`).join('');
   $$('#f-pos button').forEach(b=>b.onclick=()=>{ST.pos=b.dataset.p;ST.n=60;screener();});
+  saveView();
   let rows=rowsF(); const k=ST.sort, d=ST.dir;
   rows.sort((a,b)=>{const x=val(a,k),y=val(b,k); if(x==null) return 1; if(y==null) return -1; return (typeof x==='string'?x.localeCompare(y):x-y)*d;});
   const shown=rows.slice(0,ST.n);
@@ -560,6 +566,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
-<script src="glossary.js?v=202610260314" defer></script>
+<script src="glossary.js?v=202610260318" defer></script>
+<script src="tables.js?v=202610260318" defer></script>
 </body>
 </html>
