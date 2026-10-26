@@ -260,10 +260,10 @@ h3:first-child{margin-top:0}
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202610260327');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260327`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610261005');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610261005`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
-    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260327`);
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610261005`);
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
     delete d.joinFields; return d; }); }); }
 </script>
@@ -286,7 +286,7 @@ const posAvg={};
 
 function load(){
   Promise.all([nyrLoad('market'),
-               fetch('data/market-history.json?v=202610260327').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+               fetch('data/market-history.json?v=202610261005').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
@@ -570,8 +570,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
-<script src="glossary.js?v=202610260327" defer></script>
-<script src="tables.js?v=202610260327" defer></script>
-<script src="player-card.js?v=202610260327" defer></script>
+<script src="glossary.js?v=202610261005" defer></script>
+<script src="tables.js?v=202610261005" defer></script>
+<script src="player-card.js?v=202610261005" defer></script>
 </body>
 </html>
