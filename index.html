@@ -426,6 +426,10 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 @media (max-width:900px){.main,.lower{grid-template-columns:minmax(0,1fr)}.strip{grid-template-columns:1fr 1fr;position:static}.metric:first-child{grid-column:1/-1}.metric:nth-child(2n){border-left:0}.metric{border-top:1px solid var(--line-2)}.metric:first-child{border-top:0}}
 @media (max-width:520px){.wrap{padding-inline:16px}.row{grid-template-columns:40px repeat(3,minmax(0,1fr))}.row.pair{grid-template-columns:40px repeat(2,minmax(0,1fr))}.row .ucap{display:none}.chip .n{display:none}.chip{grid-template-columns:1fr}.brand h1{font-size:24px}.acts{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* RD-005: entry point to the shared player card */
+.pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
+.pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 </style>
 
 </head>
@@ -564,10 +568,10 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). If league.json is missing or a player can't be matched, data/full/ is used. */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202610260318');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260318`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202610260327');
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202610260327`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
-    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260318`);
+    for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p) return nyrGet(`data/full/${name}.json?v=202610260327`);
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
     delete d.joinFields; return d; }); }); }
 </script>
@@ -870,6 +874,7 @@ function renderRail(){
     const p=CUR.players.get(UI.sel), c=charge(p,0);
     h=`<div class="sec pcard"><div class="sec-t"><span>${p.team==='OUT'?esc(p.outReason||'Left the organization'):TEAMS[p.team]} · ${p.pos}${p.num?` · #${p.num}`:''}</span><button class="x" data-act="close" aria-label="Close">×</button></div>
       <h3>${esc(p.name)}</h3>
+      ${p.pp?`<button class="pc-open" data-card="${esc(p.pp)}">Player card</button>`:''}
       <div class="bio">${p.age??'–'} yrs${p.ht?` · ${p.ht}, ${p.wt} lb`:''}${p.shoots?` · ${p.posGroup==='G'?'catches':'shoots'} ${p.shoots}`:''}${p.birthplace?` · ${esc(p.birthplace)}`:''}</div>
       <dl class="kv">
         <dt>Cap hit</dt><dd>${p.contractType==='AHL'?'AHL contract':money(p.capHit,{full:true})}</dd>
@@ -960,7 +965,7 @@ function leagueResults(f){
 }
 function partnerLine(name){
   const t=LEAGUE?.teams.find(x=>x.name===name); if(!t||t.capSpace==null) return '';
-  return `<p class="hint" style="margin-top:4px">${esc(t.name)}: ${money(t.capSpace)} cap space · ${t.active} active · ${t.contracts}/50 contracts (PuckPedia)</p>`;
+  return `<p class="hint" style="margin-top:4px">${esc(t.name)}: ${money(t.capSpace)} cap space · ${t.active} active · ${t.contracts}/50 contracts (CapWages)</p>`;
 }
 function incFromLeague(r){
   const yrs=Math.max(1,(r.expiry||S.seasonStartYear+1)-S.seasonStartYear);
@@ -988,7 +993,7 @@ function renderLeague(){
     <td class="r mono">${money(r.capHit,{full:true})}</td><td class="r">${r.expiry||''}</td><td>${esc(r.expiryStatus||'')}${r.elc?' · ELC':''}</td>
     <td>${[r.nmc?'NMC':'',r.ntc&&!r.nmc?'NTC':''].filter(Boolean).join(' + ')}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[0])}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[1])}</td>
     <td>${r.team!=='NYR'?`<button class="mini-btn" data-act="lg-trade" data-pp="${esc(r.pp)}">Trade for</button>`:''}</td></tr>`).join('')}</tbody>`;
-  $('#lg-meta').textContent=`${rs.length.toLocaleString()} player${rs.length===1?'':'s'}${rs.length>200?', showing the first 200':''}. Contracts from PuckPedia and stats from NHL.com as of ${LEAGUE.updated}. Hover a row for full stats.`;
+  $('#lg-meta').textContent=`${rs.length.toLocaleString()} player${rs.length===1?'':'s'}${rs.length>200?', showing the first 200':''}. Contracts from CapWages and stats from NHL.com as of ${LEAGUE.updated}. Hover a row for full stats.`;
 }
 function initLeague(){
   const ts=$('#lg-team'); ts.innerHTML='<option value="">All teams</option>'+LEAGUE.teams.map(t=>`<option value="${t.abbr}">${esc(t.name)}</option>`).join('');
@@ -1102,7 +1107,7 @@ function renderTable(){
 
 function renderAll(){ renderTicker(); renderStrip(); renderBoard('NYR'); renderBoard('HFD'); renderRail(); renderOutlook(); renderBreakdown(); renderTable();
   renderStamp();
-  $('#foot').textContent=`Rules follow the 2025 CBA. Buried relief for Wolf Pack players is the league minimum plus $375,000 (${money(reliefAt(0))} this season, rising with the minimum); 35+ deals get $100k. Upper limit ${money(capAt(0))} this season and ${money(capAt(1))} in ${seasonLbl(1)}, assumed flat after that. Free-agent terms max out at ${MAX_TERM_FA} years (${MAX_TERM_OWN} for your own players); retention is capped at 50% per contract, three contracts and 15% of the cap. LTIR relief is the injured player's hit minus space at placement. Buyouts are estimated with flat salaries. Data as of ${esc(S.updated)}: contracts and roster status from PuckPedia, stats from NHL.com, refreshed daily; AHL-only deals and default lines from the 9/29 spreadsheet, with line edits saved in this browser. No transaction here is real; the scenario lives in this browser only.`; }
+  $('#foot').textContent=`Rules follow the 2025 CBA. Buried relief for Wolf Pack players is the league minimum plus $375,000 (${money(reliefAt(0))} this season, rising with the minimum); 35+ deals get $100k. Upper limit ${money(capAt(0))} this season and ${money(capAt(1))} in ${seasonLbl(1)}, assumed flat after that. Free-agent terms max out at ${MAX_TERM_FA} years (${MAX_TERM_OWN} for your own players); retention is capped at 50% per contract, three contracts and 15% of the cap. LTIR relief is the injured player's hit minus space at placement. Buyouts are estimated with flat salaries. Data as of ${esc(S.updated)}: contracts and roster status from CapWages (PuckPedia before 2026-10-26), stats from NHL.com, refreshed daily; AHL-only deals and default lines from the 9/29 spreadsheet, with line edits saved in this browser. No transaction here is real; the scenario lives in this browser only.`; }
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{
@@ -1121,7 +1126,7 @@ document.addEventListener('click',e=>{
   if(act==='add-inc'){ UI.form.inc.push({name:'',pos:'C',capM:'1.000',years:1,team:'NYR',type:'SPC',we:false,age:26,retainedIn:0}); renderRail(); return; }
   if(act==='rm-inc'){ UI.form.inc.splice(+t.dataset.i,1); renderRail(); return; }
   if(act==='pick-inc'){ pickLeague(t.dataset.pp); return; }
-  if(act==='lg-trade'){ const r=LEAGUE.players.find(x=>x.pp===t.dataset.pp); if(!r) return; if(!(UI.form&&UI.form.type==='trade')) openForm('trade',null,{partner:teamName(r.team)}); else if(!UI.form.partner) UI.form.partner=teamName(r.team); if(!UI.form.inc.some(x=>x.pp===r.pp)) UI.form.inc.push(incFromLeague(r)); renderRail(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  if(act==='lg-trade'){ tradeForPP(t.dataset.pp); return; }
   if(act==='rm-out'){ UI.form.out.splice(+t.dataset.i,1); renderRail(); return; }
   if(t.dataset.pid && !t.closest('.form')){ UI.sel=t.dataset.pid; UI.form=null; renderBoard('NYR'); renderBoard('HFD'); renderRail(); if(window.innerWidth<=1280) $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); }
 });
@@ -1437,7 +1442,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('[data-hp]'); if
 function openProfile(id){
   const p=HS.d.players.find(x=>x.id===id); if(!p) return; const g=p.group==='G', dlg=$('#prof');
   const club=p.seasons.filter(s=>!TOURN.test(s.league));
-  let h=`<div class="phd">${p.headshot?`<img src="${esc(p.headshot)}" alt="" width="72" height="72" loading="lazy">`:''}<div><h2 id="prof-t">${esc(p.name)}</h2>
+  let h=`<div class="phd">${p.headshot?`<img src="${esc(p.headshot)}" alt="" width="72" height="72" loading="lazy">`:''}<div><h2 id="prof-t">${esc(p.name)}</h2>${p.nhlId?`<button class="pc-open" data-card="${p.nhlId}">Player card</button>`:''}
     <div class="bio">${p.num?`#${p.num} · `:''}${esc(p.pos||'')} · ${TEAMS[p.team]}${p.age?` · ${p.age} yrs`:''}${p.shoots?` · ${g?'catches':'shoots'} ${esc(p.shoots)}`:''}${p.capHit?` · ${p.contractType==='AHL'?'AHL contract':money(p.capHit)+' cap hit'}`:''}</div></div>
     <button class="x" data-act="prof-close" aria-label="Close">×</button></div>`;
   if(!p.seasons.length) h+=`<p class="hint" style="padding:0 20px 16px">NHL.com has no stats on record for him yet.</p>`;
@@ -1501,7 +1506,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202610260318').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202610260327').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1592,12 +1597,16 @@ function rinkChart(F,me,opp){
 /* ---------- boot ---------- */
 function boot(){ BASE=initState(); BT=totals(BASE); load(); recompute(); renderAll(); }
 boot(); setView(viewFromHash());
-NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
+/* "Trade for": League contracts table and the shared player card (RD-005; index.html#trade=<pp> from other pages) */
+function tradeForPP(pp){ const r=LEAGUE&&LEAGUE.players.find(x=>x.pp===pp); if(!r) return; if(!(UI.form&&UI.form.type==='trade')) openForm('trade',null,{partner:teamName(r.team)}); else if(!UI.form.partner) UI.form.partner=teamName(r.team); if(!UI.form.inc.some(x=>x.pp===r.pp)) UI.form.inc.push(incFromLeague(r)); renderRail(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); }
+window.tradeForPP=tradeForPP;
+NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); if(location.hash.startsWith('#trade=')){ const pp=decodeURIComponent(location.hash.slice(7)); history.replaceState(null,'',location.pathname); tradeForPP(pp); } } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202610260318" defer></script>
-<script src="tables.js?v=202610260318" defer></script>
+<script src="glossary.js?v=202610260327" defer></script>
+<script src="tables.js?v=202610260327" defer></script>
+<script src="player-card.js?v=202610260327" defer></script>
 
 </body>
 </html>

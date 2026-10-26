@@ -200,6 +200,10 @@ th[aria-sort] {color:var(--blue)}
 @media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}.cols{grid-template-columns:minmax(0,1fr)}.cols>div+div{border-left:0;border-top:1px solid var(--line-2)}.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:520px){.wrap{padding-inline:16px}.brand h1{font-size:24px}.controls{gap:8px 10px}.lhead .wt{margin-left:0}.track{grid-template-columns:minmax(0,1fr) 80px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* RD-005: entry point to the shared player card */
+.pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
+.pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 </style>
 </head>
 <body class="learn" data-depthsync="own">
@@ -527,7 +531,7 @@ function renderPlayers(){ const d=ST.d, isG=ST.pgrp==='Goalies', P=(isG?d.goalie
   let h=`<div class="lhead"><span class="n">Players</span><h2>${esc(d.teams[ST.team]||ST.team)} players</h2><span class="q">${isG?`All situations unless noted, colored by percentile among league goalies (${Math.round(minToi)}+ minutes).`:`5v5, colored by percentile among league forwards or defensemen (${Math.round(minToi)}+ minutes${ST.pgrp.startsWith('Tracked')?`, ${MIN_TRK}+ tracked games`:''}). Game score is all situations.`}</span>
     <div class="seg tabs" role="group" aria-label="Stat group">${groups.map(g=>`<button data-g="${esc(g)}" aria-pressed="${g===ST.pgrp}">${esc(g)}</button>`).join('')}</div></div>`;
   h+=`<div class="ptable"><table><thead><tr><th scope="col">Player</th><th scope="col">Pos</th>${cols.map(c=>`<th scope="col" data-k="${c.k}" title="${esc(c.d)} (${SRC[c.src]})" ${sk.k===c.k?`aria-sort="${sk.dir<0?'descending':'ascending'}"`:''}>${esc(c.lab)}</th>`).join('')}</tr></thead><tbody>`;
-  rows.forEach(p=>{ h+=`<tr><td>${esc(p.name)}</td><td>${p.pos}</td>${cols.map(c=>{ const v=p[c.k], q=pctOf(c,p), small=c.src==='A3Z'&&(p.zgp||0)<MIN_TRK;
+  rows.forEach(p=>{ h+=`<tr><td><span class="pc-name" data-card="${p.id}" title="Open player card">${esc(p.name)}</span></td><td>${p.pos}</td>${cols.map(c=>{ const v=p[c.k], q=pctOf(c,p), small=c.src==='A3Z'&&(p.zgp||0)<MIN_TRK;
     return `<td class="c"><span class="cell" style="${q!=null&&!small?`background:color-mix(in oklab, ${pcol(q)} 38%, transparent)`:''};${small?'opacity:.45':''}" title="${q!=null?ord(Math.round(q))+' percentile':''}${small&&v!=null?' · small tracked sample':''}">${c.k==='relXgf'?fmt(v,'pp'):fmt(v,c.fmt)}</span></td>`; }).join('')}</tr>`; });
   h+=`</tbody></table></div>`;
   if(!rows.length) h+=`<div class="empty">${isG?'No goalies with 30+ minutes yet.':'No players with 30+ minutes at 5v5 yet.'}</div>`;
@@ -569,11 +573,12 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202610260318').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg.json?v=202610260327').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202610260318" defer></script>
-<script src="tables.js?v=202610260318" defer></script>
+<script src="glossary.js?v=202610260327" defer></script>
+<script src="tables.js?v=202610260327" defer></script>
+<script src="player-card.js?v=202610260327" defer></script>
 </body>
 </html>
