@@ -573,12 +573,12 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202610261659').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg.json?v=202610271007').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202610261659" defer></script>
-<script src="tables.js?v=202610261659" defer></script>
-<script src="player-card.js?v=202610261659" defer></script>
+<script src="glossary.js?v=202610271007" defer></script>
+<script src="tables.js?v=202610271007" defer></script>
+<script src="player-card.js?v=202610271007" defer></script>
 </body>
 </html>
