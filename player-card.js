@@ -31,6 +31,7 @@ const css=`.pc-dlg{border:0;padding:0;width:min(720px,100vw - 16px);max-height:c
 .pc-bar .tr{height:10px;border-radius:5px;background:var(--line-2,#e6ebf2);overflow:hidden}.pc-bar .fl{height:100%;border-radius:5px}
 .pc-bar .v{font-family:var(--f-mono,monospace);font-size:12px;text-align:right}
 .pc-note{color:var(--muted,#6d7b90);font-size:12px;padding:0 18px 8px}
+.pc-note+details.nn{margin:0 18px 8px}
 .pc-tabs{display:flex;gap:4px;padding:6px 14px 0;border-bottom:1px solid var(--line,#d6dee9)}
 .pc-tabs button{border:0;background:none;padding:8px 10px;font:600 14px var(--f-body,system-ui);color:var(--muted,#6d7b90);border-bottom:2px solid transparent;cursor:pointer}
 .pc-tabs button[aria-selected="true"]{color:var(--blue,#0038a8);border-bottom-color:var(--blue,#0038a8)}
@@ -85,7 +86,7 @@ function render(){
   dlg.innerHTML=`<div class="pc-hd">${p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy">`:''}<div><h2 id="pc-name">${esc(p.name)}</h2>
     <div class="pc-bio">${esc(p.team||'')} · ${esc(p.pos||'')}${p.num?` · #${p.num}`:''}${p.age?` · ${p.age} yrs`:''}${p.shoots?` · ${g==='G'?'catches':'shoots'} ${esc(p.shoots)}`:''}</div></div>
     <button class="pc-x" aria-label="Close">×</button></div>
-    <div class="pc-bars">${bars}</div><div class="pc-note">${note}</div>
+    <div class="pc-bars">${bars}</div><div class="pc-note">${note}</div>${pc&&pc.out.length&&window.nyrNumsHTML?nyrNumsHTML('card-bars',[['Stat'],['Value','r'],['Percentile','r']],pc.out.map(b=>[labOf(b.k),fmt(b.k,b.v),b.p])):''}
     <div class="pc-tabs" role="tablist">${[['contract','Contract'],['stats','Stats'],['impact','Impact'],['value','Value']].map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${tab===k}">${l}</button>`).join('')}</div>
     <div class="pc-body">${body(p,mq,g)}</div>
     <div class="pc-ft">${p.team!=='NYR'&&p.team!=='HFD'?`<button class="pri" data-a="trade">Trade for</button>`:''}<button data-a="compare">Compare</button>${full(p)}</div>`;

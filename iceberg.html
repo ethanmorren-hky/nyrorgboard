@@ -370,6 +370,8 @@ function renderBerg(){ const d=ST.d, t=ST.team, W=600, top=18, bh=50, gap=4, L=d
     svg+=`</g>`; });
   svg+=`<text class="side" x="10" y="${wl+16}">For</text><text class="side" x="${W-10}" y="${wl+16}" text-anchor="end">Against</text>`;
   svg+=`</svg>`; $('#berg').innerHTML=svg;
+  if(window.nyrNums) nyrNums($('#berg'),'berg',[['Level'],['For percentile','r'],['Against percentile','r']],L.map((lv,i)=>{ const f=i===0?composite(t,lv.id,['n']):composite(t,lv.id,['f']), a=i===0?null:composite(t,lv.id,['a']), r=v=>v==null?'–':Math.round(v);
+    return i===0?['Win (overall) · '+(CACHE.vals[t]?.R.rec||[0,0,0]).join('-'),r(f),'–']:[lv.name,r(f),r(a)]; }));
   $$('#berg .band').forEach(b=>{ const go=()=>{ ST.lv[b.dataset.lvl]=true; renderLevels(); document.getElementById('lvl'+b.dataset.lvl)?.scrollIntoView({behavior:'smooth'}); }; b.onclick=go; b.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }); }
 
 function cmpTeam(){ return ST.cmp==='league'?null:ST.cmp; }
@@ -431,7 +433,8 @@ function trend(m){ const d=ST.d, ss=d.seasons.filter(s=>d.season[s]); if(ss.leng
   P.forEach((p,i)=>{ if(p.me!=null) g+=`<circle cx="${X(i)}" cy="${Y(p.me)}" r="4" fill="var(--blue)"><title>${sName(p.s)}: ${fmt(p.me,m.fmt)} (league avg ${fmt(p.avg,m.fmt)})</title></circle>`;
     g+=`<text x="${X(i)}" y="${H-6}" font-size="11" fill="${p.s==ST.season?'var(--ink)':'var(--muted)'}" font-weight="${p.s==ST.season?700:400}" text-anchor="middle">${nar?"'"+String(p.s+1).slice(2):sName(p.s)}</text>`; });
   g+=`</svg>`;
-  return `<div class="trend"><div class="th">Season by season</div>${g}<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${esc(ST.team)}</span>${ST.cmp!=='league'?`<span><span class="sw" style="background:var(--ink-2)"></span>${esc(ST.cmp)}</span>`:''}<span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span>${m.src==='A3Z'?`<span>Seasons with fewer than ${MIN_TRK} tracked games are left out</span>`:''}</div></div>`; }
+  const nums=(window.nyrNumsHTML?nyrNumsHTML('trend-'+m.k,[['Season'],[ST.team,'r'],...(ST.cmp!=='league'?[[ST.cmp,'r']]:[]),['League average','r']],P.map(p=>[sName(p.s),fmt(p.me,m.fmt),...(ST.cmp!=='league'?[fmt(p.op,m.fmt)]:[]),fmt(p.avg,m.fmt)]).reverse(),'Show the numbers (by season)'):'');
+  return `<div class="trend"><div class="th">Season by season</div>${g}${nums}<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${esc(ST.team)}</span>${ST.cmp!=='league'?`<span><span class="sw" style="background:var(--ink-2)"></span>${esc(ST.cmp)}</span>`:''}<span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span>${m.src==='A3Z'?`<span>Seasons with fewer than ${MIN_TRK} tracked games are left out</span>`:''}</div></div>`; }
 function drawer(m){ const d=ST.d, s=ST.season, rows=d.games[s]?.[ST.team]; if(!rows) return `<div class="md" style="display:block">Game-by-game data is kept for the last two seasons.</div>`+trend(m);
   if(m.spec[0]==='edge') return `<div class="md" style="display:block">NHL EDGE publishes zone time as a season total only.</div>`;
   const K=d.gameKeys, idx={}; K.forEach((k,i)=>idx[k]=5+i);
@@ -449,7 +452,7 @@ function drawer(m){ const d=ST.d, s=ST.season, rows=d.games[s]?.[ST.team]; if(!r
   const line=(key,col,wd)=>{ let dd='',on=false; pts.forEach(p=>{ const v=p[key]; if(v==null){ on=false; return; } dd+=(on?'L':'M')+X(p.i).toFixed(1)+' '+Y(v).toFixed(1); on=true; }); return dd?`<path d="${dd}" fill="none" stroke="${col}" stroke-width="${wd}" stroke-linejoin="round"/>`:''; };
   g+=line('cum','var(--ink-2)',1.5)+line('roll','var(--blue)',2.5);
   g+=`<text x="${l}" y="${H-6}" font-size="11" fill="var(--muted)">Game 1</text><text x="${W-r}" y="${H-6}" font-size="11" fill="var(--muted)" text-anchor="end">Game ${rows.length}</text></svg>`;
-  return g+`<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${m.src==='A3Z'?'Rolling 5 tracked games':'Rolling 10 games'}</span><span><span class="sw" style="background:var(--ink-2)"></span>Season to date</span><span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span><span>Dots: single games (blue = win)</span></div>`+trend(m); }
+  return g+`<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${m.src==='A3Z'?'Rolling 5 tracked games':'Rolling 10 games'}</span><span><span class="sw" style="background:var(--ink-2)"></span>Season to date</span><span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span><span>Dots: single games (blue = win)</span></div>`+(window.nyrNumsHTML?nyrNumsHTML('game-'+m.k,[['Game','r'],['Date'],['Opponent'],['Result'],['This game','r'],[m.src==='A3Z'?'Rolling 5 tracked':'Rolling 10','r'],['Season to date','r']],pts.map(p=>[p.i+1,p.r[1],(p.r[3]?'vs ':'at ')+p.r[2],p.r[4]==='O'?'OTL':p.r[4],fmt(p.one,m.fmt),fmt(p.roll,m.fmt),fmt(p.cum,m.fmt)]).reverse(),'Show the numbers (game by game)'):'')+trend(m); }
 
 /* shot funnel: attempts -> unblocked -> on goal -> expected goals -> goals, per 60, for vs against (HTML so text stays at reading size) */
 function funnel(){ const V=CACHE.vals[ST.team]; if(!V) return ''; const S=V.R.S, t=S.e_toi||0; if(!t) return '';
@@ -475,7 +478,7 @@ function teamMap(){ const d=ST.d, S=d.season[ST.season]; if(!S) return '';
   rows.sort((a,b)=>hl.includes(a.t)-hl.includes(b.t)).forEach(r=>{ const me=r.t===ST.team, op=r.t===hl[1];
     g+=`<circle cx="${X(r.x)}" cy="${Y(r.y)}" r="${me||op?8:5}" fill="${me?'var(--blue)':op?'var(--ink-2)':'var(--muted)'}" opacity="${me||op?1:.45}" stroke="var(--board)" stroke-width="2"><title>${esc(d.teams[r.t]||r.t)} · ${r.gp} GP · xGF/60 ${r.x.toFixed(2)} · xGA/60 ${r.y.toFixed(2)}</title></circle>`;
     if(me||op) g+=`<text x="${X(r.x)+11}" y="${Y(r.y)+4}" font-size="13" font-weight="700" fill="var(--ink)">${esc(r.t)}</text>`; });
-  return `<div class="tmap"><div class="cap"><span>Where every team sits at 5v5: chances created (right is better) against chances allowed (up is better). The selected team (and comparison team) are labeled; hover any dot on desktop for its name.</span></div>${g}</svg></div>`; }
+  return `<div class="tmap"><div class="cap"><span>Where every team sits at 5v5: chances created (right is better) against chances allowed (up is better). The selected team (and comparison team) are labeled; hover any dot on desktop for its name.</span></div>${g}</svg>`+(window.nyrNumsHTML?nyrNumsHTML('tmap',[['Team'],['GP','r'],['xGF/60','r'],['xGA/60','r'],['xGF − xGA /60','r']],rows.slice().sort((a,b)=>(b.x-b.y)-(a.x-a.y)).map(r=>[d.teams[r.t]||r.t,r.gp,r.x.toFixed(2),r.y.toFixed(2),(r.x-r.y>0?'+':'')+(r.x-r.y).toFixed(2)]),'Show the numbers (every team)'):'')+`</div>`; }
 
 /* small iceberg glyph with the current level's slice filled */
 function miniBerg(i,n){ const W=44,H=34,bh=(H-4)/n; let g=`<svg class="mb" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
@@ -515,6 +518,7 @@ function renderLevels(){ const d=ST.d, t=ST.team; let h='';
   if(window.IntersectionObserver){ const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ const id=e.target.id.slice(3); $$('.dnav [data-go]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.go===id))); } }); },{rootMargin:'-45% 0px -50% 0px'});
     $$('#levels .level').forEach(sec=>io.observe(sec)); }
   $('#lv-all').onclick=()=>{ const all=d.levels.every(l=>lvOpen(l.id)); d.levels.forEach(l=>ST.lv[l.id]=!all); renderLevels(); };
+  $$('#levels details.nn').forEach(d=>{ d.onclick=e=>e.stopPropagation(); d.onkeydown=e=>e.stopPropagation(); });   // RD-009: numbers tables open without closing the drawer
   $$('.mrow').forEach(el=>{ const tg=()=>{ ST.open=ST.open===el.dataset.k?null:el.dataset.k; renderLevels(); document.querySelector(`.mrow[data-k="${el.dataset.k}"]`)?.focus({preventScroll:true}); };
     el.onclick=tg; el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tg(); } }; }); }
 
@@ -573,12 +577,12 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202611011106').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg.json?v=202611011155').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202611011106" defer></script>
-<script src="tables.js?v=202611011106" defer></script>
-<script src="player-card.js?v=202611011106" defer></script>
+<script src="glossary.js?v=202611011155" defer></script>
+<script src="tables.js?v=202611011155" defer></script>
+<script src="player-card.js?v=202611011155" defer></script>
 </body>
 </html>
