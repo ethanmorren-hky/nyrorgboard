@@ -173,6 +173,7 @@ h3:first-child{margin-top:0}
 /* RD-005: entry point to the shared player card */
 .pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
 .pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.wstar{color:var(--warn,#b7791f)}
 </style>
 </head>
 <body class="learn">
@@ -262,8 +263,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611020040');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611020040`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611020100'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611020100`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -280,6 +281,7 @@ const ST={depth:'learn',team:'ALL',pos:'ALL',grade:'',max:'',q:'',nhl:'roster',s
 try{ const v=JSON.parse(localStorage.getItem('nyr-view-market')||'{}'); for(const k of ['team','pos','grade','max','nhl','sort','dir']) if(v[k]!==undefined) ST[k]=v[k]; }catch(e){}
 const saveView=()=>{ try{ const v={}; for(const k of ['team','pos','grade','max','nhl','sort','dir']) v[k]=ST[k]; localStorage.setItem('nyr-view-market',JSON.stringify(v)); }catch(e){} };
 let M=null,H=null,BYID={},BYPP={};
+const HS=new Set(); HS.loading=new Set();   // price-history shards loaded / loading
 const money=(v,d=2)=>v==null?'–':Math.abs(v)>=1e9?`$${(v/1e9).toFixed(2)}B`:(Math.abs(v)>=1e6?`$${(v/1e6).toFixed(d)}M`:`$${Math.round(v/1e3)}K`);
 const smoney=v=>v==null?'–':(v>=0?'+':'−')+money(Math.abs(v));
 const pct=(v,d=1)=>v==null?'–':`${v>0?'▲':v<0?'▼':''}${Math.abs(v).toFixed(d)}%`;
@@ -288,16 +290,17 @@ const posAvg={};
 
 function load(){
   Promise.all([nyrLoad('market'),
-               fetch('data/market-history.json?v=202611020040').then(r=>r.ok?r.json():null)]).then(([m,h])=>{
+               // RD-003 step 2: sector history up front, each player's price history when his quote opens (market-history.json is the fallback)
+               fetch('data/hist/index.json?v=202611020100').then(r=>r.ok?r.json():null).then(h=>h||fetch('data/market-history.json?v=202611020100').then(r=>r.ok?r.json().then(d=>({...d,full:1})):null))]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
-    M=m; H=h||{series:{},sectors:{dates:[]}};
+    M=m; H=h||{series:{},sectors:{dates:[]}}; H.series=H.series||{};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
     for(const g of ['C','W','D','G']){ const ps=M.players.filter(p=>p.pos===g&&p.where==='roster'&&p.sample==='ok'); const a={};
       for(const k of Object.keys(ps[0]?.f||{})) a[k]=ps.reduce((s,p)=>s+p.f[k],0)/ps.length; a.gar82=ps.reduce((s,p)=>s+p.gar82,0)/ps.length; posAvg[g]=a; }
     $('#stamp').textContent=`Prices as of ${M.updated} · ${M.players.filter(p=>p.sample!=='none').length} players priced`;
     const teams=[...new Set(M.players.map(p=>p.team))].sort();
-    $('#f-team').innerHTML=`<option value="ALL">All teams</option>`+teams.map(t=>`<option ${t==='NYR'?'':''}>${esc(t)}</option>`).join('');
-    if(!teams.includes(ST.team)) ST.team='ALL';
+    $('#f-team').innerHTML=`<option value="ALL">All teams</option><option value="WATCH">★ Watchlist</option>`+teams.map(t=>`<option ${t==='NYR'?'':''}>${esc(t)}</option>`).join('');
+    if(!teams.includes(ST.team)&&ST.team!=='WATCH') ST.team='ALL';
     $('#f-team').value=ST.team; $('#f-grade').value=ST.grade; $('#f-max').value=ST.max; $('#f-nhl').value=ST.nhl;  // restored view
     const hash=decodeURIComponent(location.hash.slice(1));
     const pick=BYPP[hash]||M.players.filter(p=>p.team==='NYR'&&p.where==='roster').sort((a,b)=>b.price-a.price)[0];
@@ -400,6 +403,8 @@ function select(pp){ ST.sel=pp; history.replaceState(null,'','#'+encodeURICompon
 
 function quote(){
   const p=BYPP[ST.sel]; const el=$('#quote'); if(!p){ el.hidden=true; return; } el.hidden=false;
+  const shard=p.id?p.id%32:null, wait=!H.full&&shard!=null&&!HS.has(shard);
+  if(wait&&!HS.loading.has(shard)){ HS.loading.add(shard); fetch(`data/hist/${shard}.json?v=202611020100`).then(r=>r.ok?r.json():null).then(d=>{ HS.add(shard); Object.assign(H.series,d?d.series:{}); if(BYPP[ST.sel]&&BYPP[ST.sel].id%32===shard) quote(); }); }
   const s=(H.series[p.id]||[]); const mas=p.marketAtSigning, gap=p.price-(p.capHit||0);
   const mv=p.mv||{};
   const seasonCut=`${M.updated.slice(0,4)-(+M.updated.slice(5,7)<9?1:0)}-09-01`;
@@ -459,6 +464,7 @@ function quote(){
     </div></div>`;
   const dates=pts.map(x=>x[0]);
   lineChart($('#q-chart'),{dates,series:[{name:'Price',c:'var(--price)',v:pts.map(x=>x[1]),extra:i=>`<div class="r"><span>Impact (GAR/82)</span><span>${pts[i][2]}</span></div>`}],ref:p.capHit?p.capHit/1e4:null,h:240});
+  if(wait) $('#q-chart').innerHTML='<p class="learnp">Loading price history…</p>';
   outlook($('#q-out'),p);
   $$('#q-range button').forEach(b=>b.onclick=()=>{ST.range=b.dataset.r;quote();});
   $$('#quote tbody tr[data-pp]').forEach(r=>r.onclick=()=>select(r.dataset.pp));
@@ -518,21 +524,26 @@ function compsOf(p){
 const COLS=[['name','Player','l'],['team','Team','l hide-s'],['age','Age','hide-s'],['price','Price',''],['capHit','Cap hit',''],['gap','Value − cap',''],['surplusPctYr','Surplus / yr',''],['grade','Grade','l'],['win','Win value','hide-s'],['last','Last game','hide-s'],['d30','30 days','hide-s'],['expiry','Expires','hide-s']];
 function rowsF(){
   const q=ST.q.trim().toLowerCase();
-  return M.players.filter(p=>p.sample!=='none'&&(ST.nhl==='all'||p.where==='roster')&&(ST.team==='ALL'||p.team===ST.team)&&(ST.pos==='ALL'||p.pos===ST.pos)
+  const W=watchSet(), wl=ST.team==='WATCH';
+  return M.players.filter(p=>p.sample!=='none'&&(wl||ST.nhl==='all'||p.where==='roster')&&(wl?W.has(p.pp):(ST.team==='ALL'||p.team===ST.team))&&(ST.pos==='ALL'||p.pos===ST.pos)
     &&(!ST.grade||p.grade===ST.grade)&&(!ST.max||(p.capHit||0)<=+ST.max)&&(!q||p.name.toLowerCase().includes(q)));
 }
 function val(p,k){ return k==='win'?p.win?.value:k==='gap'?p.price-(p.capHit||0):k==='last'?p.mv?.last:k==='d30'?p.mv?.d30:p[k]; }
+// RD-011b: players starred on the player card (localStorage nyr-watch, this browser only)
+const watchSet=()=>{ try{ return new Set(JSON.parse(localStorage.getItem('nyr-watch')||'[]')); }catch(e){ return new Set(); } };
+addEventListener('nyr-watch',()=>{ if(M) screener(); });
 function screener(){
   $('#f-pos').innerHTML=['ALL','C','W','D','G'].map(g=>`<button data-p="${g}" aria-pressed="${ST.pos===g}">${g==='ALL'?'All':g}</button>`).join('');
   $$('#f-pos button').forEach(b=>b.onclick=()=>{ST.pos=b.dataset.p;ST.n=60;screener();});
   saveView();
   let rows=rowsF(); const k=ST.sort, d=ST.dir;
   rows.sort((a,b)=>{const x=val(a,k),y=val(b,k); if(x==null) return 1; if(y==null) return -1; return (typeof x==='string'?x.localeCompare(y):x-y)*d;});
-  const shown=rows.slice(0,ST.n);
+  const shown=rows.slice(0,ST.n), WS=watchSet();
   $('#scr').innerHTML=`<thead><tr>${COLS.map(([c,l,cl])=>`<th class="${cl}" ${ST.sort===c?`aria-sort="${d>0?'ascending':'descending'}"`:''}><button data-c="${c}">${l}</button></th>`).join('')}</tr></thead><tbody>`+
-    shown.map(p=>{const g=p.price-(p.capHit||0);return `<tr data-pp="${esc(p.pp)}" class="${p.team==='NYR'?'nyr':''} ${p.pp===ST.sel?'sel':''}"><td class="l"><b>${esc(p.name)}</b><span class="sub">${p.pos}</span>${p.sample==='thin'?' <span class="tag thin">thin</span>':''}${p.ext?' <span class="tag" title="Extension signed">Ext</span>':''}</td><td class="l hide-s">${esc(p.team)}</td><td class="hide-s">${p.age}</td><td class="mono">${money(p.price)}</td><td class="mono">${money(p.capHit)}</td><td class="mono ${cls(g)}">${smoney(g)}</td><td class="mono ${cls(p.surplusPctYr)}">${p.surplusPctYr>0?'+':''}${p.surplusPctYr.toFixed(1)}%</td><td class="l">${p.grade?`<span class="grade ${p.grade}">${p.grade}</span>`:''}</td><td class="mono hide-s">${money(p.win?.value)}</td><td class="mono hide-s ${cls(p.mv?.last)}">${pct(p.mv?.last)}</td><td class="mono hide-s ${cls(p.mv?.d30)}">${pct(p.mv?.d30)}</td><td class="hide-s">${p.expiry||''}</td></tr>`;}).join('')+`</tbody>`;
+    shown.map(p=>{const g=p.price-(p.capHit||0);return `<tr data-pp="${esc(p.pp)}" class="${p.team==='NYR'?'nyr':''} ${p.pp===ST.sel?'sel':''}"><td class="l">${WS.has(p.pp)?'<span class="wstar" title="On your watchlist">★</span> ':''}<b>${esc(p.name)}</b><span class="sub">${p.pos}</span>${p.sample==='thin'?' <span class="tag thin">thin</span>':''}${p.ext?' <span class="tag" title="Extension signed">Ext</span>':''}</td><td class="l hide-s">${esc(p.team)}</td><td class="hide-s">${p.age}</td><td class="mono">${money(p.price)}</td><td class="mono">${money(p.capHit)}</td><td class="mono ${cls(g)}">${smoney(g)}</td><td class="mono ${cls(p.surplusPctYr)}">${p.surplusPctYr>0?'+':''}${p.surplusPctYr.toFixed(1)}%</td><td class="l">${p.grade?`<span class="grade ${p.grade}">${p.grade}</span>`:''}</td><td class="mono hide-s">${money(p.win?.value)}</td><td class="mono hide-s ${cls(p.mv?.last)}">${pct(p.mv?.last)}</td><td class="mono hide-s ${cls(p.mv?.d30)}">${pct(p.mv?.d30)}</td><td class="hide-s">${p.expiry||''}</td></tr>`;}).join('')+`</tbody>`;
   $$('#scr th button').forEach(b=>b.onclick=()=>{const c=b.dataset.c; if(ST.sort===c) ST.dir*=-1; else {ST.sort=c;ST.dir=['name','team','grade','expiry'].includes(c)?1:-1;} screener();});
   $$('#scr tbody tr').forEach(r=>r.onclick=()=>select(r.dataset.pp));
+  if(ST.team==='WATCH') $('#scr tbody').insertAdjacentHTML('beforeend',`<tr class="wl-note"><td class="l" colspan="${COLS.length}">${rows.length?'':'Your watchlist is empty. Open any player card and tap the star to add him. '}The watchlist is saved in this browser only.</td></tr>`);
   $('#more').hidden=rows.length<=ST.n; $('#more').textContent=`Show more (${rows.length-ST.n} left)`;
 }
 function screenerMark(){ $$('#scr tbody tr').forEach(r=>r.classList.toggle('sel',r.dataset.pp===ST.sel)); }
@@ -573,8 +584,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
-<script src="glossary.js?v=202611020040" defer></script>
-<script src="tables.js?v=202611020040" defer></script>
-<script src="player-card.js?v=202611020040" defer></script>
+<script src="glossary.js?v=202611020100" defer></script>
+<script src="tables.js?v=202611020100" defer></script>
+<script src="player-card.js?v=202611020100" defer></script>
 </body>
 </html>

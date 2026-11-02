@@ -435,7 +435,9 @@ function trend(m){ const d=ST.d, ss=d.seasons.filter(s=>d.season[s]); if(ss.leng
   g+=`</svg>`;
   const nums=(window.nyrNumsHTML?nyrNumsHTML('trend-'+m.k,[['Season'],[ST.team,'r'],...(ST.cmp!=='league'?[[ST.cmp,'r']]:[]),['League average','r']],P.map(p=>[sName(p.s),fmt(p.me,m.fmt),...(ST.cmp!=='league'?[fmt(p.op,m.fmt)]:[]),fmt(p.avg,m.fmt)]).reverse(),'Show the numbers (by season)'):'');
   return `<div class="trend"><div class="th">Season by season</div>${g}${nums}<div class="dl"><span><span class="sw" style="background:var(--blue)"></span>${esc(ST.team)}</span>${ST.cmp!=='league'?`<span><span class="sw" style="background:var(--ink-2)"></span>${esc(ST.cmp)}</span>`:''}<span><span class="sw" style="background:var(--muted);height:1px"></span>League average (dashed)</span>${m.src==='A3Z'?`<span>Seasons with fewer than ${MIN_TRK} tracked games are left out</span>`:''}</div></div>`; }
-function drawer(m){ const d=ST.d, s=ST.season, rows=d.games[s]?.[ST.team]; if(!rows) return `<div class="md" style="display:block">Game-by-game data is kept for the last two seasons.</div>`+trend(m);
+function drawer(m){ const d=ST.d, s=ST.season;
+  if(hasPart('games',s)&&!d.games[s]){ need('games',s).then(renderLevels); return `<div class="md" style="display:block">Loading game-by-game data…</div>`; }
+  const rows=d.games[s]?.[ST.team]; if(!rows) return `<div class="md" style="display:block">Game-by-game data is kept for the last two seasons.</div>`+trend(m);
   if(m.spec[0]==='edge') return `<div class="md" style="display:block">NHL EDGE publishes zone time as a season total only.</div>`;
   const K=d.gameKeys, idx={}; K.forEach((k,i)=>idx[k]=5+i);
   const toS=rs=>{ const S={}; rs.forEach(r=>K.forEach((k,i)=>S[k]=(S[k]||0)+(r[5+i]||0))); return S; };
@@ -522,7 +524,9 @@ function renderLevels(){ const d=ST.d, t=ST.team; let h='';
   $$('.mrow').forEach(el=>{ const tg=()=>{ ST.open=ST.open===el.dataset.k?null:el.dataset.k; renderLevels(); document.querySelector(`.mrow[data-k="${el.dataset.k}"]`)?.focus({preventScroll:true}); };
     el.onclick=tg; el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tg(); } }; }); }
 
-function renderPlayers(){ const d=ST.d, isG=ST.pgrp==='Goalies', P=(isG?d.goalies:d.players)?.[ST.season]; const box=$('#players');
+function renderPlayers(){ const d=ST.d, isG=ST.pgrp==='Goalies'; const box=$('#players');
+  if(hasPart('players',ST.season)&&!d.players[ST.season]){ box.innerHTML=`<div class="lhead"><span class="n">Players</span><h2>Players</h2><span class="q">Loading players…</span></div>`; whenNear(box,()=>need('players',ST.season).then(renderPlayers)); return; }
+  const P=(isG?d.goalies:d.players)?.[ST.season];
   if(!P){ box.innerHTML=`<div class="lhead"><span class="n">Players</span><h2>Players</h2><span class="q">Player data is kept for the last three seasons.</span></div>`; return; }
   const rows=(P[ST.team]||[]).slice(); const all=Object.values(P).flat();
   const groups=[...new Set(d.pmetrics.map(m=>m.grp))].filter(g=>g!=='Usage').concat(d.gmetrics?['Goalies']:[]);
@@ -561,15 +565,15 @@ function setupControls(){ const d=ST.d, teams=Object.keys(d.teams).filter(t=>d.s
   $('#c-season').innerHTML=d.seasons.slice().reverse().map(s=>`<option value="${s}" ${s===ST.season?'selected':''}>${sName(s)}</option>`).join('');
   if(ST.cmp!=='league'&&!teams.includes(ST.cmp)) ST.cmp='league';
   $('#c-cmp').innerHTML=`<option value="league">League average</option>`+teams.filter(t=>t!==ST.team).map(t=>`<option value="${t}" ${t===ST.cmp?'selected':''}>${esc(d.teams[t]||t)}</option>`).join('');
-  const hasGames=!!d.games[ST.season]; if(!hasGames) ST.win=0;
+  const hasGames=hasPart('games',ST.season); if(!hasGames) ST.win=0;
   $$('#c-win button').forEach(b=>{ b.disabled=!hasGames&&b.dataset.w!=='0'; b.setAttribute('aria-pressed',String(+b.dataset.w===ST.win)); });
   $$('#c-depth button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.d===ST.depth)));
   document.body.classList.toggle('learn',ST.depth==='learn'); document.body.classList.toggle('analyst',ST.depth==='analyst'); }
 
 $('#c-team').onchange=e=>{ ST.team=e.target.value; if(ST.cmp===ST.team) ST.cmp='league'; ST.open=null; save(); setupControls(); renderAll(); };
-$('#c-season').onchange=e=>{ ST.season=+e.target.value; ST.open=null; setupControls(); renderAll(); };
+$('#c-season').onchange=e=>{ ST.season=+e.target.value; ST.open=null; setupControls(); (ST.win?need('games',ST.season):Promise.resolve()).then(renderAll); };
 $('#c-cmp').onchange=e=>{ ST.cmp=e.target.value; save(); renderAll(); };
-$('#c-win').onclick=e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; ST.win=+b.dataset.w; setupControls(); renderAll(); };
+$('#c-win').onclick=e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return; ST.win=+b.dataset.w; setupControls(); (ST.win?need('games',ST.season):Promise.resolve()).then(renderAll); };
 $('#c-depth').onclick=e=>{ const b=e.target.closest('button'); if(!b) return; ST.depth=b.dataset.d; ST.lv={}; save(); setupControls(); renderAll(); };
 function menuOpen(on){ $('#vmenu').hidden=!on; $('#b-view').setAttribute('aria-expanded',String(on)); if(on) $('#vmenu [aria-current="page"]')?.focus(); }
 $('#b-view').onclick=e=>{ e.stopPropagation(); menuOpen($('#vmenu').hidden); };
@@ -577,12 +581,20 @@ document.addEventListener('click',e=>{ if(!$('#vmenu').hidden&&!e.target.closest
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#vmenu').hidden){ menuOpen(false); $('#b-view').focus(); } });
 let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeout(()=>ST.d&&renderBerg(),200); });
 
-fetch('data/iceberg.json?v=202611020040').then(r=>r.ok?r.json():null).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+/* RD-003 step 2: the team view loads first (iceberg-core.json); game-by-game data loads when a games window or a stat
+   drawer needs it, players when the players table comes near the screen. iceberg.json (everything) is the fallback. */
+function hasPart(kind,s){ const d=ST.d; return d.parts?d.parts[kind].includes(String(s)):!!(kind==='games'?d.games[s]:(d.players[s]||d.goalies[s])); }
+const PARTS={};
+function need(kind,s){ const d=ST.d, k=kind+s; if(!d.parts||(kind==='games'?d.games[s]:d.players[s])) return Promise.resolve();
+  return PARTS[k]??=fetch(`data/iceberg-${kind}-${s}.json?v=202611020100`).then(r=>r.ok?r.json():null).then(x=>{
+    if(kind==='games') d.games[s]=x?x.games:{}; else { d.players[s]=x?x.players:{}; d.goalies[s]=x?x.goalies:{}; } }); }
+function whenNear(el,fn){ if(!window.IntersectionObserver){ fn(); return; } const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); fn(); } },{rootMargin:'800px 0px'}); io.observe(el); }
+fetch('data/iceberg-core.json?v=202611020100').then(r=>r.ok?r.json():null).then(d=>d?Object.assign(d,{games:{},players:{},goalies:{}}):fetch('data/iceberg.json?v=202611020100').then(r=>r.ok?r.json():null)).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202611020040" defer></script>
-<script src="tables.js?v=202611020040" defer></script>
-<script src="player-card.js?v=202611020040" defer></script>
+<script src="glossary.js?v=202611020100" defer></script>
+<script src="tables.js?v=202611020100" defer></script>
+<script src="player-card.js?v=202611020100" defer></script>
 </body>
 </html>

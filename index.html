@@ -430,6 +430,7 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 /* RD-005: entry point to the shared player card */
 .pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
 .pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.wstar{color:var(--warn)}
 </style>
 
 </head>
@@ -571,8 +572,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611020040');
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611020040`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611020100'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611020100`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -982,24 +983,27 @@ function pickLeague(pp){
   UI.form.inc.push(incFromLeague(r)); UI.lq=''; renderRail();
   const el=$('#f-lsearch'); if(el) el.focus({preventScroll:true});
 }
+// RD-011b: players starred on the player card (localStorage nyr-watch, this browser only)
+const watchSet=()=>{ try{ return new Set(JSON.parse(localStorage.getItem('nyr-watch')||'[]')); }catch(e){ return new Set(); } };
+addEventListener('nyr-watch',()=>renderLeague());
 function renderLeague(){
   if(!LEAGUE) return;
-  const q=fold($('#lg-q').value).trim(), tm=$('#lg-team').value, pf=$('#lg-pos').value, wh=$('#lg-where').value, ex=$('#lg-exp').value;
-  let rs=LEAGUE.players.filter(r=>!r.unsigned&&(!q||fold(r.name).includes(q))&&(!tm||r.team===tm)&&posMatch(r,pf)&&(!wh||r.where===wh)&&(!ex||String(r.expiry)===ex));
+  const q=fold($('#lg-q').value).trim(), tm=$('#lg-team').value, pf=$('#lg-pos').value, wh=$('#lg-where').value, ex=$('#lg-exp').value, W=watchSet(), wl=tm==='__w';
+  let rs=LEAGUE.players.filter(r=>!r.unsigned&&(!q||fold(r.name).includes(q))&&(wl?W.has(r.pp):(!tm||r.team===tm))&&posMatch(r,pf)&&(wl||!wh||r.where===wh)&&(!ex||String(r.expiry)===ex));
   const {k,d}=UI.lsort; const val=(r,k)=>k==='p'?(r.group==='G'?(r.stats?.[LEAGUE.statSeasons[1]]?.svPct??0):(r.stats?.[LEAGUE.statSeasons[1]]?.p??-1)):k==='cp'?(r.group==='G'?(r.stats?.[LEAGUE.statSeasons[0]]?.svPct??0):(r.stats?.[LEAGUE.statSeasons[0]]?.p??-1)):r[k];
   rs.sort((a,b)=>{ const x=val(a,k),y=val(b,k); return (typeof x==='number'||typeof y==='number')?((x??-1)-(y??-1))*d:String(x??'').localeCompare(String(y??''))*d; });
   const cols=[['name','Player'],['team','Team'],['pos','Pos'],['age','Age','r'],['capHit','Cap hit','r'],['expiry','Expires','r'],['expiryStatus','Status'],['cl','Clauses'],['cp',`${LEAGUE.statSeasons[0].slice(0,4)}-${LEAGUE.statSeasons[0].slice(6)}`,'r'],['p',`${LEAGUE.statSeasons[1].slice(0,4)}-${LEAGUE.statSeasons[1].slice(6)}`,'r'],['act','']];
   const sline=(r,s)=>{ const x=r.stats?.[s]; if(!x) return '–'; return r.group==='G'?`${x.gp} GP · ${x.svPct!=null?x.svPct.toFixed(3).replace(/^0/,''):'–'}`:`${x.gp} GP · ${x.p} P`; };
   const shown=rs.slice(0,200);
   $('#lg').innerHTML=`<thead><tr>${cols.map(c=>`<th class="${c[2]||''}" data-lk="${c[0]}">${c[1]}${UI.lsort.k===c[0]?(d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>${shown.map(r=>`<tr title="${esc(statLine(r))}">
-    <td>${esc(r.name)}${r.injury?` <span style="color:var(--bad);font-size:11px">${r.injury}</span>`:''}</td><td>${r.team}${r.where!=='roster'?' <span style="color:var(--muted);font-size:11px">minors</span>':''}</td><td>${esc(r.pos)}</td><td class="r">${r.age??''}</td>
+    <td>${W.has(r.pp)?'<span class="wstar" title="On your watchlist">★</span> ':''}<span class="pc-name" data-card="${esc(r.pp)}">${esc(r.name)}</span>${r.injury?` <span style="color:var(--bad);font-size:11px">${r.injury}</span>`:''}</td><td>${r.team}${r.where!=='roster'?' <span style="color:var(--muted);font-size:11px">minors</span>':''}</td><td>${esc(r.pos)}</td><td class="r">${r.age??''}</td>
     <td class="r mono">${money(r.capHit,{full:true})}</td><td class="r">${r.expiry||''}</td><td>${esc(r.expiryStatus||'')}${r.elc?' · ELC':''}</td>
     <td>${[r.nmc?'NMC':'',r.ntc&&!r.nmc?'NTC':''].filter(Boolean).join(' + ')}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[0])}</td><td class="r mono">${sline(r,LEAGUE.statSeasons[1])}</td>
     <td>${r.team!=='NYR'?`<button class="mini-btn" data-act="lg-trade" data-pp="${esc(r.pp)}">Trade for</button>`:''}</td></tr>`).join('')}</tbody>`;
-  $('#lg-meta').textContent=`${rs.length.toLocaleString()} player${rs.length===1?'':'s'}${rs.length>200?', showing the first 200':''}. Contracts from CapWages and stats from NHL.com as of ${LEAGUE.updated}. Hover a row for full stats.`;
+  $('#lg-meta').textContent=wl&&!rs.length?'Your watchlist is empty. Open any player card and tap the star to add him; the watchlist is saved in this browser only.':`${rs.length.toLocaleString()} player${rs.length===1?'':'s'}${rs.length>200?', showing the first 200':''}${wl?' on your watchlist (saved in this browser only)':''}. Contracts from CapWages and stats from NHL.com as of ${LEAGUE.updated}. Hover a row for full stats.`;
 }
 function initLeague(){
-  const ts=$('#lg-team'); ts.innerHTML='<option value="">All teams</option>'+LEAGUE.teams.map(t=>`<option value="${t.abbr}">${esc(t.name)}</option>`).join('');
+  const ts=$('#lg-team'); ts.innerHTML='<option value="">All teams</option><option value="__w">★ Watchlist</option>'+LEAGUE.teams.map(t=>`<option value="${t.abbr}">${esc(t.name)}</option>`).join('');
   const ys=[...new Set(LEAGUE.players.map(r=>r.expiry).filter(Boolean))].sort();
   $('#lg-exp').innerHTML='<option value="">Any expiry</option>'+ys.map(y=>`<option value="${y}">Expires ${y}</option>`).join('');
   ['#lg-q','#lg-team','#lg-pos','#lg-where','#lg-exp'].forEach(id=>$(id).addEventListener('input',renderLeague));
@@ -1520,7 +1524,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202611020040').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202611020100').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1632,13 +1636,31 @@ window.nyrFull={
 /* "Trade for": League contracts table and the shared player card (RD-005; index.html#trade=<pp> from other pages) */
 function tradeForPP(pp){ const r=LEAGUE&&LEAGUE.players.find(x=>x.pp===pp); if(!r) return; if(!(UI.form&&UI.form.type==='trade')) openForm('trade',null,{partner:teamName(r.team)}); else if(!UI.form.partner) UI.form.partner=teamName(r.team); if(!UI.form.inc.some(x=>x.pp===r.pp)) UI.form.inc.push(incFromLeague(r)); renderRail(); $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); }
 window.tradeForPP=tradeForPP;
-NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); if(location.hash.startsWith('#trade=')){ const pp=decodeURIComponent(location.hash.slice(7)); history.replaceState(null,'',location.pathname); tradeForPP(pp); } } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
+/* Roster moves from the shared player card (RD-011a): the card asks which moves apply to a player in the current
+   scenario, then opens the same forms the rail uses, so the cap math and the scenario log stay in one place.
+   Other pages link here as index.html#move=<type>:<pp>. */
+function orgByPP(pp){ return [...CUR.players.values()].find(x=>x.pp===pp&&x.team!=='OUT'); }
+window.nyrMoves=pp=>{ const p=orgByPP(pp); if(!p){ const r=LEAGUE&&LEAGUE.players.find(x=>x.pp===pp); return r?(r.unsigned?[['sign','Sign']]:r.waiverExempt?[]:[['claim','Waiver claim']]):null; }
+  const inj=p.status==='IR'||p.status==='LTIR', m=[];
+  if(p.team==='NYR'&&!inj) m.push(['assign','Assign to Hartford'],['ir','Move to IR'],['ltir','Move to LTIR']);
+  if(p.team==='HFD'&&!inj) m.push(['recall','Recall']);
+  if(inj) m.push(['activate','Activate from IR']);
+  if(nhlContract(p)) m.push(['buyout','Buy out']);
+  return m; };
+window.nyrMove=(type,pp)=>{
+  if(location.hash) history.replaceState(null,'',location.pathname); setView('ops');
+  if(type==='sign'||type==='claim'){ const r=LEAGUE&&LEAGUE.players.find(x=>x.pp===pp); if(!r) return false;
+    openForm('sign',null,{source:type==='claim'?'Waiver claim':'Free agent'}); UI.form.inc=[{...incFromLeague(r),source:type==='claim'?'Waiver claim':'Free agent'}]; renderRail(); }
+  else { const p=orgByPP(pp); if(!p) return false; UI.sel=p.id; openForm(type,p.id); }
+  $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); return true; };
+NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); if(location.hash.startsWith('#trade=')){ const pp=decodeURIComponent(location.hash.slice(7)); history.replaceState(null,'',location.pathname); tradeForPP(pp); }
+    else if(location.hash.startsWith('#move=')){ const [t,...rest]=decodeURIComponent(location.hash.slice(6)).split(':'); nyrMove(t,rest.join(':')); } } else $('#lg-meta').textContent='League contracts are not available right now.'; }).catch(()=>{ $('#lg-meta').textContent='League contracts are not available right now.'; });
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202611020040" defer></script>
-<script src="tables.js?v=202611020040" defer></script>
-<script src="player-card.js?v=202611020040" defer></script>
+<script src="glossary.js?v=202611020100" defer></script>
+<script src="tables.js?v=202611020100" defer></script>
+<script src="player-card.js?v=202611020100" defer></script>
 
 </body>
 </html>
