@@ -586,15 +586,15 @@ let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeou
 function hasPart(kind,s){ const d=ST.d; return d.parts?d.parts[kind].includes(String(s)):!!(kind==='games'?d.games[s]:(d.players[s]||d.goalies[s])); }
 const PARTS={};
 function need(kind,s){ const d=ST.d, k=kind+s; if(!d.parts||(kind==='games'?d.games[s]:d.players[s])) return Promise.resolve();
-  return PARTS[k]??=fetch(`data/iceberg-${kind}-${s}.json?v=202611041122`).then(r=>r.ok?r.json():null).then(x=>{
+  return PARTS[k]??=fetch(`data/iceberg-${kind}-${s}.json?v=202611051113`).then(r=>r.ok?r.json():null).then(x=>{
     if(kind==='games') d.games[s]=x?x.games:{}; else { d.players[s]=x?x.players:{}; d.goalies[s]=x?x.goalies:{}; } }); }
 function whenNear(el,fn){ if(!window.IntersectionObserver){ fn(); return; } const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); fn(); } },{rootMargin:'800px 0px'}); io.observe(el); }
-fetch('data/iceberg-core.json?v=202611041122').then(r=>r.ok?r.json():null).then(d=>d?Object.assign(d,{games:{},players:{},goalies:{}}):fetch('data/iceberg.json?v=202611041122').then(r=>r.ok?r.json():null)).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg-core.json?v=202611051113').then(r=>r.ok?r.json():null).then(d=>d?Object.assign(d,{games:{},players:{},goalies:{}}):fetch('data/iceberg.json?v=202611051113').then(r=>r.ok?r.json():null)).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202611041122" defer></script>
-<script src="tables.js?v=202611041122" defer></script>
-<script src="player-card.js?v=202611041122" defer></script>
+<script src="glossary.js?v=202611051113" defer></script>
+<script src="tables.js?v=202611051113" defer></script>
+<script src="player-card.js?v=202611051113" defer></script>
 </body>
 </html>
