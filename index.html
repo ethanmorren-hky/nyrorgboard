@@ -612,8 +612,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611091115'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611091115`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611091232'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611091232`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -864,7 +864,7 @@ function chip(p){
     <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
 }
 /* RD-014: how each Rangers line or pair has done together at 5v5 (NHL shift charts + MoneyPuck events), under its row */
-let LRES=null; nyrGet('data/lines.json?v=202611091115').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
+let LRES=null; nyrGet('data/lines.json?v=202611091232').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
 function lineRes(U,ps){
   if(!LRES) return '';
   const ids=U.slots.map(sl=>ps.find(q=>q.unit===U.u&&q.slot===sl&&isActive(q))).map(p=>p&&p.nhlId);
@@ -1607,7 +1607,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202611091115').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202611091232').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1741,9 +1741,9 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); i
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202611091115" defer></script>
-<script src="tables.js?v=202611091115" defer></script>
-<script src="player-card.js?v=202611091115" defer></script>
+<script src="glossary.js?v=202611091232" defer></script>
+<script src="tables.js?v=202611091232" defer></script>
+<script src="player-card.js?v=202611091232" defer></script>
 
 </body>
 </html>
