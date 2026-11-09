@@ -8,7 +8,7 @@ const q=u=>fetch(u+(V?`?v=${V}`:'')).then(r=>r.ok?r.json():null).catch(()=>null)
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>v==null?'–':(Math.abs(v)>=1e6?`$${(v/1e6).toFixed(2)}M`:`$${Math.round(v/1e3)}K`);
 const smoney=v=>v==null?'–':(v>=0?'+':'−')+money(Math.abs(v));
-let L=null, M=null, IB=null, IBi=null, FM=null;
+let L=null, M=null, IB=null, IBi=null, FM=null, LN=null;
 function join(d){   // RD-002 join, for pages that don't define nyrLoad
   if(!d||!d.joinFields||!L) return d; const by=new Map(L.players.map(p=>[p.pp,p])), F=d.joinFields;
   for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(p) F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -16,6 +16,7 @@ function join(d){   // RD-002 join, for pages that don't define nyrLoad
 }
 const league=()=>L?Promise.resolve(L):(window.NYR_LEAGUE||q('data/league.json')).then(d=>(L=d));
 const market=()=>M?Promise.resolve(M):league().then(()=>window.nyrLoad?nyrLoad('market'):q('data/market.json').then(join)).then(d=>(M=d));
+const lines=()=>LN?Promise.resolve(LN):q('data/lines.json').then(d=>(LN=d||{mates:{},none:1}));   // RD-014 linemates
 const form=()=>FM?Promise.resolve(FM):q('data/form.json').then(d=>(FM=d||{players:{},none:1}));   // RD-011c recent form
 /* RD-003 step 2: the card reads one small shard (data/card/<NHL id % 32>.json: his Iceberg rows and percentile bars,
    worked out at build time from the whole league) instead of all of iceberg.json. iceberg.json stays as the fallback. */
@@ -44,6 +45,11 @@ const css=`.pc-dlg{border:0;padding:0;width:min(720px,100vw - 16px);max-height:c
 .pc-bar .v{font-family:var(--f-mono,monospace);font-size:12px;text-align:right}
 .pc-note{color:var(--muted,#6d7b90);font-size:12px;padding:0 18px 8px}
 .pc-note+details.nn,.pc-form+details.nn{margin:0 18px 8px}
+.pc-sec{padding:4px 18px 4px;font-size:13px}.pc-sec>b{display:block;margin-bottom:4px}.pc-sec .pc-note{padding:2px 0 6px}
+.pc-mates{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;margin-bottom:3px}.pc-mates .pc-bio{min-width:64px}
+.pc-mate{font-family:var(--f-mono,ui-monospace,monospace);font-size:12px;color:var(--ink-2,#44546c)}
+.pc-mlink{all:unset;cursor:pointer;font-family:var(--f-body,system-ui);font-weight:600;font-size:13px;color:var(--blue,#0038a8)}.pc-mlink:hover{text-decoration:underline}
+@media (pointer:coarse){.pc-mlink{display:inline-flex;align-items:center;min-height:44px}}
 .pc-form{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:8px;align-items:center;padding:4px 18px 6px;font-size:13px}
 .pc-form svg{width:100%;height:46px;display:block}.pc-form .fs{font-size:12px;color:var(--muted,#6d7b90)}
 .pc-tag{display:inline-block;margin-left:6px;padding:0 6px;border-radius:4px;font:700 10px/16px var(--f-body,system-ui);text-transform:uppercase;letter-spacing:.04em;color:#fff;vertical-align:1px}
@@ -115,7 +121,7 @@ function render(){
     <div class="pc-bio">${esc(p.team||'')} · ${esc(p.pos||'')}${p.num?` · #${p.num}`:''}${p.age?` · ${p.age} yrs`:''}${p.shoots?` · ${g==='G'?'catches':'shoots'} ${esc(p.shoots)}`:''}</div></div>
     <button class="pc-x" aria-label="Close">×</button></div>
     <div class="pc-bars">${bars}</div><div class="pc-note">${note}</div>${pc&&pc.out.length&&window.nyrNumsHTML?nyrNumsHTML('card-bars',[['Stat'],['Value','r'],['Percentile','r']],pc.out.map(b=>[labOf(b.k),fmt(b.k,b.v),b.p])):''}
-    ${formStrip(p)}
+    ${formStrip(p)}${mateList(p)}
     <div class="pc-tabs" role="tablist">${[['contract','Contract'],['stats','Stats'],['impact','Impact'],['value','Value']].map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${tab===k}">${l}</button>`).join('')}</div>
     <div class="pc-body">${body(p,mq,g)}</div>
     ${(()=>{ const mv=moves(p), tr=p.team!=='NYR'&&p.team!=='HFD'; return tr||mv.length?`<div class="pc-ft pc-mv"><span class="pc-bio">Moves</span>${tr?`<button class="pri" data-a="trade">Trade for</button>`:''}${mv.map(([t,l])=>`<button data-move="${t}">${esc(l)}</button>`).join('')}</div>`:''; })()}
@@ -127,8 +133,21 @@ function render(){
   const tb=dlg.querySelector('[data-a="trade"]'); if(tb) tb.onclick=()=>tradeFor(p.pp);
   dlg.querySelector('[data-a="star"]').onclick=()=>{ toggleWatch(p.pp); render(); };
   dlg.querySelector('[data-a="link"]').onclick=e=>copyLink(p,e.currentTarget);
+  dlg.querySelectorAll('[data-mate]').forEach(b=>b.onclick=()=>open(b.dataset.mate));
   dlg.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>goMove(b.dataset.move,p.pp));
   const inp=dlg.querySelector('.pc-cmp input'); if(inp){ inp.focus(); inp.oninput=()=>listCmp(inp.value); }
+}
+/* RD-014: most used 5v5 linemates (Rangers games, from NHL shift charts) */
+function mateList(p){
+  if(!LN||LN.none) return ''; const m=p.nhlId&&LN.mates[String(p.nhlId)]; if(!m) return '';
+  const by=new Map(L.players.filter(x=>x.nhlId).map(x=>[x.nhlId,x])), g=grpOf(p);
+  const nmr=id=>{ const x=by.get(id); return x?x.name.split(' ').slice(-1)[0]:'#'+id; }, nm=id=>esc(nmr(id));
+  const cf=(a,b)=>a+b?Math.round(100*a/(a+b))+'%':'–';
+  const grp=(lab,l)=>l&&l.length?`<div class="pc-mates"><span class="pc-bio">${lab}</span>${l.map(x=>`<span class="pc-mate" title="${x[1]} min together at 5v5 · goals ${x[2]}-${x[3]} · shot attempts ${x[4]}-${x[5]}"><button class="pc-mlink" data-mate="${x[0]}">${nm(x[0])}</button> ${Math.round(x[1])}m</span>`).join('')}</div>`:'';
+  const rows=[...(m.F||[]),...(m.D||[])];
+  return `<div class="pc-sec"><b>Most used linemates</b>${g==='F'?grp('Forwards',m.F)+grp('D',m.D):grp('Partners',m.D)+grp('Forwards',m.F)}
+    <div class="pc-note">5v5 minutes together in ${LN.games} Rangers games${LN.skipped?` (${LN.skipped} skipped: no NHL shift data)`:''}. Shifts: NHL.com.</div>`+
+    (window.nyrNumsHTML?nyrNumsHTML('card-mates',[['Teammate'],['5v5 min','r'],['GF-GA','r'],['CF%','r']],rows.map(x=>[nmr(x[0]),x[1],`${x[2]}-${x[3]}`,cf(x[4],x[5])]),'Show the numbers (linemates)'):'')+`</div>`;
 }
 /* RD-011c: last 10 games this season as bars, season average as a dashed line, Hot/Cold against his usual level */
 function formStrip(p){
@@ -241,6 +260,7 @@ async function open(key){
   market().then(d=>{ if(cur&&cur.p===p){ cur.m=d&&d.players.find(x=>x.pp===p.pp)||null; render(); } });
   iceberg(p.nhlId).then(()=>{ if(cur&&cur.p===p) render(); });
   form().then(()=>{ if(cur&&cur.p===p) render(); });
+  lines().then(()=>{ if(cur&&cur.p===p) render(); });
 }
 document.addEventListener('click',e=>{ const el=e.target.closest('[data-card]'); if(!el) return; e.preventDefault(); e.stopPropagation(); open(el.dataset.card); },true);
 window.NYRCard={open};

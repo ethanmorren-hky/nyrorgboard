@@ -12,7 +12,7 @@ st.textContent=`th.nts{cursor:pointer;user-select:none}th.nts:hover{color:var(--
 .ntchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 6px;font-size:12px;color:var(--muted,#6d7b90)}
 .ntchips button{all:unset;cursor:pointer;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line,#d6dee9);color:var(--ink,#0d1a2d)}
 .ntchips button[aria-pressed="true"]{background:var(--ink,#0d1a2d);color:var(--board,#fff);border-color:var(--ink,#0d1a2d)}
-.ntchips button:focus-visible{outline:2px solid var(--blue,#0038a8);outline-offset:2px}
+.ntchips button:focus-visible{outline:2px solid var(--blue,#0038a8);outline-offset:2px}@media (pointer:coarse){.ntchips button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px}}
 tr.ntf-hide{display:none}
 details.nn{margin-top:6px;border-top:1px solid var(--line-2,var(--line,#e3e8ef))}
 details.nn>summary{cursor:pointer;padding:8px 2px;font-size:13px;font-weight:600;color:var(--blue,#0038a8)}

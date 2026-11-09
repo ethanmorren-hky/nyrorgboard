@@ -133,6 +133,10 @@ dialog.help .ft label{display:flex;gap:8px;align-items:center;font-size:13px;col
 .row.pair{grid-template-columns:52px repeat(2,minmax(0,1fr)) 62px}
 .row .ulbl{font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--ink-2);text-transform:uppercase;align-self:center;line-height:1.1}
 .row .ucap{font-family:var(--f-mono);font-size:11px;color:var(--muted);align-self:center;text-align:right}
+.row .lres{grid-column:1/-1;border:0;border-radius:0;background:none;padding:0;min-height:0;margin:-2px 0 2px 58px;font-family:var(--f-mono);font-size:11px;color:var(--ink-2);line-height:1.35}
+.row .lres .k{font-family:var(--f-body);font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:0 4px;border-radius:3px;background:var(--line-2);color:var(--muted);margin-right:5px}
+.row .lres.un .k{background:var(--warn-soft);color:var(--warn)}
+.row .lres .gd{font-weight:600}.row .lres .gd.p{color:var(--good)}.row .lres .gd.m{color:var(--bad)}
 .slot{position:relative;min-height:46px;border-radius:7px;border:1px dashed var(--line);background:var(--board-2);display:flex;min-width:0}
 .slot .chip{padding-right:20px}
 .slot .sl{position:absolute;top:4px;right:5px;z-index:1;font-size:9px;letter-spacing:.08em;color:var(--muted);font-weight:700;pointer-events:none}
@@ -431,6 +435,40 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 .pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
 .pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 .wstar{color:var(--warn)}
+/* RD-013: phone layout (one board at a time, full-width slots), tap-to-move, 44px touch targets */
+.bsw{display:none}
+.mvbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:8px 12px;border:1px solid var(--blue);border-radius:10px;background:var(--blue-soft);color:var(--ink);font-size:13px}
+.mvbar b{font-family:var(--f-display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue)}
+.mvbar .sp{flex:1}
+body.tmoving .mvbar{display:flex;position:sticky;top:0;z-index:20}
+body.tmoving .slot,body.tmoving .zone[data-zone]{border-color:var(--blue);border-style:dashed;cursor:pointer}
+body.tmoving .chip.pick{outline:3px solid var(--blue);outline-offset:1px;background:var(--blue-soft)}
+.act.mv{display:none;grid-column:1/-1;border-color:var(--blue)}
+.act.mv b{color:var(--blue)}
+@media (pointer:coarse),(max-width:700px){.act.mv{display:block}}
+@media (max-width:700px){
+  .bsw{display:flex;gap:6px;margin-top:12px}
+  .bsw button{all:unset;box-sizing:border-box;cursor:pointer;font-size:14px;font-weight:600;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--line);background:var(--board);color:var(--ink)}
+  .bsw button[aria-pressed="true"]{background:var(--ink);color:var(--board);border-color:var(--ink)}
+  .main,.main.closed{grid-template-columns:minmax(0,1fr)}
+  body[data-board="NYR"] #board-HFD,body[data-board="HFD"] #board-NYR{display:none}
+  .row,.row.pair{grid-template-columns:minmax(0,1fr) auto;gap:5px 6px;margin-bottom:12px}
+  .row .ulbl{grid-column:1;grid-row:1}
+  .row .ucap{display:block;grid-column:2;grid-row:1}
+  .row .slot{grid-column:1/-1;min-height:48px}
+  .row .lres{margin-left:2px}
+  .slot .chip{padding-right:30px}
+  .chip{grid-template-columns:auto minmax(0,1fr)}
+  .chip .n{display:block}
+  .zone .chip{flex-basis:100%;max-width:none;min-height:48px}
+}
+@media (pointer:coarse){
+  .btn,.act,.bsw button{min-height:44px}
+  .vbtn{min-height:44px;min-width:44px;justify-content:center;box-sizing:border-box}
+  table.ct td .mini-btn{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 10px}
+  .x{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px}
+  .ticker .tg button,#ct-filters button,.seg button,.ntchips button{box-sizing:border-box;display:inline-flex;align-items:center;min-height:44px}
+}
 </style>
 
 </head>
@@ -467,6 +505,8 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
   <div class="pills" id="pills" aria-label="Compliance"></div>
   <div class="editbar" role="status"><b>Editing lines</b><span id="edit-msg">Tap a player, then tap a slot or another player to swap them. Dragging works too. Drop a player in Extras to scratch him.</span><span class="sp"></span><button class="btn ghost" id="b-lines-reset">Reset to default lines</button><button class="btn primary" id="b-lines-done">Done</button></div>
 
+  <div class="bsw" id="bsw" role="group" aria-label="Board to show"><button data-bsw="NYR" aria-pressed="true">Rangers</button><button data-bsw="HFD" aria-pressed="false">Wolf Pack</button></div>
+  <div class="mvbar" role="status"><b>Moving</b><span id="mv-msg"></span><span class="sp"></span><button class="btn" id="b-mv-cancel">Cancel</button></div>
   <div class="main closed" id="main">
     <section class="panel" id="board-NYR" aria-label="Rangers board"></section>
     <section class="panel" id="board-HFD" aria-label="Wolf Pack board"></section>
@@ -572,8 +612,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611081115'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611081115`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611090203'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611090203`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -784,7 +824,7 @@ function txLabel(tx,st){
 
 /* ---------- app state ---------- */
 let TX=[], BASE=initState(), BT=totals(BASE), CUR=BASE, CT=BT;
-const UI={edit:false,pick:null,rail:false,tk:'NYR',sel:null,form:null,ctf:'all',sort:{k:'cap',d:-1},lq:'',lsort:{k:'capHit',d:-1}};
+const UI={edit:false,pick:null,tmove:null,board:'NYR',rail:false,tk:'NYR',sel:null,form:null,ctf:'all',sort:{k:'cap',d:-1},lq:'',lsort:{k:'capHit',d:-1}};
 function save(){ try{ localStorage.setItem(STORE,JSON.stringify(TX.map(({_r,...t})=>t))); }catch(e){} }
 function load(){ try{ const v=JSON.parse(localStorage.getItem(STORE)||'[]'); if(Array.isArray(v)) TX=v; }catch(e){ TX=[]; } }
 function recompute(){ CUR=compute(TX); CT=totals(CUR); }
@@ -819,9 +859,21 @@ function chip(p){
   if(p.expiry===S.seasonStartYear+1) tags.push(`<span class="tag exp" title="Expires summer ${p.expiry}">${p.expiryStatus||''} '${String(p.expiry).slice(2)}</span>`);
   const ch=changed(p);
   const c=charge(p,0);
-  return `<button class="chip ${p.team==='HFD'?'ahl':''} ${p.posGroup==='G'?'g':''} ${UI.sel===p.id?'sel':''} ${UI.pick===p.id?'pick':''} ${ch} ${p.status!=='Active'?'hurt':''}" data-pid="${p.id}" draggable="true" aria-label="${esc(p.name)}, ${p.pos}">
+  return `<button class="chip ${p.team==='HFD'?'ahl':''} ${p.posGroup==='G'?'g':''} ${UI.sel===p.id?'sel':''} ${UI.pick===p.id||UI.tmove===p.id?'pick':''} ${ch} ${p.status!=='Active'?'hurt':''}" data-pid="${p.id}" draggable="true" aria-label="${esc(p.name)}, ${p.pos}">
     <span class="n">${p.num??'–'}</span><span class="nm">${esc(p.last)}</span>
     <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
+}
+/* RD-014: how each Rangers line or pair has done together at 5v5 (NHL shift charts + MoneyPuck events), under its row */
+let LRES=null; nyrGet('data/lines.json?v=202611090203').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
+function lineRes(U,ps){
+  if(!LRES) return '';
+  const ids=U.slots.map(sl=>ps.find(q=>q.unit===U.u&&q.slot===sl&&isActive(q))).map(p=>p&&p.nhlId);
+  if(ids.some(x=>!x)) return '';
+  const k=[...ids].sort((a,b)=>a-b).join('-'), r=(U.slots.length===2?LRES.pairs:LRES.trios)[k], what=U.slots.length===2?'pair':'line';
+  const base=`${LRES.games} games${LRES.skipped?`, ${LRES.skipped} skipped`:''}`;
+  if(!r||r.toi<LRES.untested) return `<div class="lres un" title="Under ${LRES.untested} minutes together at 5v5 this season (${base})"><span class="k">Untested</span>${r?`${Math.round(r.toi)} min together at 5v5`:`this ${what} has not played together at 5v5`}</div>`;
+  const gd=r.gf-r.ga, cf=r.cf+r.ca?Math.round(100*r.cf/(r.cf+r.ca)):null, xg=r.xgf+r.xga?Math.round(100*r.xgf/(r.xgf+r.xga)):null;
+  return `<div class="lres" title="5v5 together this season, ${base}. Shifts: NHL.com; shot attempts and xG: MoneyPuck.com"><span class="k">Counted</span>${Math.round(r.toi)} min · goals <span class="gd ${gd>0?'p':gd<0?'m':''}">${r.gf}-${r.ga}</span> · CF ${cf??'–'}%${xg!=null?` · xG ${xg}%`:''}</div>`;
 }
 function renderBoard(team){
   const ps=[...CUR.players.values()].filter(p=>p.team===team);
@@ -836,7 +888,7 @@ function renderBoard(team){
       h+=`<div class="row ${U.slots.length===2?'pair':''}"><div class="ulbl">${U.u==='Goalies'?'G':U.u.replace('Line ','L').replace('Pair ','P')}</div>`;
       for(const sl of U.slots){ const p=ps.find(q=>q.unit===U.u&&q.slot===sl);
         h+=`<div class="slot ${p?'':'empty'}" data-team="${team}" data-unit="${U.u}" data-slot="${sl}"><span class="sl">${sl}</span>${p?chip(p):'Open'}</div>`; }
-      h+=`<div class="ucap" title="Unit cap charge">${money(unitCap(U.u))}</div></div>`;
+      h+=`<div class="ucap" title="Unit cap charge">${money(unitCap(U.u))}</div>${team==='NYR'&&U.g!=='G'?lineRes(U,ps):''}</div>`;
     }
     h+=`</div>`;
   }
@@ -896,7 +948,7 @@ function renderRail(){
       ${p.liveStats&&LEAGUE?`<div class="note">${esc(statLine({group:p.posGroup,stats:p.liveStats}))}</div>`:''}
       ${statsTable(p)}
       ${(p.team==='NYR'||p.team==='HFD')&&isActive(p)?`<label class="spot">Lineup spot<select id="p-spot">${slotOptions(p.team,p.posGroup,p.unit?`${p.unit}|${p.slot}`:'')}</select></label>`:''}
-      ${p.team!=='OUT'?`<div class="acts">${actionsFor(p).map(([k,t,s])=>`<button class="act" data-act="open" data-type="${k}"><b>${t}</b><span>${s}</span></button>`).join('')}</div>`:''}
+      ${p.team!=='OUT'?`<div class="acts">${(p.team==='NYR'||p.team==='HFD')&&isActive(p)?`<button class="act mv" data-act="tmove"><b>Move him</b><span>Then tap a slot, Extras, or the other board</span></button>`:''}${actionsFor(p).map(([k,t,s])=>`<button class="act" data-act="open" data-type="${k}"><b>${t}</b><span>${s}</span></button>`).join('')}</div>`:''}
     </div>`;
   }
   h+=`<div class="sec"><div class="sec-t"><span>Scenario moves</span><span>${TX.length}</span></div>${renderLog()}</div>`;
@@ -1126,6 +1178,7 @@ document.addEventListener('click',e=>{
   if(t.matches('th[data-k]')){ const k=t.dataset.k; UI.sort={k,d:UI.sort.k===k?-UI.sort.d:(['name','pos','team'].includes(k)?1:-1)}; saveView(); renderTable(); return; }
   const act=t.dataset.act;
   if(act==='close'){ UI.sel=null; renderAll(); return; }
+  if(act==='tmove'){ startTMove(UI.sel); return; }
   if(act==='close-rail'){ UI.rail=false; UI.sel=null; UI.form=null; renderAll(); return; }
   if(act==='open'){ openForm(t.dataset.type,UI.sel); return; }
   if(act==='cancel'){ UI.form=null; renderRail(); return; }
@@ -1167,15 +1220,45 @@ document.addEventListener('dragend',()=>{ DRAG=null; document.querySelectorAll('
 document.addEventListener('dragover',e=>{ const z=e.target.closest('.slot,.zone[data-zone]'); if(!z||!DRAG) return; e.preventDefault(); document.querySelectorAll('.drop').forEach(x=>x!==z&&x.classList.remove('drop')); z.classList.add('drop'); });
 document.addEventListener('drop',e=>{
   const z=e.target.closest('.slot,.zone[data-zone]'); if(!z||!DRAG) return; e.preventDefault();
-  const p=CUR.players.get(DRAG); const team=z.dataset.team, unit=z.dataset.unit||null, slot=z.dataset.slot||null; DRAG=null;
-  if(!p||p.team==='OUT') return;
+  const pid=DRAG; DRAG=null; dropTo(pid,z.dataset.team,z.dataset.unit||null,z.dataset.slot||null);
+});
+// shared by drag and drop and RD-013 tap-to-move
+function dropTo(pid,team,unit,slot){
+  const p=CUR.players.get(pid);
+  if(!p||p.team==='OUT'||!team) return;
   if(UI.edit){ editMove(p.id,team,unit,slot); return; }
   UI.sel=p.id;
   if(p.team===team){ if(p.unit===unit&&p.slot===slot) return; if(!isActive(p)){ toast('Activate him from IR first'); return; } commit({type:'lineup',pid:p.id,team,unit,slot}); }
   else if(team==='HFD'){ if(!isActive(p)){ toast('Activate him from IR first'); return; } openForm('assign',p.id,{unit,slot}); }
   else openForm('recall',p.id,{unit,slot});
   renderBoard('NYR'); renderBoard('HFD');
-});
+}
+/* RD-013: tap-to-move for touch screens. "Move him" in the player panel, then tap a slot, Extras, or switch boards and tap there. */
+function setBoard(t){ UI.board=t; document.body.dataset.board=t; document.querySelectorAll('#bsw [data-bsw]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bsw===t))); try{ localStorage.setItem('nyr-board',t); }catch(e){} }
+try{ const b=localStorage.getItem('nyr-board'); setBoard(b==='HFD'?'HFD':'NYR'); }catch(e){ setBoard('NYR'); }
+document.querySelectorAll('#bsw [data-bsw]').forEach(b=>b.addEventListener('click',()=>setBoard(b.dataset.bsw)));
+function startTMove(pid){
+  const p=CUR.players.get(pid); if(!p) return;
+  UI.tmove=pid; document.body.classList.add('tmoving');
+  $('#mv-msg').textContent=`${p.name}: tap a line slot or Extras${window.innerWidth<=700?', or switch to the other board first':' on either board'}.`;
+  renderBoard('NYR'); renderBoard('HFD');
+  setBoard(p.team); $('#bsw').offsetParent?$('#bsw').scrollIntoView({behavior:'smooth',block:'start'}):$('#board-'+p.team).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function endTMove(){ UI.tmove=null; document.body.classList.remove('tmoving'); renderBoard('NYR'); renderBoard('HFD'); }
+$('#b-mv-cancel').onclick=endTMove;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&UI.tmove) endTMove(); });
+document.addEventListener('click',e=>{
+  if(!UI.tmove||UI.edit) return;
+  if(!e.target.closest('#board-NYR,#board-HFD')) return;
+  const chipEl=e.target.closest('.chip[data-pid]'), tgt=e.target.closest('.slot,.zone[data-zone]');
+  if(!tgt&&!chipEl) return;
+  e.stopPropagation(); e.preventDefault();
+  const pid=UI.tmove;
+  if(chipEl&&chipEl.dataset.pid===pid){ endTMove(); return; }
+  if(!tgt) return;   // injured list or another unplaced chip: not a target
+  UI.tmove=null; document.body.classList.remove('tmoving');
+  dropTo(pid,tgt.dataset.team,tgt.dataset.unit||null,tgt.dataset.slot||null);
+},true);
 
 /* ---------- roster updates ticker ---------- */
 function tickerItems(){
@@ -1197,7 +1280,7 @@ document.querySelectorAll('.ticker [data-tk]').forEach(b=>b.addEventListener('cl
 $('#b-moves').onclick=()=>{ UI.rail=!UI.rail; if(!UI.rail){ UI.sel=null; UI.form=null; renderAll(); } else { renderRail(); if(window.innerWidth<=1280) $('#rail').scrollIntoView({behavior:'smooth',block:'start'}); } };
 
 /* ---------- line editing ---------- */
-function setEditing(on){ UI.edit=on; UI.pick=null; document.body.classList.toggle('editing',on); $('#b-lines').setAttribute('aria-pressed',String(on)); if(on){ UI.sel=null; UI.form=null; } renderAll(); }
+function setEditing(on){ UI.edit=on; UI.pick=null; if(UI.tmove){ UI.tmove=null; document.body.classList.remove('tmoving'); } document.body.classList.toggle('editing',on); $('#b-lines').setAttribute('aria-pressed',String(on)); if(on){ UI.sel=null; UI.form=null; } renderAll(); }
 function saveLines(){ try{ localStorage.setItem(LINESKEY,JSON.stringify(LINES)); }catch(e){} }
 function rebase(){ BASE=initState(); BT=totals(BASE); recompute(); renderAll(); }
 // Move p into team/unit/slot in the default lines; whoever is there takes p's old spot (swap)
@@ -1524,7 +1607,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202611081115').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202611090203').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1658,9 +1741,9 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); i
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202611081115" defer></script>
-<script src="tables.js?v=202611081115" defer></script>
-<script src="player-card.js?v=202611081115" defer></script>
+<script src="glossary.js?v=202611090203" defer></script>
+<script src="tables.js?v=202611090203" defer></script>
+<script src="player-card.js?v=202611090203" defer></script>
 
 </body>
 </html>
