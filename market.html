@@ -263,8 +263,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611111113'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611111113`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611121110'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611121110`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -291,7 +291,7 @@ const posAvg={};
 function load(){
   Promise.all([nyrLoad('market'),
                // RD-003 step 2: sector history up front, each player's price history when his quote opens (market-history.json is the fallback)
-               fetch('data/hist/index.json?v=202611111113').then(r=>r.ok?r.json():null).then(h=>h||fetch('data/market-history.json?v=202611111113').then(r=>r.ok?r.json().then(d=>({...d,full:1})):null))]).then(([m,h])=>{
+               fetch('data/hist/index.json?v=202611121110').then(r=>r.ok?r.json():null).then(h=>h||fetch('data/market-history.json?v=202611121110').then(r=>r.ok?r.json().then(d=>({...d,full:1})):null))]).then(([m,h])=>{
     if(!m){ $('#stamp').textContent='Data is not available right now.'; return; }
     M=m; H=h||{series:{},sectors:{dates:[]}}; H.series=H.series||{};
     M.players.forEach(p=>{ if(p.id) BYID[p.id]=p; BYPP[p.pp]=p; });
@@ -404,7 +404,7 @@ function select(pp){ ST.sel=pp; history.replaceState(null,'','#'+encodeURICompon
 function quote(){
   const p=BYPP[ST.sel]; const el=$('#quote'); if(!p){ el.hidden=true; return; } el.hidden=false;
   const shard=p.id?p.id%32:null, wait=!H.full&&shard!=null&&!HS.has(shard);
-  if(wait&&!HS.loading.has(shard)){ HS.loading.add(shard); fetch(`data/hist/${shard}.json?v=202611111113`).then(r=>r.ok?r.json():null).then(d=>{ HS.add(shard); Object.assign(H.series,d?d.series:{}); if(BYPP[ST.sel]&&BYPP[ST.sel].id%32===shard) quote(); }); }
+  if(wait&&!HS.loading.has(shard)){ HS.loading.add(shard); fetch(`data/hist/${shard}.json?v=202611121110`).then(r=>r.ok?r.json():null).then(d=>{ HS.add(shard); Object.assign(H.series,d?d.series:{}); if(BYPP[ST.sel]&&BYPP[ST.sel].id%32===shard) quote(); }); }
   const s=(H.series[p.id]||[]); const mas=p.marketAtSigning, gap=p.price-(p.capHit||0);
   const mv=p.mv||{};
   const seasonCut=`${M.updated.slice(0,4)-(+M.updated.slice(5,7)<9?1:0)}-09-01`;
@@ -584,8 +584,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') menuOpen(false); }
 let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(M){sectors();quote();}},200);});
 load();
 </script>
-<script src="glossary.js?v=202611111113" defer></script>
-<script src="tables.js?v=202611111113" defer></script>
-<script src="player-card.js?v=202611111113" defer></script>
+<script src="glossary.js?v=202611121110" defer></script>
+<script src="tables.js?v=202611121110" defer></script>
+<script src="player-card.js?v=202611121110" defer></script>
 </body>
 </html>
