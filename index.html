@@ -612,8 +612,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611151118'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611151118`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611152306'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611152306`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -864,7 +864,7 @@ function chip(p){
     <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
 }
 /* RD-014: how each Rangers line or pair has done together at 5v5 (NHL shift charts + MoneyPuck events), under its row */
-let LRES=null; nyrGet('data/lines.json?v=202611151118').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
+let LRES=null; nyrGet('data/lines.json?v=202611152306').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
 function lineRes(U,ps){
   if(!LRES) return '';
   const ids=U.slots.map(sl=>ps.find(q=>q.unit===U.u&&q.slot===sl&&isActive(q))).map(p=>p&&p.nhlId);
@@ -981,10 +981,21 @@ function slotOptions(team,posGroup,cur){
   for(const U of UNITS.filter(u=>!posGroup||u.g===posGroup)) for(const sl of U.slots){ const q=slotOccupant(st,team,U.u,sl); const v=`${U.u}|${sl}`; o+=`<option value="${v}" ${cur===v?'selected':''}>${U.u} ${sl}${q?` (replaces ${esc(q.last)})`:' (open)'}</option>`; }
   return o;
 }
+/* RD-017: a trade target's usual 5v5 linemates (data/mates.json, every NHL team, loaded the first time a target is shown) */
+let MATES=null, MATESL=false;
+function matesLine(id){
+  if(!id) return '';
+  if(!MATES){ if(!MATESL){ MATESL=true; nyrGet('data/mates.json?v=202611152306').then(d=>{ MATES=d||{mates:{}}; if(UI.form) renderRail(); }); } return ''; }
+  const m=MATES.mates[String(id)]; if(!m) return `<div class="meta2 mates">No 5v5 linemate data yet</div>`;
+  const nm=pid=>{ const r=LEAGUE&&LEAGUE.players.find(x=>x.nhlId===pid); return r?r.name.split(' ').slice(-1)[0]:'#'+pid; };
+  const lst=(l)=>l.slice(0,3).map(x=>`${esc(nm(x[0]))} ${Math.round(x[1])}m`).join(', ');
+  const parts=[(m.F||[]).length?`F: ${lst(m.F)}`:'',(m.D||[]).length?`D: ${lst(m.D)}`:''].filter(Boolean);
+  return `<div class="meta2 mates" title="Most minutes together at 5v5 this season, ${m.g} games (shifts: NHL.com)">Usual linemates · ${parts.join(' · ')}</div>`;
+}
 function incRow(x,i,tradeMode){
   if(x.lg) return `<div class="lineitem lgcard"><div class="top2"><span>${esc(x.name)} <span style="color:var(--muted);font-weight:400">${esc(x.pos)} · ${esc(x.fromTeam||'')}</span></span><button class="x" data-act="rm-inc" data-i="${i}" aria-label="Remove">×</button></div>
    <div class="meta2">${x.age??'–'} yrs · ${money(Math.round(x.capM*1e6),{full:true})} through ${S.seasonStartYear+(+x.years)} ${esc(x.expiryStatus||'')} · ${esc(x.type)}${x.nmc?' · NMC':''}${x.ntc?` · ${esc(x.ntc)}`:''} · waivers ${x.we?'exempt':'required'}</div>
-   ${x.statLine?`<div class="meta2">${esc(x.statLine)}</div>`:''}
+   ${x.statLine?`<div class="meta2">${esc(x.statLine)}</div>`:''}${matesLine(x.nhlId)}
    <div class="two"><label>Goes to<select id="inc-${i}-team" data-k="inc.${i}.team"><option value="NYR" ${x.team==='NYR'?'selected':''}>Rangers</option><option value="HFD" ${x.team==='HFD'?'selected':''}>Hartford</option></select></label>
    <label>Retained by ${esc(x.fromTeam||'them')} (%)<input id="inc-${i}-ret" data-k="inc.${i}.retainedIn" type="number" min="0" max="50" step="5" value="${esc(x.retainedIn||0)}"></label></div><label>Lineup spot<select id="inc-${i}-spot" data-k="inc.${i}.spot">${slotOptions(x.team||'NYR',x.pos==='D'?'D':x.pos==='G'?'G':'F',x.spot||'')}</select></label></div>`;
   return `<div class="lineitem"><div class="top2"><span>${tradeMode?'Incoming':'Player'} ${tradeMode?i+1:''}</span>${tradeMode?`<button class="x" data-act="rm-inc" data-i="${i}" aria-label="Remove">×</button>`:''}</div>
@@ -1607,7 +1618,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202611151118').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202611152306').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1741,9 +1752,9 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); i
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202611151118" defer></script>
-<script src="tables.js?v=202611151118" defer></script>
-<script src="player-card.js?v=202611151118" defer></script>
+<script src="glossary.js?v=202611152306" defer></script>
+<script src="tables.js?v=202611152306" defer></script>
+<script src="player-card.js?v=202611152306" defer></script>
 
 </body>
 </html>

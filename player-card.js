@@ -16,7 +16,7 @@ function join(d){   // RD-002 join, for pages that don't define nyrLoad
 }
 const league=()=>L?Promise.resolve(L):(window.NYR_LEAGUE||q('data/league.json')).then(d=>(L=d));
 const market=()=>M?Promise.resolve(M):league().then(()=>window.nyrLoad?nyrLoad('market'):q('data/market.json').then(join)).then(d=>(M=d));
-const lines=()=>LN?Promise.resolve(LN):q('data/lines.json').then(d=>(LN=d||{mates:{},none:1}));   // RD-014 linemates
+const lines=()=>LN?Promise.resolve(LN):q('data/mates.json').then(d=>(LN=d||{mates:{},none:1}));   // RD-014/RD-017 linemates, every NHL team
 const form=()=>FM?Promise.resolve(FM):q('data/form.json').then(d=>(FM=d||{players:{},none:1}));   // RD-011c recent form
 /* RD-003 step 2: the card reads one small shard (data/card/<NHL id % 32>.json: his Iceberg rows and percentile bars,
    worked out at build time from the whole league) instead of all of iceberg.json. iceberg.json stays as the fallback. */
@@ -137,7 +137,7 @@ function render(){
   dlg.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>goMove(b.dataset.move,p.pp));
   const inp=dlg.querySelector('.pc-cmp input'); if(inp){ inp.focus(); inp.oninput=()=>listCmp(inp.value); }
 }
-/* RD-014: most used 5v5 linemates (Rangers games, from NHL shift charts) */
+/* RD-014 / RD-017: most used 5v5 linemates (every NHL team, from NHL shift charts) */
 function mateList(p){
   if(!LN||LN.none) return ''; const m=p.nhlId&&LN.mates[String(p.nhlId)]; if(!m) return '';
   const by=new Map(L.players.filter(x=>x.nhlId).map(x=>[x.nhlId,x])), g=grpOf(p);
@@ -146,7 +146,7 @@ function mateList(p){
   const grp=(lab,l)=>l&&l.length?`<div class="pc-mates"><span class="pc-bio">${lab}</span>${l.map(x=>`<span class="pc-mate" title="${x[1]} min together at 5v5 · goals ${x[2]}-${x[3]} · shot attempts ${x[4]}-${x[5]}"><button class="pc-mlink" data-mate="${x[0]}">${nm(x[0])}</button> ${Math.round(x[1])}m</span>`).join('')}</div>`:'';
   const rows=[...(m.F||[]),...(m.D||[])];
   return `<div class="pc-sec"><b>Most used linemates</b>${g==='F'?grp('Forwards',m.F)+grp('D',m.D):grp('Partners',m.D)+grp('Forwards',m.F)}
-    <div class="pc-note">5v5 minutes together in ${LN.games} Rangers games${LN.skipped?` (${LN.skipped} skipped: no NHL shift data)`:''}. Shifts: NHL.com.</div>`+
+    <div class="pc-note">5v5 minutes together this season, ${m.g} of his games counted${LN.skipped?` (league-wide, ${LN.skipped} of ${LN.games+LN.skipped} games skipped: no NHL shift data)`:''}. Shifts: NHL.com.</div>`+
     (window.nyrNumsHTML?nyrNumsHTML('card-mates',[['Teammate'],['5v5 min','r'],['GF-GA','r'],['CF%','r']],rows.map(x=>[nmr(x[0]),x[1],`${x[2]}-${x[3]}`,cf(x[4],x[5])]),'Show the numbers (linemates)'):'')+`</div>`;
 }
 /* RD-011c: last 10 games this season as bars, season average as a dashed line, Hot/Cold against his usual level */
