@@ -204,6 +204,34 @@ th[aria-sort] {color:var(--blue)}
 /* RD-005: entry point to the shared player card */
 .pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
 .pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+/* RD-004: How goals happen (static goal-tracking history, 2023-24 to 2025-26) */
+.hg{margin:10px 16px 14px;padding:12px 14px;border:1px solid var(--line-2);border-radius:10px;background:var(--board-2)}
+.hg h3{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.03em;font-size:19px;margin:0 0 2px}
+.hg .sub{font-size:12.5px;color:var(--ink-2);margin-bottom:10px}
+.hg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:10px}
+.hg-t{background:var(--board);border:1px solid var(--line-2);border-radius:8px;padding:10px 12px;min-width:0}
+.hg-t .v{font-family:var(--f-display);font-size:30px;line-height:1;color:var(--blue)}
+.hg-t .l{font-weight:700;font-size:13px;margin:4px 0 2px}
+.hg-t .w{font-size:12.5px;color:var(--ink-2)}
+.hg-ny{margin-top:14px}
+.hg-ny table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed}
+.hg-ny th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:4px 6px 4px 0;font-weight:700}
+.hg-ny td{padding:6px 8px 6px 0;border-top:1px solid var(--line-2);vertical-align:top;min-width:0;white-space:normal;overflow-wrap:anywhere}
+.hg-ny td .cl{display:block}
+.hg-ny table{max-width:860px}.hg-ny td,.hg-ny th{text-align:left!important;background:none!important;position:static!important}
+.hg-ny th{white-space:normal}
+.hg-ny td.m{font-weight:600}
+.hg-ny svg{display:block;width:100%;max-width:240px;height:auto;margin:2px 0}
+.hg-ny .num{font-family:var(--f-mono);font-size:12px}
+.hg-ny .cl{font-size:11.5px;color:var(--muted)}
+.hg-ny .cl.d{color:var(--warn)}
+.hg .lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--muted);margin-top:6px}
+.hg .note{margin-top:10px;font-size:12px;color:var(--ink-2)}
+.hg table.bs{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+.hg table.bs{table-layout:fixed;max-width:860px}.hg table.bs th,.hg table.bs td{background:none!important;position:static!important}.hg table.bs th,.hg table.bs td{padding:4px 6px 4px 0;text-align:right;border-top:1px solid var(--line-2);white-space:normal;font-variant-numeric:tabular-nums}
+.hg table.bs th:first-child,.hg table.bs td:first-child{text-align:left}
+.hg dl{margin:10px 0 0;font-size:12.5px}.hg dt{font-weight:700;display:inline}.hg dd{display:inline;margin:0 0 0 4px;color:var(--ink-2)}.hg dd::after{content:"";display:block;margin-bottom:4px}
+@media (max-width:520px){.hg{margin-inline:10px;padding:10px}.hg-t .v{font-size:26px}.hg-ny th:first-child{width:30%}.hg table.bs th:first-child{width:34%}}
 </style>
 </head>
 <body class="learn" data-depthsync="own">
@@ -483,6 +511,37 @@ function teamMap(){ const d=ST.d, S=d.season[ST.season]; if(!S) return '';
   return `<div class="tmap"><div class="cap"><span>Where every team sits at 5v5: chances created (right is better) against chances allowed (up is better). The selected team (and comparison team) are labeled; hover any dot on desktop for its name.</span></div>${g}</svg>`+(window.nyrNumsHTML?nyrNumsHTML('tmap',[['Team'],['GP','r'],['xGF/60','r'],['xGA/60','r'],['xGF − xGA /60','r']],rows.slice().sort((a,b)=>(b.x-b.y)-(a.x-a.y)).map(r=>[d.teams[r.t]||r.t,r.gp,r.x.toFixed(2),r.y.toFixed(2),(r.x-r.y>0?'+':'')+(r.x-r.y).toFixed(2)]),'Show the numbers (every team)'):'')+`</div>`; }
 
 /* small iceberg glyph with the current level's slice filled */
+/* RD-004: "How goals happen" at the chance level. League goal anatomy and Rangers ranges from NHL goal tracking 2023-24 to 2025-26 (static history; no daily refresh). */
+const GOALS={"definitions":{"quick":"scored within 5 seconds of the puck entering the offensive zone","cross":"last pass before the goal crossed the middle of the ice (both ends more than 3 ft from center line) in the offensive zone","traffic":"at least one skater within 3 ft of the line from the release point to the net","passes":"changes of possession between attackers from zone entry (or last 6 s) to the release","dist":"release point to the centre of the goal, feet"},"league":{"goals":13624,"quick":[41.2,40.3,42.0],"cross":[27.1,26.3,27.8],"traffic":[35.8,35.0,36.6],"passes":[1.85,1.83,1.88],"dist_median":20.1,"assisted_pct":94.0},"NYR_for":{"goals":431,"quick":[43.2,38.5,47.8],"cross":[31.1,26.7,35.5],"traffic":[34.6,30.1,39.1],"passes":[1.95,1.82,2.09],"dist_median":21.2,"assisted_pct":94.7},"NYR_against":{"goals":443,"quick":[37.7,33.2,42.2],"cross":[27.3,23.2,31.5],"traffic":[32.3,27.9,36.6],"passes":[1.95,1.81,2.08],"dist_median":19.3,"assisted_pct":95.9},"byseason":{"20232024":{"goals":4491,"quick":[40.0,38.6,41.4],"cross":[27.9,26.6,29.2],"traffic":[35.2,33.8,36.6],"passes":[1.83,1.79,1.88],"dist_median":19.5,"assisted_pct":94.1},"20242025":{"goals":4478,"quick":[41.6,40.2,43.1],"cross":[25.9,24.6,27.1],"traffic":[36.8,35.3,38.2],"passes":[1.86,1.82,1.9],"dist_median":20.7,"assisted_pct":93.8},"20252026":{"goals":4655,"quick":[41.8,40.4,43.2],"cross":[27.4,26.1,28.7],"traffic":[35.3,33.9,36.7],"passes":[1.87,1.83,1.91],"dist_median":20.1,"assisted_pct":94.0}}};
+const HGM=[
+ {k:'quick',lab:'Quick strike',pct:1,def:'Scored within 5 seconds of the puck entering the offensive zone.',why:'Most goals come before the defence is set, so attacking fast after gaining the zone pays.'},
+ {k:'cross',lab:'After a cross-ice pass',pct:1,def:'The last pass crossed the middle of the ice in the offensive zone.',why:'A pass across the middle makes the goalie move side to side, the hardest save to make.'},
+ {k:'traffic',lab:'Through traffic',pct:1,def:'At least one skater within 3 ft of the line from the release point to the net.',why:'A body in the shot lane hides the puck or deflects it before the goalie can track it.'},
+ {k:'dist',lab:'Median release distance',def:'Distance from the release point to the centre of the goal; half of goals are closer.',why:'Half of 5v5 goals are shot from inside about 20 ft, the slot and the crease. Getting there is the job.'},
+ {k:'passes',lab:'Passes per goal',def:'Passes between attackers from zone entry (or the last 6 seconds) to the release.',why:'Goals usually come off a short sequence, not a long cycle: one or two passes, then a shot.'}];
+function hgVal(o,k){ if(k==='dist') return o.dist_median; const x=o[k]; return Array.isArray(x)?x[0]:x; }
+function hgFmt(k,v){ return v==null?'–':k==='dist'?Math.round(v)+' ft':k==='passes'?v.toFixed(2):Math.round(v)+'%'; }
+function hgFmt1(k,v){ return v==null?'–':k==='dist'?v.toFixed(1)+' ft':k==='passes'?v.toFixed(2):v.toFixed(1)+'%'; }
+function hgBar(k,r,lg,dom){ const W=160,H=22,P=6, X=v=>P+(v-dom[0])/(dom[1]-dom[0])*(W-2*P);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${hgFmt1(k,r[0])}, 95% range ${hgFmt1(k,r[1])} to ${hgFmt1(k,r[2])}; league ${hgFmt1(k,lg)}"><line x1="${P}" x2="${W-P}" y1="11" y2="11" stroke="var(--line)" stroke-width="1"/><line x1="${X(lg)}" x2="${X(lg)}" y1="2" y2="20" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="${X(r[1])}" x2="${X(r[2])}" y1="11" y2="11" stroke="var(--blue)" stroke-width="5" stroke-linecap="round" opacity=".35"/><circle cx="${X(r[0])}" cy="11" r="4.5" fill="var(--blue)"/></svg>`; }
+function hgCall(r,lg){ if(!r||!Array.isArray(r)) return ''; return r[1]<=lg&&lg<=r[2]?'<span class="cl">Not clearly different from the league</span>':`<span class="cl d">${r[0]>lg?'Higher':'Lower'} than the league</span>`; }
+function howGoals(){ const G=GOALS, L=G.league, an=ST.depth==='analyst';
+  let h=`<div class="hg" id="how-goals"><h3>How goals happen <span class="tag">tracked</span></h3><div class="sub">League-wide, 5v5 goals, 2023-24 to 2025-26 (${L.goals.toLocaleString()} goals, empty-net goals left out).</div><div class="hg-grid">`;
+  HGM.forEach(m=>{ h+=`<div class="hg-t"><div class="v">${hgFmt(m.k,hgVal(L,m.k))}</div><div class="l">${esc(m.lab)}</div><div class="w">${esc(an?m.def:m.why)}</div></div>`; });
+  h+=`</div><div class="hg-ny"><table data-nosort data-nochips><thead><tr><th>Rangers</th><th>For</th><th>Against</th></tr></thead><tbody>`;
+  HGM.filter(m=>m.k!=='dist').forEach(m=>{ const lg=hgVal(L,m.k), dom=[Infinity,-Infinity];
+    [G.NYR_for[m.k],G.NYR_against[m.k],L[m.k]].forEach(r=>{ dom[0]=Math.min(dom[0],r[1],lg); dom[1]=Math.max(dom[1],r[2],lg); });
+    const pad=(dom[1]-dom[0])*.12; dom[0]-=pad; dom[1]+=pad;
+    const cell=r=>`<span class="num">${hgFmt1(m.k,r[0])}</span>${an?`<span class="cl">95% range ${hgFmt1(m.k,r[1])} to ${hgFmt1(m.k,r[2])}</span>`:''}${hgBar(m.k,r,lg,dom)}${hgCall(r,lg)}`;
+    h+=`<tr><td class="m">${esc(m.lab)}<div class="cl">League ${hgFmt1(m.k,lg)}</div></td><td>${cell(G.NYR_for[m.k])}</td><td>${cell(G.NYR_against[m.k])}</td></tr>`; });
+  h+=`<tr><td class="m">${esc(HGM[3].lab)}<div class="cl">League ${hgFmt1('dist',L.dist_median)}</div></td><td><span class="num">${hgFmt1('dist',G.NYR_for.dist_median)}</span><span class="cl">No range available</span></td><td><span class="num">${hgFmt1('dist',G.NYR_against.dist_median)}</span><span class="cl">No range available</span></td></tr>`;
+  h+=`</tbody></table><div class="lg"><span>Dot: Rangers, ${G.NYR_for.goals} goals for and ${G.NYR_against.goals} against over the three seasons</span><span>Bar: 95% range</span><span>Dashed line: league</span></div></div>`;
+  if(an){ const ss=Object.keys(G.byseason).sort();
+    const cols=[...ss.map(x=>[`${x.slice(0,4)}-${x.slice(6)}`,G.byseason[x]]),['All three',L]];
+    h+=`<table class="bs" data-nosort data-nochips><thead><tr><th>By season</th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody><tr><td>Goals</td>${cols.map(c=>`<td>${c[1].goals.toLocaleString()}</td>`).join('')}</tr>${HGM.map(m=>`<tr><td>${esc(m.lab)}</td>${cols.map(c=>`<td>${hgFmt1(m.k,hgVal(c[1],m.k))}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    h+=`<dl>${HGM.map(m=>`<dt>${esc(m.lab)}.</dt><dd>${esc(m.def)}</dd>`).join('')}<dt>Coverage.</dt><dd>About 81% of games have tracking; the missing games are mostly whole games and lean lower-scoring.</dd></dl>`; }
+  h+=`<div class="note">History only. The NHL no longer allows automated access to this season's replays. Credit: NHL goal tracking, 2023-24 to 2025-26, via Kaggle (owensingh38, MIT).</div></div>`;
+  return h; }
 function miniBerg(i,n){ const W=44,H=34,bh=(H-4)/n; let g=`<svg class="mb" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
   for(let k=0;k<n;k++){ const y=2+k*bh, w0=k===0?2:8+k*4.6, w1=8+(k+1)*4.6, cx=W/2, pts=k===0?`${cx},${y} ${cx+w1/2},${y+bh-1} ${cx-w1/2},${y+bh-1}`:`${cx-w0/2},${y} ${cx+w0/2},${y} ${cx+w1/2},${y+bh-1} ${cx-w1/2},${y+bh-1}`;
     g+=`<polygon points="${pts}" fill="${k===i?'currentColor':'none'}" stroke="currentColor" stroke-width="1" opacity="${k===i?1:.45}"/>`; }
@@ -510,6 +569,7 @@ function renderLevels(){ const d=ST.d, t=ST.team; let h='';
     if(lv.id===3&&open) h+=funnel();
     if(lv.id===2&&open) h+=teamMap();
     if(F.length||A.length) h+=`<div class="cols"><div><div class="colh"><span>For · offense</span><span>vs league</span></div>${F.map(rowHTML).join('')||'<div class="empty">–</div>'}</div><div><div class="colh"><span>Against · defense</span><span>vs league</span></div>${A.map(rowHTML).join('')||'<div class="empty">–</div>'}</div></div>`;
+    if(lv.id===2) h+=howGoals();
     if(!open) h+=`<button class="more" data-lv="${lv.id}">Show all ${ms.length} stats${lv.id===3?' and the shot funnel':''}</button>`;
     h+=`</section>`; });
   $('#levels').innerHTML=h;
@@ -586,15 +646,15 @@ let _rs; window.addEventListener('resize',()=>{ clearTimeout(_rs); _rs=setTimeou
 function hasPart(kind,s){ const d=ST.d; return d.parts?d.parts[kind].includes(String(s)):!!(kind==='games'?d.games[s]:(d.players[s]||d.goalies[s])); }
 const PARTS={};
 function need(kind,s){ const d=ST.d, k=kind+s; if(!d.parts||(kind==='games'?d.games[s]:d.players[s])) return Promise.resolve();
-  return PARTS[k]??=fetch(`data/iceberg-${kind}-${s}.json?v=202611161114`).then(r=>r.ok?r.json():null).then(x=>{
+  return PARTS[k]??=fetch(`data/iceberg-${kind}-${s}.json?v=202611170127`).then(r=>r.ok?r.json():null).then(x=>{
     if(kind==='games') d.games[s]=x?x.games:{}; else { d.players[s]=x?x.players:{}; d.goalies[s]=x?x.goalies:{}; } }); }
 function whenNear(el,fn){ if(!window.IntersectionObserver){ fn(); return; } const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); fn(); } },{rootMargin:'800px 0px'}); io.observe(el); }
-fetch('data/iceberg-core.json?v=202611161114').then(r=>r.ok?r.json():null).then(d=>d?Object.assign(d,{games:{},players:{},goalies:{}}):fetch('data/iceberg.json?v=202611161114').then(r=>r.ok?r.json():null)).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
+fetch('data/iceberg-core.json?v=202611170127').then(r=>r.ok?r.json():null).then(d=>d?Object.assign(d,{games:{},players:{},goalies:{}}):fetch('data/iceberg.json?v=202611170127').then(r=>r.ok?r.json():null)).then(d=>{ if(!d){ $('#stamp').textContent='Data is not available right now.'; return; }
   ST.d=d; ST.season=d.current in d.season&&Object.keys(d.season[d.current]).length?d.current:d.seasons[d.seasons.length-1];
   setupControls(); renderAll(); }).catch(()=>{ $('#stamp').textContent='Data is not available right now.'; });
 </script>
-<script src="glossary.js?v=202611161114" defer></script>
-<script src="tables.js?v=202611161114" defer></script>
-<script src="player-card.js?v=202611161114" defer></script>
+<script src="glossary.js?v=202611170127" defer></script>
+<script src="tables.js?v=202611170127" defer></script>
+<script src="player-card.js?v=202611170127" defer></script>
 </body>
 </html>
