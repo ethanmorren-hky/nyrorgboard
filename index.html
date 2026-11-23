@@ -432,6 +432,18 @@ dialog.prof .x{align-self:flex-start;font-size:26px;padding:2px 6px}
 @media (max-width:520px){.wrap{padding-inline:16px}.row{grid-template-columns:40px repeat(3,minmax(0,1fr))}.row.pair{grid-template-columns:40px repeat(2,minmax(0,1fr))}.row .ucap{display:none}.chip .n{display:none}.chip{grid-template-columns:1fr}.brand h1{font-size:24px}.acts{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
+/* RD-018 trade value */
+.tv{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.tv h4{margin:0;font-family:var(--f-display);font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;background:var(--board-2);color:var(--ink-2)}
+.tvg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 10px;padding:6px 9px;font-size:12.5px;align-items:baseline}
+.tvg .hd{font-size:10.5px;font-weight:600;color:var(--muted);text-align:right;line-height:1.2}
+.tvg .tvs{grid-column:1/-1;font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.tvg .n{grid-column:1/-1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.tvg .v{font-family:var(--f-mono);font-size:11.5px;text-align:right;white-space:nowrap}
+.tvg .neg{color:var(--bad)}.tvg .np{color:var(--muted);font-family:var(--f-body);font-style:italic}
+.tvg .tt{font-weight:700}.tvg .n.tt{border-top:1px solid var(--line-2);padding-top:3px}
+.tvl{margin:0;padding:4px 9px 2px;font-weight:600;font-size:13px;color:var(--good)}.tvl.neg{color:var(--bad)}
+.tvn{margin:0;padding:2px 9px 8px;font-size:11.5px}
 /* RD-005: entry point to the shared player card */
 .pc-open{border:1px solid var(--line);background:var(--board);color:var(--blue);border-radius:6px;padding:3px 9px;font:600 12px var(--f-body);cursor:pointer;margin:6px 0 2px}
 .pc-name{cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
@@ -613,8 +625,8 @@ window.nyrNums=window.nyrNums||function(){ (window.__nnq=window.__nnq||[]).push(
 /* RD-002: page files leave shared contract and bio facts to league.json; nyrLoad puts them back exactly (each record's
    _j bitmask names the dropped fields). A player league.json can't match keeps only his page fields (data/full/ fallback retired 2026-11-02, RD-012). */
 const nyrGet=u=>fetch(u).then(r=>r.ok?r.json():null).catch(()=>null);
-const NYR_LEAGUE=nyrGet('data/league.json?v=202611221120'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
-function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611221120`).then(d=>{ if(!d||!d.joinFields) return d;
+const NYR_LEAGUE=nyrGet('data/league.json?v=202611230245'); window.NYR_LEAGUE=NYR_LEAGUE;   // shared with the player card
+function nyrLoad(name){ return nyrGet(`data/${name}.json?v=202611230245`).then(d=>{ if(!d||!d.joinFields) return d;
   return NYR_LEAGUE.then(L=>{ const by=new Map(((L&&L.players)||[]).map(p=>[p.pp,p])), F=d.joinFields;
     for(const r of d.players||[]){ const m=r._j; if(!m) continue; const p=by.get(r.pp); if(!p){ console.warn('nyrLoad: no league record for',r.pp); continue; }
       F.forEach((k,i)=>{ if(m&(1<<i)) r[k]=p[k]; }); delete r._j; }
@@ -817,7 +829,7 @@ function txLabel(tx,st){
     case 'release': return `Release ${nm(tx.pid)}`;
     case 'buyout': return `Buy out ${nm(tx.pid)}`;
     case 'lineup': return `${nm(tx.pid)} to ${tx.unit?`${tx.unit} ${tx.slot}`:'extras'}`;
-    case 'trade': { const o=(tx.out||[]).map(x=>nm(x.pid)+(+x.retain?` (${x.retain}% ret.)`:'')).join(', ')||'nothing'; const i=(tx.inc||[]).map(f=>f.name||'player').join(', ')||'futures'; return `Trade with ${tx.partner||'partner'}: send ${o}; get ${i}`; }
+    case 'trade': { const o=(tx.out||[]).map(x=>nm(x.pid)+(+x.retain?` (${x.retain}% ret.)`:'')).join(', ')||'nothing'; const i=(tx.inc||[]).map(f=>f.name||'player').join(', ')||'futures'; const tv=tradeValue(tx); return `Trade with ${tx.partner||'partner'}: send ${o}; get ${i}`+(tv&&(tv.give.some(r=>r.v)||tv.get.some(r=>r.v))?`. Model: ${tvLine(tv).replace(/^You /,'you ')}`:''); }
     case 'sign': return `${tx.inc?.[0]?.source==='Waiver claim'?'Claim':'Sign'} ${tx.inc?.[0]?.name||'player'} (${money((+tx.inc?.[0]?.capM||0)*1e6)} × ${tx.inc?.[0]?.years||1})`;
   }
   return tx.type;
@@ -865,7 +877,7 @@ function chip(p){
     <span class="ln2"><span class="cap">${p.contractType==='AHL'?'AHL deal':money(c)}</span>${tags.join('')}</span></button>`;
 }
 /* RD-014: how each Rangers line or pair has done together at 5v5 (NHL shift charts + MoneyPuck events), under its row */
-let LRES=null; nyrGet('data/lines.json?v=202611221120').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
+let LRES=null; nyrGet('data/lines.json?v=202611230245').then(d=>{ LRES=d||null; if(LRES&&typeof renderBoard==='function'&&CUR){ renderBoard('NYR'); } }).catch(()=>{});
 function lineRes(U,ps){
   if(!LRES) return '';
   const ids=U.slots.map(sl=>ps.find(q=>q.unit===U.u&&q.slot===sl&&isActive(q))).map(p=>p&&p.nhlId);
@@ -986,7 +998,7 @@ function slotOptions(team,posGroup,cur){
 let MATES=null, MATESL=false;
 function matesLine(id){
   if(!id) return '';
-  if(!MATES){ if(!MATESL){ MATESL=true; nyrGet('data/mates.json?v=202611221120').then(d=>{ MATES=d||{mates:{}}; if(UI.form) renderRail(); }); } return ''; }
+  if(!MATES){ if(!MATESL){ MATESL=true; nyrGet('data/mates.json?v=202611230245').then(d=>{ MATES=d||{mates:{}}; if(UI.form) renderRail(); }); } return ''; }
   const m=MATES.mates[String(id)]; if(!m) return `<div class="meta2 mates">No 5v5 linemate data yet</div>`;
   const nm=pid=>{ const r=LEAGUE&&LEAGUE.players.find(x=>x.nhlId===pid); return r?r.name.split(' ').slice(-1)[0]:'#'+pid; };
   const lst=(l)=>l.slice(0,3).map(x=>`${esc(nm(x[0]))} ${Math.round(x[1])}m`).join(', ');
@@ -1108,13 +1120,53 @@ function renderForm(){
     <div class="formbtns"><button class="btn primary" data-act="commit" id="f-commit">Add to scenario</button><button class="btn ghost" data-act="cancel">Cancel</button></div></div>`;
   return h;
 }
+/* RD-018: what a trade is worth, from The Market's model (data/market.json, loaded the first time a trade is shown).
+   Price = this season's market price; value over cap = price minus the cap charge the receiving team carries;
+   contract surplus = the same summed over the remaining contract years. Cap math is unchanged. */
+let MKT=null, MKTL=false;
+function mktGet(){ if(MKT||MKTL) return; MKTL=true;
+  nyrGet('data/market.json?v=202611230245').then(d=>{ MKT=new Map(); for(const r of (d&&d.players)||[]){ if(r.pp) MKT.set(r.pp,r); if(r.id) MKT.set('id:'+r.id,r); }
+    if(UI.form&&UI.form.type==='trade') refreshImpact(); else if(UI.rail) renderRail(); }).catch(()=>{ MKT=new Map(); }); }
+function mktVal(rec,retPct){   // retPct: share of the cap hit the old team keeps, so the receiving team carries (1-retPct)
+  if(!rec||rec.sample==='none') return null;
+  const ys=(rec.years||[]).filter(y=>y[3]==='cur'); if(!ys.length) return null;
+  const k=1-(retPct||0);
+  return {price:ys[0][1],voc:ys[0][1]-ys[0][2]*k,sur:ys.reduce((a,y)=>a+y[1]-y[2]*k,0)};
+}
+function tradeValue(tx){
+  if(!MKT){ mktGet(); return null; }
+  const give=(tx.out||[]).map(o=>{ const q=CUR.players.get(o.pid)||BASE.players.get(o.pid); const rec=q&&(MKT.get(q.pp)||MKT.get('id:'+q.nhlId));
+      return {name:q?.name||'Player',v:mktVal(rec,(+o.retain||0)/100)}; }),
+    get=(tx.inc||[]).map(x=>{ const rec=x.lg?(MKT.get(x.pp)||(x.nhlId&&MKT.get('id:'+x.nhlId))):null; return {name:x.name||'Player',v:mktVal(rec,(+x.retainedIn||0)/100)}; });
+  const sum=(l,k)=>l.reduce((a,r)=>a+(r.v?r.v[k]:0),0);
+  const G={voc:sum(give,'voc'),sur:sum(give,'sur')}, R={voc:sum(get,'voc'),sur:sum(get,'sur')};
+  return {give,get,G,R,net:{voc:R.voc-G.voc,sur:R.sur-G.sur},unpriced:[...give,...get].filter(r=>!r.v).length,note:!!(tx.note||'').trim()};
+}
+const tvS=v=>(v<0?'−':'+')+money(Math.abs(v));
+function tvLine(t){ const a=t.net.voc, b=t.net.sur, w=v=>v>=0?'add':'give up';
+  return w(a)===w(b)?`You ${w(a)} ${money(Math.abs(a))} of value this season, ${money(Math.abs(b))} over the contracts`
+    :`You ${w(a)} ${money(Math.abs(a))} of value this season and ${w(b)} ${money(Math.abs(b))} over the contracts`; }
+function tradeValueHTML(tx){
+  const t=tradeValue(tx);
+  if(!t) return `<div class="tv"><h4>What the trade is worth</h4><p class="hint" style="padding:6px 9px;margin:0">Loading Market values…</p></div>`;
+  if(!t.give.length&&!t.get.length) return '';
+  const cell=(v,k)=>v?`<span class="v ${v[k]<0?'neg':''}">${k==='price'?money(v.price):tvS(v[k])}</span>`:`<span class="v np">${k==='price'?'not priced':''}</span>`;
+  const rows=(l,lbl)=>`<div class="tvs">${lbl}</div>`+(l.length?l.map(r=>`<span class="n">${esc(r.name)}</span>${cell(r.v,'price')}${cell(r.v,'voc')}${cell(r.v,'sur')}`).join(''):`<span class="n np">Nobody</span>`);
+  const tot=(lbl,T)=>`<span class="n tt">${lbl}</span><span></span><span class="v tt ${T.voc<0?'neg':''}">${tvS(T.voc)}</span><span class="v tt ${T.sur<0?'neg':''}">${tvS(T.sur)}</span>`;
+  const np=t.unpriced+(t.note?1:0);
+  return `<div class="tv"><h4>What the trade is worth</h4><div class="tvg">
+    <div class="hd">Price</div><div class="hd">Value over cap</div><div class="hd">Contract surplus</div>
+    ${rows(t.give,'You give')}${tot('Total given',t.G)}${rows(t.get,'You get')}${tot('Total received',t.R)}</div>
+    <p class="tvl ${t.net.voc+t.net.sur<0?'neg':''}">${tvLine(t)}.</p>
+    <p class="hint tvn">Model estimates from The Market: this season's price, and surplus over each contract's remaining years, using the cap charge the receiving team carries after retention.${np?` ${np} item${np>1?'s':''} not priced (${[t.unpriced?`${t.unpriced} player${t.unpriced>1?'s':''} with no NHL track record or entered by hand`:'',t.note?'picks and notes':''].filter(Boolean).join('; ')}), left out of the totals.`:''}</p></div>`;
+}
 function renderImpact(){
   const tx=formTx(); const after=compute([...TX.map(t=>({...t})),tx]); const r=tx._r; const a=totals(after), b=CT;
   const row=(l,x,y,o={})=>`<span>${l}</span><span class="v" style="color:var(--muted)">${o.m===false?y:money(y)}</span><span class="v">${o.m===false?x:money(x)} ${delta(x,y,{money:o.m!==false,goodUp:o.goodUp!==false})}</span>`;
   const cb=compliance(b), ca=compliance(a);
   const newIssues=ca.filter(c=>(c.l==='bad'||c.l==='warn')&&!cb.some(o=>o.k===c.k&&o.t===c.t));
   const fixed=cb.filter(c=>(c.l==='bad'||c.l==='warn')&&!ca.some(o=>o.k===c.k&&(o.l==='bad'||o.l==='warn')));
-  let h=`<div class="impact"><h4>Impact if you make this move</h4><div class="imp">
+  let h=(tx.type==='trade'?tradeValueHTML(tx):'')+`<div class="impact"><h4>Impact if you make this move</h4><div class="imp">
     <span style="color:var(--muted);font-size:11px">&nbsp;</span><span class="v" style="color:var(--muted);font-size:11px">now</span><span class="v" style="color:var(--muted);font-size:11px">after</span>
     ${row(`Cap space ${seasonLbl(0)}`,a.space,b.space)}
     ${row('Active roster',a.active,b.active,{m:false,goodUp:false})}
@@ -1619,7 +1671,7 @@ function wireAdv(g){
 }
 function loadFlow(g){
   if(GF.d){ renderAdv(g); return; } if(GF.loading) return; GF.loading=true;
-  fetch('data/gameflow.json?v=202611221120').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
+  fetch('data/gameflow.json?v=202611230245').then(r=>r.ok?r.json():null).then(d=>{ GF.loading=false; GF.d=d||{games:{}}; const cur=HS.d.team.games[HS.gi]; if(cur&&$('#adv-body')) renderAdv(cur); })
     .catch(()=>{ GF.loading=false; const b=$('#adv-body'); if(b) b.innerHTML='<p class="hint">Advanced game data is not available right now.</p>'; });
 }
 function renderAdv(g){
@@ -1753,9 +1805,9 @@ NYR_LEAGUE.then(d=>{ if(d&&d.players){ LEAGUE=d; initLeague(); renderTicker(); i
 // Live data hook: a refreshed org.json published next to this page replaces the embedded snapshot.
 nyrLoad('org').then(d=>{ if(d&&d.settings&&d.settings.updated&&d.settings.updated!==S.updated){ DATA=d; S=d.settings; boot(); toast(`Data refreshed: ${S.updated}`); } }).catch(()=>{});
 </script>
-<script src="glossary.js?v=202611221120" defer></script>
-<script src="tables.js?v=202611221120" defer></script>
-<script src="player-card.js?v=202611221120" defer></script>
+<script src="glossary.js?v=202611230245" defer></script>
+<script src="tables.js?v=202611230245" defer></script>
+<script src="player-card.js?v=202611230245" defer></script>
 
 </body>
 </html>

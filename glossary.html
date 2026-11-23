@@ -32,6 +32,7 @@ body{background:var(--ice);color:var(--ink);font-family:var(--f-body);font-size:
 .wrap{max-width:980px;margin:0 auto;padding:16px 16px 56px}
 nav{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;margin-bottom:10px}
 nav a{color:var(--blue);text-decoration:none}
+@media (pointer:coarse){nav a{display:inline-flex;align-items:center;min-height:44px}}   /* F-024: 44px touch targets on phones */
 h1,h2{font-family:var(--f-display);margin:0}
 h1{font-size:30px;letter-spacing:.02em} h1 b{color:var(--blue)}
 h2{font-size:19px;margin:24px 0 8px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-2)}
